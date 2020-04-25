@@ -28,6 +28,7 @@ from Fogoso.MAIN.Window import ExperienceStore as expStoreWindow
 from Fogoso.MAIN.Window import InfosWindow as infosWindow
 from ENGINE import SPRITE as sprite
 from random import randint
+from Fogoso.MAIN import Items as items
 import pygame, os
 
 import importlib
@@ -111,36 +112,44 @@ def LoadGame():
     Current_MoneyValuePerClick = reg.ReadKeyWithTry_float("/Save/money_per_click", 0.1)
 
     AllKeys = 0
-    ItemID0_Added = False
-    ItemIDNegativeOne_Added = False
 
     SavedItemsData = reg.ReadKey("/Save/item/items").splitlines()
 
     for i, x in enumerate(SavedItemsData):
         print("ItemID ; " + x)
 
-        if x == "-1":
-            if GameItems_TotalIndx_NegativeOne == 0:
-                GameItems_TotalIndx_NegativeOne += 1
-                if not ItemIDNegativeOne_Added:
-                    ItemIDNegativeOne_Added = True
-                    print("ItemsView : ItemType ID_-1 added.")
-                print("Item_ExperienceStore has been created.")
+        IsItemVisible = items.GetItem_IsVisibleByID(x)
+        if IsItemVisible:
+            ItemsView.AddItem(x)
 
         if x == "0":
             GameItems_TotalIndx_0 += 1
-            GameItemsList.append(gameObjs.Item_AutoClicker(reg.ReadKey_int("/Save/item/last_level/" + str(x))))
-            if not ItemID0_Added:
-                ItemID0_Added = True
-                ItemsView.AddItem(x)
-                print("ItemsView : ItemType ID_0 added.")
-            print("Item_AutoClicker has been created.")
+        if x == "-1":
+            GameItems_TotalIndx_NegativeOne += 1
 
     print("AllKeys : " + str(AllKeys))
+
+    if GameItems_TotalIndx_NegativeOne > 1:
+        print(reg.ReadKey("/strings/game/save_reset"))
+        RestartSaveData()
 
     GameItemsInitialized = True
     gameMain.FadeEffectState = True
     print("LoadGame : Game Loaded Sucefully")
+
+def RestartSaveData():
+    print("RestartSave : Restarting save data...")
+
+    ResetKeysString = reg.ReadKey("/Save/reset_keys").splitlines()
+    DefaultValuesStrings = reg.ReadKey("/Save/reset_keys_default_values").splitlines()
+
+    for x in range(0, len(ResetKeysString)):
+        print("RestartSave : CurrentID{0}".format(x))
+        reg.WriteKey(ResetKeysString[x], DefaultValuesStrings[x])
+
+    print("RestartSave : Operation completed successfully.")
+    reg.WriteKey("/Save/cheater", "True")
+    LoadGame()
 
 def SaveGame():
     global SavingScreenEnabled
@@ -249,6 +258,7 @@ def Update():
     global Current_MoneyPerSecoundFormatted
     global ExperienceStore_Enabled
     global InfosWindow_Enabled
+    global GameItems_TotalIndx_NegativeOne
 
     Current_MoneyFormated = "{:2.2f}".format(Current_Money)
     Current_MoneyPerSecoundFormatted = "{:10.2f}".format(Current_MoneyPerSecound)
@@ -319,7 +329,7 @@ def Update():
                 StoreWindow_Enabled = False
                 ExperienceStore_Enabled = False
 
-        if OpenExperienceWindowButton.ButtonState == "UP":
+        if OpenExperienceWindowButton.ButtonState == "UP" and GameItems_TotalIndx_NegativeOne == 1:
             if ExperienceStore_Enabled:
                 ExperienceStore_Enabled = False
                 storeWindow.RestartAnimation()
@@ -345,8 +355,9 @@ def Update():
         OpenStoreButton.Set_Y(gameMain.DefaultDisplay.get_height() - OpenStoreButton.Rectangle[3] - 5)
         OpenInfosWindowButton.Set_X(OpenStoreButton.Rectangle[0] + OpenStoreButton.Rectangle[2] + 5)
         OpenInfosWindowButton.Set_Y(OpenStoreButton.Rectangle[1])
-        OpenExperienceWindowButton.Set_X(OpenInfosWindowButton.Rectangle[0] + OpenInfosWindowButton.Rectangle[2] + 5)
-        OpenExperienceWindowButton.Set_Y(OpenInfosWindowButton.Rectangle[1])
+        if GameItems_TotalIndx_NegativeOne == 1:
+            OpenExperienceWindowButton.Set_X(OpenInfosWindowButton.Rectangle[0] + OpenInfosWindowButton.Rectangle[2] + 5)
+            OpenExperienceWindowButton.Set_Y(OpenInfosWindowButton.Rectangle[1])
 
         # -- Update the Receive Log Hide Animation -- #
         if ReceiveLog_Y_AnimEnabled:
@@ -437,6 +448,7 @@ def GameDraw(DISPLAY):
     global SavingScreenEnabled
     global Current_MoneyFormated
     global Current_MoneyPerSecoundFormatted
+    global GameItems_TotalIndx_NegativeOne
     # -- Draw the Grind Text -- #
     DrawGrindText(DISPLAY)
     # -- Draw the Grind Button -- #
@@ -454,7 +466,8 @@ def GameDraw(DISPLAY):
     # -- Draw the OpenInfosWindow -- #
     OpenInfosWindowButton.Render(DISPLAY)
     # -- Draw the OpenExperience -- #
-    OpenExperienceWindowButton.Render(DISPLAY)
+    if GameItems_TotalIndx_NegativeOne == 1:
+        OpenExperienceWindowButton.Render(DISPLAY)
 
     # -- Render Money Text -- #
     MoneyColor = (250,250,255)
@@ -485,7 +498,7 @@ def GameDraw(DISPLAY):
         infosWindow.Render(DISPLAY)
 
     # -- Draw the Exp Store Window -- #
-    if ExperienceStore_Enabled:
+    if ExperienceStore_Enabled and GameItems_TotalIndx_NegativeOne == 1:
         expStoreWindow.Render(DISPLAY)
 
     # -- Draw the Saving Screen -- #
@@ -590,6 +603,7 @@ def EventUpdate(event):
     global IsControlsEnabled
     global OpenExperienceWindowButton
     global OpenInfosWindowButton
+    global GameItems_TotalIndx_NegativeOne
 
     if IsControlsEnabled:
         GrindButton.Update(event)
@@ -599,8 +613,9 @@ def EventUpdate(event):
         BackToMainMenuButton.Update(event)
         OpenStoreButton.Update(event)
         ItemsView.Update(event)
-        OpenExperienceWindowButton.Update(event)
         OpenInfosWindowButton.Update(event)
+        if GameItems_TotalIndx_NegativeOne == 1:
+            OpenExperienceWindowButton.Update(event)
 
         # -- Update store Window -- #
         if StoreWindow_Enabled:
@@ -610,7 +625,7 @@ def EventUpdate(event):
         if InfosWindow_Enabled:
             infosWindow.EventUpdate(event)
 
-        if ExperienceStore_Enabled:
+        if ExperienceStore_Enabled and GameItems_TotalIndx_NegativeOne == 1:
             expStoreWindow.EventUpdate(event)
 
     if event.type == pygame.KEYUP and event.key == pygame.K_z:

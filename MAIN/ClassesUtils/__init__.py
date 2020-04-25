@@ -22,6 +22,75 @@ import random
 
 print("Game : Classes Utils v1.1")
 
+def Draw_Panel(DISPLAY, Rectangle, Color=(20, 20, 20)):
+    if reg.ReadKey_bool("/OPTIONS/UI_blur_enabled"):
+        if reg.ReadKey_int("/OPTIONS/UI_contrast") > 1:
+            Color = (0, 0, 0)
+            BackContrast = pygame.Surface((Rectangle[2], Rectangle[3]), pygame.SRCALPHA)
+            pygame.draw.rect(BackContrast, (Color[0], Color[0], Color[0], reg.ReadKey_int("/OPTIONS/UI_contrast")), (0, 0, Rectangle[2], Rectangle[3]))
+            DISPLAY.blit(BackContrast, (Rectangle[0], Rectangle[1]))
+
+        DISPLAY.blit(sprite.Surface_Blur(DISPLAY, reg.ReadKey_float("/OPTIONS/UI_blur_ammount")),(Rectangle[0], Rectangle[1]), Rectangle)
+    else:
+        sprite.RenderRectangle(DISPLAY, Color, Rectangle)
+
+class SpriteButton:
+    def __init__(self, Rectangle, SpriteList):
+        self.Rectangle = Rectangle
+        self.SpriteList = SpriteList
+        self.ButtonState = "INATIVE"
+        self.CursorSettedToggle = False
+        self.CustomColisionRectangle = False
+        self.ButtonDowed = False
+        self.IsButtonEnabled = True
+        self.ColisionRectangle = pygame.Rect(0,0,0,0)
+
+    def Render(self,DISPLAY):
+        if self.ButtonState == "INATIVE":
+            sprite.Render(DISPLAY, self.SpriteList[0], self.Rectangle[0], self.Rectangle[1], self.Rectangle[2], self.Rectangle[3])
+        if self.ButtonState == "DOWN":
+            sprite.Render(DISPLAY, self.SpriteList[1], self.Rectangle[0], self.Rectangle[1], self.Rectangle[2], self.Rectangle[3])
+        if self.ButtonState == "UP":
+            sprite.Render(DISPLAY, self.SpriteList[2], self.Rectangle[0], self.Rectangle[1], self.Rectangle[2], self.Rectangle[3])
+
+    def EventUpdate(self, event):
+        if not self.CustomColisionRectangle:
+            self.ColisionRectangle = self.Rectangle
+
+        if self.IsButtonEnabled:
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if self.ColisionRectangle.collidepoint(mainScript.Cursor_Position):
+                    self.ButtonState = "DOWN"
+                    self.ButtonDowed = True
+            elif event.type == pygame.MOUSEBUTTONUP:
+                if self.ColisionRectangle.collidepoint(mainScript.Cursor_Position):
+                    if self.ButtonDowed:
+                        self.ButtonState = "UP"
+                        self.ButtonDowed = False
+            if event.type == pygame.MOUSEMOTION:
+                if self.ColisionRectangle.collidepoint(mainScript.Cursor_Position):
+                    self.CursorSettedToggle = True
+                    mainScript.Cursor_CurrentLevel = 3
+                else:
+                    if self.CursorSettedToggle:
+                        self.CursorSettedToggle = False
+                        mainScript.Cursor_CurrentLevel = 0
+                        self.ButtonState = "INATIVE"
+
+        else:
+            self.ButtonState = "INATIVE"
+
+    def Set_X(self, Value):
+        self.Rectangle[0] = Value
+
+    def Set_Y(self, Value):
+        self.Rectangle[1] = Value
+
+    def Set_W(self, Value):
+        self.Rectangle[2] = Value
+
+    def Set_H(self, Value):
+        self.Rectangle[3] = Value
 
 class Button:
     def __init__(self, Rectangle, ButtonText, TextSize):
@@ -267,15 +336,8 @@ class Window:
             IndicatorLineColor = (32, 164, 243)
         else:
             IndicatorLineColor = (255, 51, 102)
-        if reg.ReadKey_bool("/OPTIONS/window_blur_bg"):
-            BackContrast = pygame.Surface((self.WindowRectangle[2], self.WindowRectangle[3]), pygame.SRCALPHA)
-            pygame.draw.rect(BackContrast, (0, 0, 0, 150), (0,0, self.WindowRectangle[2], self.WindowRectangle[3]))
-            DISPLAY.blit(BackContrast, (self.WindowRectangle[0], self.WindowRectangle[1]))
+        Draw_Panel(DISPLAY, self.WindowRectangle, (6, 27, 45))
 
-            DISPLAY.blit(sprite.Surface_Blur(DISPLAY, reg.ReadKey_float("/OPTIONS/window_blur_amount")), (WindowBorderRectangle[0], WindowBorderRectangle[1]), WindowBorderRectangle)
-
-        else:
-            sprite.RenderRectangle(DISPLAY, (6, 27, 45), WindowBorderRectangle)
         pygame.draw.line(DISPLAY, IndicatorLineColor, (self.TitleBarRectangle[0], self.TitleBarRectangle[1] - 2 + self.TitleBarRectangle[3]), (self.TitleBarRectangle[0] + self.TitleBarRectangle[2], self.TitleBarRectangle[1] - 2 + self.TitleBarRectangle[3]), 2)
 
         # -- Draw the Resize Block -- #

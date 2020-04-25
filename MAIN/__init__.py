@@ -189,13 +189,13 @@ def ScreenEventUpdate(event):
 
 def ScreensInitialize(DISPLAY):
     if CurrentScreen == -1:
-        ScreenIntro.Initialize(DefaultDisplay)
+        ScreenIntro.Initialize(DISPLAY)
     if CurrentScreen == 0:
-        ScreenMenu.Initialize(DefaultDisplay)
+        ScreenMenu.Initialize(DISPLAY)
     if CurrentScreen == 1:
-        ScreenGame.Initialize(DefaultDisplay)
+        ScreenGame.Initialize(DISPLAY)
     if CurrentScreen == 2:
-        ScreenSettings.Initialize(DefaultDisplay)
+        ScreenSettings.Initialize(DISPLAY)
 
 def EventUpdate(event):
     global Cursor_Position
@@ -268,11 +268,11 @@ def Initialize(DISPLAY):
 
 def SetWindowParameters():
     global DefaultDisplay
-    DefaultDisplay = pygame.Surface((1024, 640))
+    DefaultDisplay = pygame.Surface((reg.ReadKey_int("/props/default_resW"), reg.ReadKey_int("/props/default_resH")))
 
     Messages.append("SET_FPS:" + str(Engine_MaxFPS))
     Messages.append("RESIZIABLE_WINDOW:True")
-    Messages.append("SET_RESOLUTION:1024:650")
+    Messages.append("SET_RESOLUTION:{0}:{1}".format(str(reg.ReadKey_int("/props/default_resW")), str(reg.ReadKey_int("/props/default_resH"))))
 
     pygame.display.set_caption("Fogoso : Ready!")
     pygame.mouse.set_visible(False)
@@ -307,9 +307,9 @@ def WriteErrorLog(ex, func, ExitWhenFinished=False):
 
     if ExitWhenFinished:
         ErrorLogName = "/LOG/crash_func(" + str(func) + ")"
-        print("\n\n\n\n\nWriteErrorLog ; Error log file write at:\n" + ErrorLogName)
+        print("WriteErrorLog ; Error log file write at:\n" + ErrorLogName)
         reg.WriteKey(ErrorLogName, str(ex))
-        print("WriteErrorLog ; Closing Game...\n\n\n\n\n")
+        print("WriteErrorLog ; Closing Game...\n")
         pygame.quit()
         sys.exit()
 

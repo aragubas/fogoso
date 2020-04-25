@@ -43,6 +43,7 @@ def Update():
     global OptionsScreen_FlashAnimationSpeed
     global OptionsScreen_FontAntiAlias
     global OptionsScreen_FlashAnimStyle
+    global ScreenToReturn
 
     if OptionsScreen_CloseButton.ButtonState == "UP":
         gameMain.FadeEffectValue = 255

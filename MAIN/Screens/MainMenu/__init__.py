@@ -23,6 +23,7 @@ from ENGINE import SOUND as sound
 from Fogoso.MAIN import ClassesUtils as gameObjs
 from Fogoso.MAIN.Screens import Game as ScreenGame
 from Fogoso.MAIN.Screens import Settings as ScreenSettings
+from Fogoso.MAIN.Screens import Intro as ScreenIntro
 from Fogoso import MAIN as gameMainObj
 from ENGINE import SPRITE as sprite
 import pygame, sys
@@ -31,13 +32,14 @@ import time
 from random import randint
 
 # -- Vars
-IsControlsEnabled = False
-MenuStartFlash = False
-Menu_Delay = 0
-Animation_Value = 0
+Animation_Value = -300
+Animation_ValueAdder = 1
 Animation_CurrentAnim = 0
-Animation_Enabled = False
+Animation_Enabled = True
+Animation_NextScreen = 0
+
 CommonScreenObj = pygame.Surface
+ControlsInitialized = False
 
 # -- Window Test
 EverdayMessageWindow = gameObjs.Window
@@ -50,32 +52,37 @@ EverdayMessage_LastMessageID = 0
 # -- Objects Declaration -- #
 PlayButton = gameObjs.Button
 SettingsButton = gameObjs.Button
+IntroSpriteButton = gameObjs.SpriteButton
 
 def Initialize(DISPLAY):
     global PlayButton
     global SettingsButton
     global EverdayMessageWindow
     global EverdayMessage_GenerateNewMessageButton
+    global IntroSpriteButton
     print("Menu Initialize")
     PlayButton = gameObjs.Button(pygame.Rect(50, 50, 0, 0), reg.ReadKey("/strings/main_menu/play_button"), 18)
     SettingsButton = gameObjs.Button(pygame.Rect(50 ,50 ,0 ,0), reg.ReadKey("/strings/main_menu/settings_button"), 18)
-    EverdayMessageWindow = gameObjs.Window(pygame.Rect(5, DISPLAY.get_height() - 25, 550, 200), reg.ReadKey("/strings/main_menu/message_window/window_title"), True)
-    EverdayMessageWindow.ToggleMinimize()
+    EverdayMessageWindow = gameObjs.Window(pygame.Rect(350, 50, 550, 200), reg.ReadKey("/strings/main_menu/message_window/window_title"), True)
     EverdayMessage_GenerateNewMessageButton = gameObjs.Button(pygame.Rect(0,0,0,0), reg.ReadKey("/strings/main_menu/message_window/next_button"),18)
     EverdayMessage_GenerateNewMessageButton.CustomColisionRectangle = True
     gameMainObj.ClearColor = (1, 20, 30)
-    
+    IntroSpriteButton = gameObjs.SpriteButton(pygame.Rect(0,0,47, 45), ("/icon.png","/icon.png","/icon.png"))
+    print("GameMenu : Initialize")
 
 def EventUpdate(event):
     global PlayButton
     global SettingsButton
-    global IsControlsEnabled
     global EverdayMessageWindow
     global EverdayMessage_GenerateNewMessageButton
-    if IsControlsEnabled:
+    global ControlsInitialized
+    global IntroSpriteButton
+
+    if ControlsInitialized:
         PlayButton.Update(event)
         SettingsButton.Update(event)
         EverdayMessageWindow.EventUpdate(event)
+        IntroSpriteButton.EventUpdate(event)
         if not EverdayMessageWindow.WindowMinimized:
             EverdayMessage_GenerateNewMessageButton.Update(event)
 
@@ -83,24 +90,30 @@ def EventUpdate(event):
 def GameDraw(DISPLAY):
     global PlayButton
     global SettingsButton
-    global IsControlsEnabled
     global CommonScreenObj
     global EverdayMessageWindow
     global EverdayMessage_TextTitle
     global EverdayMessage_Text
     global EverdayMessage_GenerateNewMessageButton
+    global ControlsInitialized
+    global IntroSpriteButton
     CommonScreenObj = DISPLAY
-    sprite.RenderFont(DISPLAY,"/PressStart2P.ttf",28,reg.ReadKeyWithTry("/gameTitle","Fogoso"),(255,255,255),DISPLAY.get_width() / 2 - sprite.GetText_width("/PressStart2P.ttf", 28, reg.ReadKeyWithTry("/gameTitle", "Fogoso")) / 2,20, reg.ReadKey_bool("/OPTIONS/font_aa"))
 
-    if IsControlsEnabled:
-        sprite.RenderRectangle(DISPLAY, (1, 22, 39), (Animation_Value + SettingsButton.Rectangle[0] - 2, PlayButton.Rectangle[1] - 2, SettingsButton.Rectangle[2] + 4, SettingsButton.Rectangle[3] + 4 + PlayButton.Rectangle[3] + 5))
-        sprite.RenderRectangle(DISPLAY, (46, 192, 182), (Animation_Value + SettingsButton.Rectangle[0] - 2, PlayButton.Rectangle[1] - 2, SettingsButton.Rectangle[2] + 4, 2))
+    if ControlsInitialized:
+        gameObjs.Draw_Panel(DISPLAY, (Animation_Value, 0, 300, DISPLAY.get_height()))
+
+        sprite.RenderFont(DISPLAY,"/PressStart2P.ttf",18,reg.ReadKeyWithTry("/strings/main_menu/game_title","title"),(240,250,250), Animation_Value + 15,20, reg.ReadKey_bool("/OPTIONS/font_aa"))
 
         PlayButton.Render(DISPLAY)
         SettingsButton.Render(DISPLAY)
+
+        IntroSpriteButton.Render(DISPLAY)
+        sprite.RenderFont(DISPLAY,"/PressStart2P.ttf",10,reg.ReadKey("/strings/main_menu/about"),(240,250,250), IntroSpriteButton.Rectangle[0] + IntroSpriteButton.Rectangle[2] + 5,IntroSpriteButton.Rectangle[1] + 3, reg.ReadKey_bool("/OPTIONS/font_aa"))
+
         EverdayMessage(DISPLAY)
 
 def EverdayMessage(DISPLAY):
+    global EverdayMessageWindow
     # -- Draw the message on the Message Winow -- #
     EverdayMessageWindow.Render(DISPLAY)
     if not EverdayMessageWindow.WindowMinimized:
@@ -108,10 +121,17 @@ def EverdayMessage(DISPLAY):
         # -- Render Message -- #
         sprite.RenderRectangle(EverdayMessageWindow.WindowSurface, (56, 65, 74),
                                (0, 0, EverdayMessageWindow.WindowSurface.get_width(), 30))
-        sprite.RenderFont(EverdayMessageWindow.WindowSurface, "/PressStart2P.ttf", 18, EverdayMessage_TextTitle,
-                          (255, 255, 255), 5, 7, reg.ReadKey_bool("/OPTIONS/font_aa"))
-        sprite.RenderFont(EverdayMessageWindow.WindowSurface, "/PressStart2P.ttf", 10, EverdayMessage_Text, (255, 255, 255),
-                          5, 37, reg.ReadKey_bool("/OPTIONS/font_aa"))
+        if not reg.ReadKey_bool("/Save/cheater"):
+            sprite.RenderFont(EverdayMessageWindow.WindowSurface, "/PressStart2P.ttf", 18, EverdayMessage_TextTitle,
+                              (255, 255, 255), 5, 7, reg.ReadKey_bool("/OPTIONS/font_aa"))
+            sprite.RenderFont(EverdayMessageWindow.WindowSurface, "/PressStart2P.ttf", 10, EverdayMessage_Text, (255, 255, 255),
+                              5, 37, reg.ReadKey_bool("/OPTIONS/font_aa"))
+        else:
+            sprite.RenderFont(EverdayMessageWindow.WindowSurface, "/PressStart2P.ttf", 18, reg.ReadKey("/strings/main_menu/EMW/cheater_title"),
+                              (255, 255, 255), 5, 7, reg.ReadKey_bool("/OPTIONS/font_aa"))
+            sprite.RenderFont(EverdayMessageWindow.WindowSurface, "/PressStart2P.ttf", 10, reg.ReadKey("/strings/main_menu/EMW/cheater_text"),
+                              (255, 255, 255),
+                              5, 37, reg.ReadKey_bool("/OPTIONS/font_aa"))
 
         # -- Render Next Button -- ##
         EverdayMessage_GenerateNewMessageButton.Set_X(
@@ -130,14 +150,11 @@ def EverdayMessage(DISPLAY):
         # -- Blit Window to Screen -- #
         DISPLAY.blit(EverdayMessageWindow.WindowSurface, EverdayMessageWindow.WindowSurface_Dest)
 
-
+MenuDelay = 0
 def Update():
-    global Menu_Delay
-    global IsControlsEnabled
     global PlayButton
     global SettingsButton
     global CommonScreenObj
-    global MenuStartFlash
     global Animation_Value
     global Animation_Enabled
     global Animation_CurrentAnim
@@ -145,6 +162,17 @@ def Update():
     global EverdayMessage_TextTitle
     global EverdayMessage_UpdateMessage
     global EverdayMessage_LastMessageID
+    global ControlsInitialized
+    global MenuDelay
+    global Animation_ValueAdder
+    global Animation_NextScreen
+    global IntroSpriteButton
+
+    if not ControlsInitialized:
+        MenuDelay += 1
+        if MenuDelay > 1:
+            MenuDelay = 0
+            ControlsInitialized = True
 
     if EverdayMessage_UpdateMessage:
         EverdayMessage_UpdateMessage = False
@@ -162,56 +190,61 @@ def Update():
 
     if Animation_Enabled:
         if Animation_CurrentAnim == 0:
-            Animation_Value += 1
+            Animation_ValueAdder += 0.2
+            Animation_Value += Animation_ValueAdder
 
-            if Animation_Value >= 50:
+            if Animation_Value >= 0:
                 Animation_Value = 0
+                Animation_ValueAdder = 1
                 Animation_Enabled = False
                 Animation_CurrentAnim = 1
         if Animation_CurrentAnim == 1:
-            Animation_Value -= 1
+            Animation_ValueAdder += 0.2
+            Animation_Value -= Animation_ValueAdder
 
-            if Animation_Value >= 50:
-                Animation_Value = 0
-                Animation_Enabled = False
-                Animation_CurrentAnim = 1
+            if Animation_Value <= -300:
+                Animation_Value = -300
+                Animation_Enabled = True
+                Animation_CurrentAnim = 0
+                Animation_ValueAdder = 1
 
-    if not MenuStartFlash:
-        gameMainObj.FadeEffectState = 0
-        gameMainObj.FadeEffectValue = 255
-        gameMainObj.FadeEffectState = True
-        MenuStartFlash = True
+                if Animation_NextScreen == -1:
+                    ScreenIntro.Initialize(CommonScreenObj)
 
-    if IsControlsEnabled:
+                if Animation_NextScreen == 1:
+                    ScreenGame.Initialize(CommonScreenObj)
+
+                if Animation_NextScreen == 2:
+                    ScreenSettings.ScreenToReturn = 0
+                    ScreenSettings.Initialize()
+
+                gameMainObj.FadeEffectValue = 255
+                gameMainObj.FadeEffectCurrentState = 0
+                gameMainObj.FadeEffectState = True
+                gameMainObj.CurrentScreen = Animation_NextScreen
+
+    if ControlsInitialized:
         if PlayButton.ButtonState == "UP":
-            ScreenGame.Initialize(CommonScreenObj)
-            gameMainObj.CurrentScreen += 1
-            Menu_Delay = 0
-            IsControlsEnabled = False
-            MenuStartFlash = False
-            gameMainObj.Cursor_CurrentLevel = 0
+            Animation_NextScreen = 1
+            Animation_Enabled = True
         if SettingsButton.ButtonState == "UP":
-            ScreenSettings.Initialize()
-            ScreenSettings.ScreenToReturn = gameMainObj.CurrentScreen
-            gameMainObj.CurrentScreen = 2
-            Menu_Delay = 0
-            IsControlsEnabled = False
-            MenuStartFlash = False
-            gameMainObj.FadeEffectValue = 255
-            gameMainObj.FadeEffectCurrentState = 0
-            gameMainObj.FadeEffectState = True
+            Animation_NextScreen = 2
+            Animation_Enabled = True
+        if IntroSpriteButton.ButtonState == "UP":
+            Animation_NextScreen = -1
+            Animation_Enabled = True
 
         if EverdayMessage_GenerateNewMessageButton.ButtonState == "UP" and not EverdayMessageWindow.WindowMinimized:
             EverdayMessage_UpdateMessage = True
 
         # -- Update Play Button Position -- #
-        PlayButton.Set_X(Animation_Value + CommonScreenObj.get_width() / 2 - sprite.GetText_width("/PressStart2P.ttf", 18, PlayButton.ButtonText) / 2 - 8)
-        PlayButton.Set_Y(Animation_Value + CommonScreenObj.get_height() / 2 - sprite.GetText_height("/PressStart2P.ttf", 18, PlayButton.ButtonText) / 2 - 8)
+        PlayButton.Set_X(Animation_Value + 20)
+        PlayButton.Set_Y(CommonScreenObj.get_height() / 2 - PlayButton.Rectangle[3])
 
-        SettingsButton.Set_X(Animation_Value + CommonScreenObj.get_width() / 2 - sprite.GetText_width("/PressStart2P.ttf", 18, SettingsButton.ButtonText) / 2 - 8)
-        SettingsButton.Set_Y(Animation_Value + CommonScreenObj.get_height() / 2 - sprite.GetText_height("/PressStart2P.ttf", 18, SettingsButton.ButtonText) / 2 - 8 + PlayButton.Rectangle[3] + 5)
+        # -- Update Settings Button Position -- #
+        SettingsButton.Set_X(PlayButton.Rectangle[0])
+        SettingsButton.Set_Y(PlayButton.Rectangle[1] + SettingsButton.Rectangle[3] + 5)
 
-    if Menu_Delay <= 50:
-        Menu_Delay += 1
-    else:
-        IsControlsEnabled = True
+        # -- Update Intro Button Position -- #
+        IntroSpriteButton.Set_X(Animation_Value + 15)
+        IntroSpriteButton.Set_Y(CommonScreenObj.get_height() - IntroSpriteButton.Rectangle[3] - 15)

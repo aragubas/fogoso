@@ -19,7 +19,7 @@ from ENGINE import SPRITE as sprite
 from ENGINE import REGISTRY as reg
 from Fogoso.MAIN.Screens import Game as GameScreen 
 from Fogoso.MAIN import ClassesUtils as gameObjs
-from Fogoso import MAIN as GameMain
+from Fogoso.MAIN import Items as items
 import pygame
 
 print("Fogoso Store Window, Version 1.1")
@@ -86,8 +86,8 @@ def Render(DISPLAY):
             LastClickedItem = ListItems.LastItemClicked
 
             # -- Set Item Price and ID -- #
-            SelectedItemPrice = GetItemPrice_ByID(GetItemID_ByName(ListItems.LastItemClicked))
-            SelectedItemID = GetItemID_ByName(ListItems.LastItemClicked)
+            SelectedItemPrice = items.GetItemPrice_ByID(items.GetItemID_ByName(ListItems.LastItemClicked))
+            SelectedItemID = items.GetItemID_ByName(ListItems.LastItemClicked)
 
             # -- Down Panel Background -- #
             sprite.RenderRectangle(DrawnSurface, (0, 0, 0, 100), (0, DrawnSurface.get_height() - DownBar_BuyPanelYOffset, DrawnSurface.get_width(), DownBar_BuyPanelYOffset))
@@ -117,7 +117,7 @@ def UpdateControls():
 
 
     if BuyButton.ButtonState == "UP":
-        if GameScreen.Current_Money >= GetItemPrice_ByID(SelectedItemID):
+        if GameScreen.Current_Money >= items.GetItemPrice_ByID(SelectedItemID):
             for buyAmount in range(0, BuyAmout):
                 BuyItem_ByID(SelectedItemID)
 
@@ -145,16 +145,8 @@ def RestartAnimation():
     DownBar_BuyPanelYOffset = 0
     LastClickedItem = "null"
 
-def GetItemID_ByName(ItemName):
-    return reg.ReadKey("/ItemData/name/" + ItemName)
-
-def GetItemPrice_ByID(ItemID):
-    LastItemLevel = reg.ReadKey_int("/Save/item/last_level/" + str(ItemID))
-    CorrectKeyName = "/ItemData/store/price/" + str(ItemID) + "_level_" + str(LastItemLevel)
-    return reg.ReadKey_float(CorrectKeyName)
-
 def BuyItem_ByID(ItemID):
-    ItemPrice = GetItemPrice_ByID(ItemID)
+    ItemPrice = items.GetItemPrice_ByID(ItemID)
     ItemLevel = reg.ReadKey_int("/Save/item/last_level/" + str(ItemID))
     ItemBuyedSucefully = False
 
@@ -162,7 +154,7 @@ def BuyItem_ByID(ItemID):
 
 
     if ItemID == "-1":
-        if GameScreen.GameItems_TotalIndx_NegativeOne <= 0:
+        if GameScreen.GameItems_TotalIndx_NegativeOne == 0:
             GameScreen.GameItems_TotalIndx_NegativeOne = 1
             print("BuyItem : ItemID -1")
             GameScreen.GameItemsList.append(gameObjs.Item_ExperienceStore(ItemLevel))
@@ -179,8 +171,10 @@ def BuyItem_ByID(ItemID):
     
     if ItemBuyedSucefully:
         GameScreen.Current_Money -= ItemPrice
-        GameScreen.AddMessageText("Item [" + str(SelectedItemID + "] bought."), False, (210, 220, 240))
-    
+        GameScreen.AddMessageText(reg.ReadKey("/strings/window/store/item_bought").format(str(SelectedItemID)), False, (210, 220, 240))
+    else:
+        GameScreen.AddMessageText(reg.ReadKey("/strings/window/store/item_not_bought").format(str(SelectedItemID)), False, (210, 220, 240))
+
 def EventUpdate(event):
     global StoreLocked
     WindowObject.EventUpdate(event)
