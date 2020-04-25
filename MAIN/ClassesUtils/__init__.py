@@ -24,15 +24,21 @@ print("Game : Classes Utils v1.1")
 
 def Draw_Panel(DISPLAY, Rectangle, Color=(20, 20, 20)):
     if reg.ReadKey_bool("/OPTIONS/UI_blur_enabled"):
-        if reg.ReadKey_int("/OPTIONS/UI_contrast") > 1:
-            Color = (0, 0, 0)
-            BackContrast = pygame.Surface((Rectangle[2], Rectangle[3]), pygame.SRCALPHA)
-            pygame.draw.rect(BackContrast, (Color[0], Color[0], Color[0], reg.ReadKey_int("/OPTIONS/UI_contrast")), (0, 0, Rectangle[2], Rectangle[3]))
-            DISPLAY.blit(BackContrast, (Rectangle[0], Rectangle[1]))
+        if not reg.ReadKey_bool("/OPTIONS/UI_Pixelate"):
+            DISPLAY.blit(sprite.Surface_Blur(DISPLAY, reg.ReadKey_float("/OPTIONS/UI_blur_ammount")),(Rectangle[0], Rectangle[1]), Rectangle)
+        else:
+            DISPLAY.blit(sprite.Surface_Pixalizate(DISPLAY, reg.ReadKey_float("/OPTIONS/UI_blur_ammount")),(Rectangle[0], Rectangle[1]), Rectangle)
 
-        DISPLAY.blit(sprite.Surface_Blur(DISPLAY, reg.ReadKey_float("/OPTIONS/UI_blur_ammount")),(Rectangle[0], Rectangle[1]), Rectangle)
     else:
         sprite.RenderRectangle(DISPLAY, Color, Rectangle)
+
+    if reg.ReadKey_int("/OPTIONS/UI_contrast") > 1:
+        Color = (0, 0, 0)
+        BackContrast = pygame.Surface((Rectangle[2], Rectangle[3]), pygame.SRCALPHA)
+        pygame.draw.rect(BackContrast, (Color[0], Color[0], Color[0], reg.ReadKey_int("/OPTIONS/UI_contrast")),
+                         (0, 0, Rectangle[2], Rectangle[3]))
+        DISPLAY.blit(BackContrast, (Rectangle[0], Rectangle[1]))
+
 
 class SpriteButton:
     def __init__(self, Rectangle, SpriteList):

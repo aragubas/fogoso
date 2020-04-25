@@ -195,7 +195,7 @@ def ScreensInitialize(DISPLAY):
     if CurrentScreen == 1:
         ScreenGame.Initialize(DISPLAY)
     if CurrentScreen == 2:
-        ScreenSettings.Initialize(DISPLAY)
+        ScreenSettings.Initialize()
 
 def EventUpdate(event):
     global Cursor_Position
