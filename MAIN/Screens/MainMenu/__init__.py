@@ -190,7 +190,7 @@ def Update():
 
     if Animation_Enabled:
         if Animation_CurrentAnim == 0:
-            Animation_ValueAdder += 0.2
+            Animation_ValueAdder += 0.5
             Animation_Value += Animation_ValueAdder
 
             if Animation_Value >= 0:
@@ -199,7 +199,7 @@ def Update():
                 Animation_Enabled = False
                 Animation_CurrentAnim = 1
         if Animation_CurrentAnim == 1:
-            Animation_ValueAdder += 0.2
+            Animation_ValueAdder += 0.5
             Animation_Value -= Animation_ValueAdder
 
             if Animation_Value <= -300:

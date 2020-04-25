@@ -23,6 +23,7 @@ from Fogoso.MAIN.Screens import MainMenu as ScreenMenu
 from Fogoso.MAIN.Screens import Settings as ScreenSettings
 from Fogoso.MAIN.Screens import Intro as ScreenIntro
 from ENGINE import SPRITE as sprite
+from random import randint
 import pygame, sys
 
 
@@ -61,6 +62,14 @@ CurrentScreen = 0
 
 ClearColor = (0,0,0)
 
+ErrorMessageEnabled = False
+ErrorMessage = 'null'
+ErrorMessageDelay = 0
+
+CursorX = 0
+CursorY = 0
+
+
 def GameDraw(DISPLAY):
     global DefaultDisplay
     global LastErrorText
@@ -70,6 +79,10 @@ def GameDraw(DISPLAY):
     global CursorW
     global CursorH
     global ClearColor
+    global ErrorMessageEnabled
+    global ErrorMessage
+    global ErrorMessageDelay
+
     # -- Clear the Surface -- #
     DefaultDisplay = DISPLAY
     DISPLAY.fill(ClearColor)
@@ -85,7 +98,7 @@ def GameDraw(DISPLAY):
     # -- Render Fade Effect -- #
     if FadeEffectValue > 0:
         FadeEffect = pygame.Surface((DefaultDisplay.get_width(), DefaultDisplay.get_height()))
-
+        GeneratedWindowTitle()
         if FadeEffectStyle == 0:
             FadeEffect.blit(sprite.Surface_Blur(DISPLAY, FadeEffectValue), (0,0))
         if FadeEffectStyle == 1:
@@ -96,6 +109,17 @@ def GameDraw(DISPLAY):
             FadeEffect.blit(sprite.Surface_Pixalizate(sprite.Surface_Blur(DISPLAY, FadeEffectValue), FadeEffectValue), (0, 0))
 
         DefaultDisplay.blit(FadeEffect, (0, 0))
+
+    # -- Render the Error Message -- #
+    if ErrorMessageEnabled:
+        ErrorMessageDelay += 1
+
+        gameObjs.Draw_Panel(DISPLAY, (0,5,DISPLAY.get_width(), sprite.GetText_height("/PressStart2P.ttf", reg.ReadKey_int("/props/error_message_text_size"), ErrorMessage)))
+        sprite.RenderFont(DISPLAY, "/PressStart2P.ttf", reg.ReadKey_int("/props/error_message_text_size"), ErrorMessage,(150,50,50),0,5,False)
+
+        if ErrorMessageDelay >= reg.ReadKey_int("/props/error_message_delay_max"):
+            ErrorMessageDelay = 0
+            ErrorMessageEnabled = False
 
     # -- Render Cursor -- #
     sprite.Render(DefaultDisplay, "/cursors/{0}.png".format(str(Cursor_CurrentLevel)), Cursor_Position[0], Cursor_Position[1], CursorW, CursorH)
@@ -114,6 +138,13 @@ def GameDraw(DISPLAY):
             LastErrorTextDeltaTime = 0
             LastErrorTextEnabled = False
             LastErrorText = ""
+
+def GeneratedWindowTitle():
+    NumberMax = reg.ReadKey_int("/strings/gme_wt/all")
+    Current = randint(0, NumberMax)
+    print("GeneratedWindowTitle : ID=" + str(Current))
+
+    pygame.display.set_caption("Fogoso : " + reg.ReadKey("/strings/gme_wt/" + str(Current)))
 
 
 def FadeAnimation():
@@ -154,8 +185,13 @@ def Update():
                 FadeEffectValue = 0
                 FadeEffectCurrentState = 0
 
-CursorX = 0
-CursorY = 0
+def SendErrorMessage(Message):
+    global ErrorMessageEnabled
+    global ErrorMessage
+    global ErrorMessageDelay
+    ErrorMessage = Message
+    ErrorMessageEnabled = True
+    ErrorMessageDelay = 0
 
 def ScreensUpdate():
     if CurrentScreen == -1:
@@ -207,6 +243,9 @@ def EventUpdate(event):
     # -- Update Cursor Location -- #
     if event.type == pygame.MOUSEMOTION:
         Cursor_Position[0], Cursor_Position[1] = pygame.mouse.get_pos()
+    if event.type == pygame.KEYUP and event.key == pygame.K_F12:
+        reg.Reload()
+        SendErrorMessage("Registry Reloaded.")
 
     if not reg.ReadKey_bool("/OPTIONS/debug_enabled"):
         try:
@@ -253,6 +292,7 @@ def Initialize(DISPLAY):
 
     # -- Apply Engine Options -- #
     SetWindowParameters()
+    GeneratedWindowTitle()
 
     # -- Set the Default Screen -- #
     CurrentScreen = reg.ReadKey_int("/props/CurrentScreen")
