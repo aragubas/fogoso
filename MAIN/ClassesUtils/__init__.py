@@ -17,12 +17,13 @@
 from ENGINE import SPRITE as sprite
 from Fogoso import MAIN as mainScript
 from ENGINE import REGISTRY as reg
+from ENGINE import sound as sound
 import pygame
 import random
 
 print("Game : Classes Utils v1.1")
 
-def Draw_Panel(DISPLAY, Rectangle, Color=(20, 20, 20)):
+def Draw_Panel(DISPLAY, Rectangle, Color=(0,0,0)):
     if reg.ReadKey_bool("/OPTIONS/UI_blur_enabled"):
         if not reg.ReadKey_bool("/OPTIONS/UI_Pixelate"):
             DISPLAY.blit(sprite.Surface_Blur(DISPLAY, reg.ReadKey_float("/OPTIONS/UI_blur_ammount")),(Rectangle[0], Rectangle[1]), Rectangle)
@@ -125,6 +126,7 @@ class Button:
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if self.ColisionRectangle.collidepoint(mainScript.Cursor_Position):
                     self.ButtonState = "DOWN"
+                    sound.PlaySound("/chinas.ogg")
                     self.ButtonDowed = True
             elif event.type == pygame.MOUSEBUTTONUP:
                 if self.ColisionRectangle.collidepoint(mainScript.Cursor_Position):
@@ -215,8 +217,6 @@ class Button:
         DISPLAY.blit(ButtonSurface, (self.Rectangle[0], self.Rectangle[1]))
         if self.ButtonState == "UP":
             self.ButtonState = "INATIVE"
-
-
 
 
 class UpDownButton:
@@ -529,27 +529,26 @@ class HorizontalItemsView:
         self.ButtonRightRectangle = pygame.Rect(34, 0, 32, 32)
 
     def Render(self, DISPLAY):
-        self.ListSurface = pygame.Surface((self.Rectangle[2], self.Rectangle[3]))
-        self.ListSurface.fill((1, 22, 39))
+        self.ListSurface = pygame.Surface((self.Rectangle[2], self.Rectangle[3]), pygame.SRCALPHA)
+        Draw_Panel(DISPLAY, self.Rectangle)
 
         for i, itemNam in enumerate(self.ItemsName):
             ItemName = reg.ReadKey("/ItemData/store/" + str(itemNam) + "_name")
-            ItemWidth = 195
+            ItemWidth = 156
 
             ItemX = self.ScrollX + ItemWidth * i
-            ItemRect = (ItemX, 0, ItemWidth - 5, self.Rectangle[3])
-            #ItemRect = (self.Rectangle[0],self.ScrollY + self.Rectangle[1] + 42 * i,self.Rectangle[2],40)
+            ItemRect = (ItemX, self.Rectangle[3] / 2 - 90 / 2, ItemWidth - 5, 90)
 
             # -- Background -- #
-            sprite.RenderRectangle(self.ListSurface, (120, 142, 159), ItemRect)
+            sprite.RenderRectangle(self.ListSurface, (120, 142, 159, 200), ItemRect)
             # -- Indicator Bar -- #
-            sprite.RenderRectangle(self.ListSurface, (46, 196, 182), (ItemRect[0], ItemRect[1], ItemRect[2], 1))
+            sprite.RenderRectangle(self.ListSurface, (46, 196, 182, 230), (ItemRect[0], ItemRect[1], ItemRect[2], 1))
 
             # -- Render the Item Title -- #
-            sprite.RenderFont(self.ListSurface, "/PressStart2P.ttf", 12, ItemName, (250, 250, 250), ItemRect[0] + ItemRect[2] / 2 - sprite.GetText_width("/PressStart2P.ttf", 12, ItemName) / 2, ItemRect[1], reg.ReadKey_bool("/OPTIONS/font_aa"))
+            sprite.RenderFont(self.ListSurface, "/PressStart2P.ttf", 9, ItemName, (250, 250, 250), ItemRect[0] + ItemRect[2] / 2 - sprite.GetText_width("/PressStart2P.ttf", 9, ItemName) / 2, ItemRect[1], reg.ReadKey_bool("/OPTIONS/font_aa"))
 
             # -- Render the Item Sprite -- #
-            sprite.Render(self.ListSurface, reg.ReadKey("/ItemData/store/" + str(itemNam) + "_sprite"), ItemRect[0] + 4, ItemRect[1] + 6, 100, 100)
+            sprite.Render(self.ListSurface, reg.ReadKey("/ItemData/store/" + str(itemNam) + "_sprite"), ItemRect[0] + 4, ItemRect[1] + 9, 64, 64)
 
             # -- Render the Item Little Info -- #
             LittleInfoText = "CANNOT OBTAIN\nITEM DATA."
@@ -558,9 +557,7 @@ class HorizontalItemsView:
             if self.ItemsName[i] == "0":
                 LittleInfoText = "Count:\n{0}\nLevel:\n{1}".format(str(mainScript.ScreenGame.GameItems_TotalIndx_0), str(reg.ReadKey("/Save/item/last_level/" + str(itemNam))))
 
-            sprite.RenderFont(self.ListSurface, "/PressStart2P.ttf", 10, LittleInfoText, (250, 250, 250), ItemRect[0] + 105, ItemRect[1] + 12, reg.ReadKey_bool("/OPTIONS/font_aa"))
-            # -- Spacer Bar -- #
-            #sprite.RenderRectangle(self.ListSurface, (1, 22, 39), (ItemRect[0] + ItemRect[2] - 5, ItemRect[1], ItemRect[2], ItemRect[3]))
+            sprite.RenderFont(self.ListSurface, "/PressStart2P.ttf", 10, LittleInfoText, (250, 250, 250), ItemRect[0] + 65, ItemRect[1] + 12, reg.ReadKey_bool("/OPTIONS/font_aa"))
 
         DISPLAY.blit(self.ListSurface, (self.Rectangle[0], self.Rectangle[1]))
 
@@ -597,14 +594,14 @@ class HorizontalItemsView:
 
 
 class Item_AutoClicker:
-    def __init__(self, ItemLevel):
-        self.ItemClickPerSecound = reg.ReadKey("/ItemData/0/lv_" + str(ItemLevel) + "_click")
-        self.ItemLevel = ItemLevel
+    def __init__(self):
+        self.ItemID = 0
+        self.ItemLevel = reg.ReadKey_int("/Save/item/last_level/" + str(self.ItemID))
+        self.ItemClickPerSecound = reg.ReadKey("/ItemData/0/lv_" + str(self.ItemLevel) + "_click")
         self.DeltaTime = 0
         self.InternalDelay = 0
-        self.DeltaTimeAction = int(reg.ReadKey("/ItemData/0/lv_" + str(ItemLevel) + "_delta"))
-        self.ItemID = 0
-        self.maintenance_cost = reg.ReadKey_float("/ItemData/0/lv_" + str(ItemLevel) + "_cost_maintenance")
+        self.DeltaTimeAction = int(reg.ReadKey("/ItemData/0/lv_" + str(self.ItemLevel) + "_delta"))
+        self.maintenance_cost = reg.ReadKey_float("/ItemData/0/lv_" + str(self.ItemLevel) + "_cost_maintenance")
 
     def Update(self):
         self.DeltaTime += 1
@@ -618,13 +615,13 @@ class Item_AutoClicker:
                 self.InternalDelay = 0
 
 class Item_ExperienceStore:
-    def __init__(self, ItemLevel):
-        self.ItemClickPerSecound = reg.ReadKey("/ItemData/-1/lv_" + str(ItemLevel) + "_click")
-        self.ItemLevel = ItemLevel
-        self.DeltaTime = 0
-        self.DeltaTimeAction = reg.ReadKey("/ItemData/-1/lv_" + str(ItemLevel) + "_delta")
+    def __init__(self):
         self.ItemID = -1
-        self.maintenance_cost = reg.ReadKey_float("/ItemData/-1/lv_" + str(ItemLevel) + "_cost_maintenance")
+        self.ItemLevel = reg.ReadKey_int("/Save/item/last_level/" + str(self.ItemID))
+        self.ItemClickPerSecound = reg.ReadKey("/ItemData/-1/lv_" + str(self.ItemLevel) + "_click")
+        self.DeltaTime = 0
+        self.DeltaTimeAction = reg.ReadKey("/ItemData/-1/lv_" + str(self.ItemLevel) + "_delta")
+        self.maintenance_cost = reg.ReadKey_float("/ItemData/-1/lv_" + str(self.ItemLevel) + "_cost_maintenance")
 
 
     def Update(self):

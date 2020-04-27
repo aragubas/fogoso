@@ -25,6 +25,7 @@ from Fogoso import MAIN as gameMain
 from ENGINE import SPRITE as sprite
 from Fogoso.MAIN.Screens.Settings import category_0 as Category0
 from Fogoso.MAIN.Screens.Settings import category_1 as Category1
+from Fogoso.MAIN.Screens.Settings import category_2 as Category2
 
 import pygame, sys
 
@@ -66,11 +67,14 @@ def Update():
         Current_Category += 1
         if Current_Category > MaxCategory:
             Current_Category = 0
+        gameMain.FadeAnimation()
+
     if OptionsScreen_UpDownCategory.ButtonState == "DOWN":
         MaxCategory = reg.ReadKey_int("/props/settings_max_category")
         Current_Category -= 1
         if Current_Category < 0:
             Current_Category = MaxCategory
+        gameMain.FadeAnimation()
 
     if Current_Category == 0:
         Category0.Update()
@@ -82,6 +86,11 @@ def Update():
         # -- Set the Elements Position -- #
         Category1.ElementsY = ElementsY
         Category1.ElementsX = ElementsX
+    if Current_Category == 2:
+        Category2.Update()
+        # -- Set the Elements Position -- #
+        Category2.ElementsX = ElementsX
+        Category2.ElementsY = ElementsY
 
     if OptionsScreen_CloseButton.ButtonState == "UP":
         gameMain.FadeEffectValue = 255
@@ -117,6 +126,8 @@ def GameDraw(DISPLAY):
         Category0.Render(DISPLAY)
     if Current_Category == 1:
         Category1.Render(DISPLAY)
+    if Current_Category == 2:
+        Category2.Render(DISPLAY)
 
 def Initialize():
     global OptionsScreen_CloseButton
@@ -129,6 +140,7 @@ def Initialize():
 
     Category0.Initialize()
     Category1.Initialize()
+    Category2.Initialize()
 
 def EventUpdate(event):
     global Current_Category
@@ -141,3 +153,5 @@ def EventUpdate(event):
         Category0.EventUpdate(event)
     if Current_Category == 1:
         Category1.EventUpdate(event)
+    if Current_Category == 2:
+        Category2.EventUpdate(event)

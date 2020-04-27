@@ -30,7 +30,6 @@ from ENGINE import SPRITE as sprite
 from random import randint
 from Fogoso.MAIN import Items as items
 import pygame, os
-
 import importlib
 import time
 
@@ -101,6 +100,7 @@ def LoadGame():
     global Current_MoneyValuePerClick
     global GameItemsInitialized
     global ItemsView
+    global GameItemsList
     global GameItems_TotalIndx_0
     global GameItems_TotalIndx_NegativeOne
     print("LoadGame : Init")
@@ -125,8 +125,10 @@ def LoadGame():
 
         if x == "0":
             GameItems_TotalIndx_0 += 1
+            GameItemsList.append(gameObjs.Item_AutoClicker())
         if x == "-1":
             GameItems_TotalIndx_NegativeOne += 1
+            GameItemsList.append(gameObjs.Item_ExperienceStore())
 
     print("AllKeys : " + str(AllKeys))
 
@@ -384,19 +386,19 @@ def Update():
                     ReceiveLog_Y_AnimEnabled = False
                     ReceiveLog_CloseButton.ButtonText = reg.ReadKey("/strings/button/game/down_arrow")
 
-MaintenanceCost_DeltaMax = 3500 
 MaintenanceCost_Delta = 0
 def MaintenanceCost():
     global MaintenanceCost_Delta
-    global MaintenanceCost_DeltaMax
+    global Current_Maintenance
+    global GameItemsList
 
     MaintenanceCost_Delta += 1
 
-    if MaintenanceCost_Delta >= MaintenanceCost_DeltaMax:
+    if MaintenanceCost_Delta >= reg.ReadKey_float("/Save/general_maintenance_delta"):
         TotalItemsMaintenance = 0
 
-        for i, item in enumerate(GameItemsList):
-            TotalItemsMaintenance += item.maintenance_cost
+        for item in GameItemsList:
+            TotalItemsMaintenance = TotalItemsMaintenance + item.maintenance_cost
 
         MaintenanceGeral = reg.ReadKey_float("/Save/general_maintenance") + TotalItemsMaintenance
         AddMessageText(reg.ReadKey("/strings/game/GeneralMaintenance") , True, (250, 150, 150, ), -MaintenanceGeral)
@@ -422,6 +424,7 @@ def DrawGrindText(DISPLAY):
         if x > 255 or IsControlsEnabled == False or TextGrind_AliveTime[x] >= 500 + x or TextGrind_Y[x] <= ReceiveLog_Y_Offset + DISPLAY.get_height() - 350:
             if TextGrind_IsGrindText[x]:
                 Current_Money += float(TextGrind_Value[x])
+                sound.PlaySound("/chinas.ogg")
             TextGrind_Text.pop(x)
             TextGrind_X.pop(x)
             TextGrind_Y.pop(x)
@@ -437,7 +440,6 @@ def DrawGrindText(DISPLAY):
                       GlobalY + 3)
 
     ReceiveLog_CloseButton.Render(DISPLAY)
-
 
 def GameDraw(DISPLAY):
     global BackToMainMenuButton

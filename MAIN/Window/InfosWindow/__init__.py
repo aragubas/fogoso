@@ -113,7 +113,7 @@ def Render(DISPLAY):
 # -- Maintenance Category -- #
 def DrawCategory_0(DISPLAY):
     sprite.RenderFont(DrawnSurface, "/PressStart2P.ttf", 10, reg.ReadKey("/strings/window/infos/txt_maintenance") + str("{:5.2f}".format(GameScreen.Current_Maintenance)), (240, 240, 240), 5, 30, reg.ReadKey_bool("/OPTIONS/font_aa"))
-    sprite.RenderFont(DrawnSurface, "/PressStart2P.ttf", 10, reg.ReadKey("/strings/window/infos/txt_maintenance_delay") + str(GameScreen.MaintenanceCost_DeltaMax) + "/" + str(GameScreen.MaintenanceCost_Delta), (220, 220, 220), 5, 45, reg.ReadKey_bool("/OPTIONS/font_aa"))
+    sprite.RenderFont(DrawnSurface, "/PressStart2P.ttf", 10, reg.ReadKey("/strings/window/infos/txt_maintenance_delay") + str(reg.ReadKey_float("/Save/general_maintenance_delta")) + "/" + str(GameScreen.MaintenanceCost_Delta), (220, 220, 220), 5, 45, reg.ReadKey_bool("/OPTIONS/font_aa"))
     sprite.RenderFont(DrawnSurface, "/PressStart2P.ttf", 10, reg.ReadKey("/strings/window/infos/txt_maintenance_base") + str("{:5.2f}".format(reg.ReadKey_float("/Save/general_maintenance"))), (200, 200, 200), 5, 60, reg.ReadKey_bool("/OPTIONS/font_aa"))
 
 # -- Money Category -- #

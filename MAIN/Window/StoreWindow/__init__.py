@@ -157,11 +157,11 @@ def BuyItem_ByID(ItemID):
         if GameScreen.GameItems_TotalIndx_NegativeOne == 0:
             GameScreen.GameItems_TotalIndx_NegativeOne = 1
             print("BuyItem : ItemID -1")
-            GameScreen.GameItemsList.append(gameObjs.Item_ExperienceStore(ItemLevel))
+            GameScreen.GameItemsList.append(gameObjs.Item_ExperienceStore())
             ItemBuyedSucefully = True
         
     if ItemID == "0":
-        GameScreen.GameItemsList.append(gameObjs.Item_AutoClicker(ItemLevel))
+        GameScreen.GameItemsList.append(gameObjs.Item_AutoClicker())
         GameScreen.GameItems_TotalIndx_0 += 1
         print("BuyItem : ItemID 0")
         ItemBuyedSucefully = True

@@ -24,6 +24,7 @@ from Fogoso.MAIN.Screens import Settings as ScreenSettings
 from Fogoso.MAIN.Screens import Intro as ScreenIntro
 from ENGINE import SPRITE as sprite
 from random import randint
+from ENGINE import sound as sound
 import pygame, sys
 
 
