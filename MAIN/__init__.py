@@ -22,6 +22,7 @@ from Fogoso.MAIN.Screens import Game as ScreenGame
 from Fogoso.MAIN.Screens import MainMenu as ScreenMenu
 from Fogoso.MAIN.Screens import Settings as ScreenSettings
 from Fogoso.MAIN.Screens import Intro as ScreenIntro
+from Fogoso.MAIN.Screens.Game import MapRender as ScreenMap
 from ENGINE import SPRITE as sprite
 from random import randint
 from ENGINE import sound as sound
@@ -59,7 +60,7 @@ LastErrorTextDeltaTime = 0
 DefaultDisplay = pygame.Surface((0, 0))
 
 # -- Screens -- #
-CurrentScreen = 0
+CurrentScreen = 3
 
 ClearColor = (0,0,0)
 
@@ -203,6 +204,8 @@ def ScreensUpdate():
         ScreenGame.Update()
     if CurrentScreen == 2:
         ScreenSettings.Update()
+    if CurrentScreen == 3:
+        ScreenMap.Update()
 
 def ScreenDraw(DefaultDisplay):
     if CurrentScreen == -1:
@@ -213,6 +216,8 @@ def ScreenDraw(DefaultDisplay):
         ScreenGame.GameDraw(DefaultDisplay)
     if CurrentScreen == 2:
         ScreenSettings.GameDraw(DefaultDisplay)
+    if CurrentScreen == 3:
+        ScreenMap.GameDraw(DefaultDisplay)
 
 def ScreenEventUpdate(event):
     if CurrentScreen == -1:
@@ -223,6 +228,8 @@ def ScreenEventUpdate(event):
         ScreenGame.EventUpdate(event)
     if CurrentScreen == 2:
         ScreenSettings.EventUpdate(event)
+    if CurrentScreen == 3:
+        ScreenMap.EventUpdate(event)
 
 def ScreensInitialize(DISPLAY):
     if CurrentScreen == -1:
@@ -233,6 +240,8 @@ def ScreensInitialize(DISPLAY):
         ScreenGame.Initialize(DISPLAY)
     if CurrentScreen == 2:
         ScreenSettings.Initialize()
+    if CurrentScreen == 3:
+        ScreenMap.Initialize()
 
 def EventUpdate(event):
     global Cursor_Position

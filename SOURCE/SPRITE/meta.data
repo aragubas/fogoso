@@ -15,3 +15,10 @@
 /cursors/3.png:True
 /cursors/4.png:True
 /cursors/5.png:True
+#
+# -- Load Tilesets -- #
+# Tileset 0
+/map/0/0.png:False
+/map/0/1.png:False
+/map/0/2.png:False
+/map/0/3.png:False
