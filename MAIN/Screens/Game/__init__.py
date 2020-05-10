@@ -17,9 +17,6 @@
 
 # -- Imports -- #
 from ENGINE import REGISTRY as reg
-from ENGINE import UTILS as utils
-import ENGINE as tge
-from ENGINE import SOUND as sound
 from Fogoso.MAIN import ClassesUtils as gameObjs
 from Fogoso.MAIN.Screens import Settings as ScreenSettings
 from Fogoso import MAIN as gameMain
@@ -27,48 +24,18 @@ from Fogoso.MAIN.Window import StoreWindow as storeWindow
 from Fogoso.MAIN.Window import ExperienceStore as expStoreWindow
 from Fogoso.MAIN.Window import InfosWindow as infosWindow
 from ENGINE import SPRITE as sprite
-from random import randint
-from Fogoso.MAIN import Items as items
-import pygame, os
-import importlib
-import time
+from Fogoso.MAIN import GameVariables as save
+from Fogoso.MAIN.Screens.Game import IncomingLog
+import pygame
 
 # -- Objects Definition -- #
 GrindButton = gameObjs.Button
-ReceiveLog_CloseButton = gameObjs.Button
 GameOptionsButton = gameObjs.Button
 SaveButton = gameObjs.Button
 BackToMainMenuButton = gameObjs.Button
 OpenStoreButton = gameObjs.Button
 OpenInfosWindowButton = gameObjs.Button
 OpenExperienceWindowButton = gameObjs.Button
-
-# -- Game -- #
-Current_Money = 0.0
-Current_MoneyValuePerClick = 0.2
-CUrrent_Experience = 250
-Current_MoneyPerSecound = 0.0
-Current_MoneyFormated = "0,00"
-Current_MoneyPerSecoundFormatted = "0,00"
-
-# -- Receive Log -- #
-ReceiveLog_Y_Offset = 0
-ReceiveLog_Y_OffsetAdder = 0
-ReceiveLog_Y_AnimEnabled = False
-ReceiveLog_Y_AnimType = 0
-TextGrind_Text = list()
-TextGrind_X = list()
-TextGrind_Y = list()
-TextGrind_AliveTime = list()
-TextGrind_IsGrindText = list()
-TextGrind_TextColor = list()
-TextGrind_Value = list()
-
-# -- Game Items Variables -- #
-GameItemsList = list()
-GameItemsInitialized = False
-GameItems_TotalIndx_0 = 0
-GameItems_TotalIndx_NegativeOne = 0
 
 # -- Game Items View -- #
 ItemsView = gameObjs.HorizontalItemsView
@@ -93,66 +60,20 @@ SavingScreenEnabled = False
 Current_Maintenance = 0.0
 
 
-
 # -- Load/Save Functions -- #
 def LoadGame():
-    global Current_Money
-    global Current_MoneyValuePerClick
-    global GameItemsInitialized
     global ItemsView
-    global GameItemsList
-    global GameItems_TotalIndx_0
-    global GameItems_TotalIndx_NegativeOne
     print("LoadGame : Init")
     gameMain.FadeEffectState = True
     gameMain.FadeEffectCurrentState = 0
     gameMain.FadeEffectValue = 255
 
+    save.LoadSaveData()
 
-    Current_Money = reg.ReadKeyWithTry_float("/Save/money", 0.05)
-    Current_MoneyValuePerClick = reg.ReadKeyWithTry_float("/Save/money_per_click", 0.1)
+    save.LoadItems()
 
-    AllKeys = 0
-
-    SavedItemsData = reg.ReadKey("/Save/item/items").splitlines()
-
-    for i, x in enumerate(SavedItemsData):
-        print("ItemID ; " + x)
-
-        IsItemVisible = items.GetItem_IsVisibleByID(x)
-        if IsItemVisible:
-            ItemsView.AddItem(x)
-
-        if x == "0":
-            GameItems_TotalIndx_0 += 1
-            GameItemsList.append(gameObjs.Item_AutoClicker())
-        if x == "-1":
-            GameItems_TotalIndx_NegativeOne += 1
-            GameItemsList.append(gameObjs.Item_ExperienceStore())
-
-    print("AllKeys : " + str(AllKeys))
-
-    if GameItems_TotalIndx_NegativeOne > 1:
-        print(reg.ReadKey("/strings/game/save_reset"))
-        RestartSaveData()
-
-    GameItemsInitialized = True
     gameMain.FadeEffectState = True
     print("LoadGame : Game Loaded Sucefully")
-
-def RestartSaveData():
-    print("RestartSave : Restarting save data...")
-
-    ResetKeysString = reg.ReadKey("/Save/reset_keys").splitlines()
-    DefaultValuesStrings = reg.ReadKey("/Save/reset_keys_default_values").splitlines()
-
-    for x in range(0, len(ResetKeysString)):
-        print("RestartSave : CurrentID{0}".format(x))
-        reg.WriteKey(ResetKeysString[x], DefaultValuesStrings[x])
-
-    print("RestartSave : Operation completed successfully.")
-    reg.WriteKey("/Save/cheater", "True")
-    LoadGame()
 
 def SaveGame():
     global SavingScreenEnabled
@@ -160,19 +81,9 @@ def SaveGame():
     global BackgroundAnim_Type
     global BackgroundAnim_Enabled
     global BackgroundAnim_Numb
-    reg.WriteKey("/Save/money", str(Current_Money))
-    reg.WriteKey("/Save/money_per_click", str(Current_MoneyValuePerClick))
 
-    AllItemsData = ""
-
-    for i in range(0,len(GameItemsList)):
-        print("SaveItem : id:" + str(i))
-        if i >= 1:
-            AllItemsData += "\n" + str(GameItemsList[i].ItemID)
-        else:
-            AllItemsData += str(GameItemsList[i].ItemID)
-        print("SaveItem : Item saved.")
-    reg.WriteKey("/Save/item/items",AllItemsData)
+    save.SaveData()
+    save.SaveItems()
 
     BackgroundAnim_Type = 1
     BackgroundAnim_Enabled = True
@@ -225,31 +136,9 @@ def UpdateSavingScreen(DISPLAY):
 
     DISPLAY.blit(TextsSurface, (0,0))
 
-def AddMessageText(Text, IsGrindText, TextColor, Value=0):
-    TextGrind_Text.append(Text)
-    TextGrind_X.append(gameMain.DefaultDisplay.get_width() - 355 + 5)
-    TextGrind_Y.append(ReceiveLog_Y_Offset + gameMain.DefaultDisplay.get_height() - 27)
-    TextGrind_AliveTime.append(0)
-    TextGrind_IsGrindText.append(IsGrindText)
-    TextGrind_TextColor.append(TextColor)
-    TextGrind_Value.append(Value)
-
-MoneyPerSecound_Delta = 0
-MoneyPerSecound_Last = 0.0
 def Update():
-    global Current_Money
-    global Current_MoneyValuePerClick
-    global Current_MoneyPerSecound
-    global MoneyPerSecound_Delta
-    global MoneyPerSecound_Last
-    global ReceiveLog_Y_Offset
-    global ReceiveLog_Y_AnimEnabled
-    global ReceiveLog_Y_AnimType
-    global ReceiveLog_Y_OffsetAdder
     global GameOptionsButton
     global BackToMainMenuButton
-    global GameItemsList
-    global GameItemsInitialized
     global OpenStoreButton
     global StoreWindow_Enabled
     global ItemsView
@@ -257,19 +146,12 @@ def Update():
     global UnloadRequested
     global IsControlsEnabled
     global SavingScreenEnabled
-    global Current_MoneyFormated
-    global Current_MoneyPerSecoundFormatted
     global ExperienceStore_Enabled
     global InfosWindow_Enabled
-    global GameItems_TotalIndx_NegativeOne
-
-    Current_MoneyFormated = "{:2.2f}".format(Current_Money)
-    Current_MoneyPerSecoundFormatted = "{:10.2f}".format(Current_MoneyPerSecound)
 
     if IsControlsEnabled:
-        if GameItemsInitialized:
-            for x in GameItemsList:
-                x.Update()
+        # -- Update Save -- #
+        save.Update()
 
         ItemsView.Set_X(5)
         ItemsView.Set_Y(gameMain.DefaultDisplay.get_height() - 130)
@@ -277,17 +159,9 @@ def Update():
         # -- Update General Maintenance -- #
         MaintenanceCost()
 
-        MoneyPerSecound_Delta += 1
-        if MoneyPerSecound_Delta == 1000:
-            Current_MoneyPerSecound = Current_Money - MoneyPerSecound_Last
-            MoneyPerSecound_Last = Current_Money
-            MoneyPerSecound_Delta = 0
-
         # -- Update Buttons Click -- #
         if GrindButton.ButtonState == "UP":
-            AddMessageText("+" + str(Current_MoneyValuePerClick), True, (20,150,25), Current_MoneyValuePerClick)
-        if ReceiveLog_CloseButton.ButtonState == "UP":
-            ReceiveLog_Y_AnimEnabled = True
+            GrindClick()
         if GameOptionsButton.ButtonState == "UP":
             gameMain.FadeEffectValue = 255
             gameMain.FadeEffectCurrentState = 0
@@ -332,7 +206,7 @@ def Update():
                 StoreWindow_Enabled = False
                 ExperienceStore_Enabled = False
 
-        if OpenExperienceWindowButton.ButtonState == "UP" and GameItems_TotalIndx_NegativeOne == 1:
+        if OpenExperienceWindowButton.ButtonState == "UP" and save.GameItems_TotalIndx_NegativeOne == 1:
             if ExperienceStore_Enabled:
                 ExperienceStore_Enabled = False
                 storeWindow.RestartAnimation()
@@ -341,13 +215,6 @@ def Update():
                 StoreWindow_Enabled = False
                 InfosWindow_Enabled = False
 
-        
-
-        # -- Update Buttons Location -- #
-        ReceiveLog_CloseButton.Rectangle = pygame.rect.Rect(gameMain.DefaultDisplay.get_width() - 30,
-                                                            ReceiveLog_Y_Offset + gameMain.DefaultDisplay.get_height() - 353,
-                                                            ReceiveLog_CloseButton.Rectangle[2],
-                                                            ReceiveLog_CloseButton.Rectangle[3])
 
         GameOptionsButton.Set_X(gameMain.DefaultDisplay.get_width() - 120)
         SaveButton.Set_X(gameMain.DefaultDisplay.get_width() - 120)
@@ -358,33 +225,12 @@ def Update():
         OpenStoreButton.Set_Y(gameMain.DefaultDisplay.get_height() - OpenStoreButton.Rectangle[3] - 5)
         OpenInfosWindowButton.Set_X(OpenStoreButton.Rectangle[0] + OpenStoreButton.Rectangle[2] + 5)
         OpenInfosWindowButton.Set_Y(OpenStoreButton.Rectangle[1])
-        if GameItems_TotalIndx_NegativeOne == 1:
+        if save.GameItems_TotalIndx_NegativeOne == 1:
             OpenExperienceWindowButton.Set_X(OpenInfosWindowButton.Rectangle[0] + OpenInfosWindowButton.Rectangle[2] + 5)
             OpenExperienceWindowButton.Set_Y(OpenInfosWindowButton.Rectangle[1])
 
-        # -- Update the Receive Log Hide Animation -- #
-        if ReceiveLog_Y_AnimEnabled:
-            if ReceiveLog_Y_AnimType == 0:
-                ReceiveLog_Y_OffsetAdder += 1
-                ReceiveLog_Y_Offset += ReceiveLog_Y_OffsetAdder
 
-                if ReceiveLog_Y_Offset >= 310:
-                    ReceiveLog_Y_Offset = 310
-                    ReceiveLog_Y_OffsetAdder = 0
-                    ReceiveLog_Y_AnimType = 1
-                    ReceiveLog_Y_AnimEnabled = False
-                    ReceiveLog_CloseButton.ButtonText = reg.ReadKey("/strings/button/game/up_arrow")
-
-            if ReceiveLog_Y_AnimType == 1:
-                ReceiveLog_Y_OffsetAdder += 1
-                ReceiveLog_Y_Offset -= ReceiveLog_Y_OffsetAdder
-
-                if ReceiveLog_Y_Offset <= 0:
-                    ReceiveLog_Y_Offset = 0
-                    ReceiveLog_Y_OffsetAdder = 0
-                    ReceiveLog_Y_AnimType = 0
-                    ReceiveLog_Y_AnimEnabled = False
-                    ReceiveLog_CloseButton.ButtonText = reg.ReadKey("/strings/button/game/down_arrow")
+        IncomingLog.Update()
 
 MaintenanceCost_Delta = 0
 def MaintenanceCost():
@@ -397,49 +243,13 @@ def MaintenanceCost():
     if MaintenanceCost_Delta >= reg.ReadKey_float("/Save/general_maintenance_delta"):
         TotalItemsMaintenance = 0
 
-        for item in GameItemsList:
+        for item in save.GameItemsList:
             TotalItemsMaintenance = TotalItemsMaintenance + item.maintenance_cost
 
         MaintenanceGeral = reg.ReadKey_float("/Save/general_maintenance") + TotalItemsMaintenance
-        AddMessageText(reg.ReadKey("/strings/game/GeneralMaintenance") , True, (250, 150, 150, ), -MaintenanceGeral)
+        IncomingLog.AddMessageText(reg.ReadKey("/strings/game/GeneralMaintenance") , True, (250, 150, 150, ), -MaintenanceGeral)
         MaintenanceCost_Delta = 0
         Current_Maintenance = MaintenanceGeral
-
-def DrawGrindText(DISPLAY):
-    # -- Render the Window Background -- #
-    GlobalX = DISPLAY.get_width() - 355
-    GlobalY = ReceiveLog_Y_Offset + DISPLAY.get_height() - 355
-    sprite.RenderRectangle(DISPLAY, (4, 21, 32), (GlobalX, GlobalY, 350, 350)) # -- Container Background -- #
-    sprite.RenderRectangle(DISPLAY, (66, 75, 84), (GlobalX + 2, GlobalY + 2, 350 - 4, 350 - 4)) # -- Container Border -- #
-
-    global Current_Money
-    for x, TextGrind_TxT in enumerate(TextGrind_Text):
-        sprite.RenderFont(DISPLAY, "/PressStart2P.ttf", 20, TextGrind_TxT, TextGrind_TextColor[x], TextGrind_X[x], TextGrind_Y[x])
-
-        TextGrind_Y[x] -= 3
-        if TextGrind_IsGrindText[x]:
-            TextGrind_X[x] += TextGrind_AliveTime[x] / 256
-
-        TextGrind_AliveTime[x] += 1
-        if x > 255 or IsControlsEnabled == False or TextGrind_AliveTime[x] >= 500 + x or TextGrind_Y[x] <= ReceiveLog_Y_Offset + DISPLAY.get_height() - 350:
-            if TextGrind_IsGrindText[x]:
-                Current_Money += float(TextGrind_Value[x])
-                sound.PlaySound("/chinas.ogg")
-            TextGrind_Text.pop(x)
-            TextGrind_X.pop(x)
-            TextGrind_Y.pop(x)
-            TextGrind_AliveTime.pop(x)
-            TextGrind_IsGrindText.pop(x)
-            TextGrind_TextColor.pop(x)
-            TextGrind_Value.pop(x)
-
-
-    # -- Render the Container Title -- #
-    sprite.RenderRectangle(DISPLAY, (13, 10, 13), (GlobalX + 2, GlobalY + 2, 350 - 4, 24 - 4))
-    sprite.RenderFont(DISPLAY, "/PressStart2P.ttf", 18, reg.ReadKey("/strings/game/receiving_log"), (250, 250, 255), GlobalX + 3,
-                      GlobalY + 3)
-
-    ReceiveLog_CloseButton.Render(DISPLAY)
 
 def GameDraw(DISPLAY):
     global BackToMainMenuButton
@@ -453,7 +263,7 @@ def GameDraw(DISPLAY):
     global Current_MoneyPerSecoundFormatted
     global GameItems_TotalIndx_NegativeOne
     # -- Draw the Grind Text -- #
-    DrawGrindText(DISPLAY)
+    IncomingLog.DrawGrindText(DISPLAY)
     # -- Draw the Grind Button -- #
     GrindButton.Render(DISPLAY)
     # -- Draw the Options Button -- #
@@ -469,27 +279,27 @@ def GameDraw(DISPLAY):
     # -- Draw the OpenInfosWindow -- #
     OpenInfosWindowButton.Render(DISPLAY)
     # -- Draw the OpenExperience -- #
-    if GameItems_TotalIndx_NegativeOne == 1:
+    if save.GameItems_TotalIndx_NegativeOne == 1:
         OpenExperienceWindowButton.Render(DISPLAY)
 
     # -- Render Money Text -- #
     MoneyColor = (250,250,255)
     PerSecoundColor = (220, 220, 220)
-    if Current_Money > 0.1:
+    if save.Current_Money > 0.1:
         MoneyColor = (120, 220, 120)
-    elif Current_Money <= 0:
+    elif save.Current_Money <= 0:
         MoneyColor = (220, 10, 10)
-    sprite.RenderFont(DISPLAY, "/PressStart2P.ttf", 18, reg.ReadKey("/strings/game/money") + Current_MoneyFormated,
-                      MoneyColor, 10, 20)
-    if Current_MoneyPerSecound > 0.1:
+    if save.Current_MoneyPerSecound > 0.1:
         PerSecoundColor = (50, 200, 50)
-    elif Current_MoneyPerSecound <= 0:
+    elif save.Current_MoneyPerSecound <= 0:
         PerSecoundColor = (120, 10, 10)
 
-    sprite.RenderFont(DISPLAY,"/PressStart2P.ttf", 18, reg.ReadKey("/strings/game/money_per_secound") + Current_MoneyPerSecoundFormatted, PerSecoundColor, 10,50)
-
-    if GameItems_TotalIndx_NegativeOne == 1:
-        sprite.RenderFont(DISPLAY,"/PressStart2P.ttf", 18, reg.ReadKey("/strings/game/experience") + str(CUrrent_Experience), (140, 130, 120) , 10, 80)
+    # -- Render Current Money, at Top -- #
+    sprite.RenderFont(DISPLAY, "/PressStart2P.ttf", 18, reg.ReadKey("/strings/game/money") + save.Current_MoneyFormated, MoneyColor, 10, 20)
+    # -- Render Money per Secound -- #
+    sprite.RenderFont(DISPLAY,"/PressStart2P.ttf", 18, reg.ReadKey("/strings/game/money_per_secound") + save.Current_MoneyPerSecoundFormatted, PerSecoundColor, 10,50)
+    # -- Render Experience -- #
+    sprite.RenderFont(DISPLAY,"/PressStart2P.ttf", 18, reg.ReadKey("/strings/game/experience") + str(save.CUrrent_ExperienceFormated) + "/" + str(save.Current_TotalClicks - save.Current_TotalClicksNext) + "=" + str(save.Current_ExperiencePerEach), (140, 130, 120) , 10, 80)
 
 
     # -- Draw the Store Window -- #
@@ -501,7 +311,7 @@ def GameDraw(DISPLAY):
         infosWindow.Render(DISPLAY)
 
     # -- Draw the Exp Store Window -- #
-    if ExperienceStore_Enabled and GameItems_TotalIndx_NegativeOne == 1:
+    if ExperienceStore_Enabled and save.GameItems_TotalIndx_NegativeOne == 1:
         expStoreWindow.Render(DISPLAY)
 
     # -- Draw the Saving Screen -- #
@@ -510,7 +320,6 @@ def GameDraw(DISPLAY):
 
 def Initialize(DISPLAY):
     # -- Set Buttons -- #
-    global ReceiveLog_CloseButton
     global SaveButton
     global GameOptionsButton
     global GrindButton
@@ -522,7 +331,6 @@ def Initialize(DISPLAY):
     # -- Initialize Buttons -- #
     GrindButton = gameObjs.Button(pygame.rect.Rect(15, 115, 130, 150), "Loremk ipsum dolor sit amet...", 18)
     GrindButton.WhiteButton = True
-    ReceiveLog_CloseButton = gameObjs.Button(pygame.rect.Rect(320, 0, 0, 0), reg.ReadKey("/strings/button/game/down_arrow"), 16)
     GameOptionsButton = gameObjs.Button(pygame.rect.Rect(DISPLAY.get_width() - 120, 5, 0, 0), reg.ReadKey("/strings/button/game/options"), 12)
     SaveButton = gameObjs.Button(pygame.rect.Rect(DISPLAY.get_width() - 120, 20, 0, 0), reg.ReadKey("/strings/button/game/save"), 12)
     BackToMainMenuButton = gameObjs.Button(pygame.Rect(DISPLAY.get_width() - 120,35,0,0),reg.ReadKey("/strings/button/game/main_menu"),12)
@@ -530,6 +338,8 @@ def Initialize(DISPLAY):
     OpenInfosWindowButton = gameObjs.Button(pygame.Rect(0, 0, 0, 0), reg.ReadKey("/strings/button/game/infos"), 14)
     OpenExperienceWindowButton = gameObjs.Button(pygame.Rect(0,0,0,0), reg.ReadKey("/strings/button/game/experience_store"), 14)
     ItemsView = gameObjs.HorizontalItemsView(pygame.Rect(5, 500, 430, 100))
+
+    IncomingLog.Initialize()
 
     # -- Load Saved Values -- #
     LoadGame()
@@ -542,49 +352,16 @@ def Initialize(DISPLAY):
     gameMain.ClearColor = (5, 20, 14)
 
 def Unload():
-    global Current_Money
-    global Current_MoneyValuePerClick
-    global CUrrent_Experience
-    global storeWindow
-    global GameItemsList
-    global GameItemsInitialized
-    global GameItems_TotalIndx_NegativeOne
-    global GameItems_TotalIndx_0
-    global TextGrind_Y
-    global TextGrind_X
-    global TextGrind_AliveTime
-    global TextGrind_IsGrindText
-    global TextGrind_Value
-    global TextGrind_Text
-    global TextGrind_TextColor
     global StoreWindow_Enabled
     global UnloadDelay
     global UnloadRequested
-
-
-    # -- Restart Current Money -- #
-    print("GameScreen : Restart User Data")
-    Current_Money = 0
-    Current_MoneyValuePerClick = 0
-    CUrrent_Experience = 0
+    save.Unload()
 
     # -- Clear Game Items -- #
-    print("GameScreen : Clear Game Items")
-    GameItemsList.clear()
-    GameItemsInitialized = False
-    GameItems_TotalIndx_0 = 0
-    GameItems_TotalIndx_NegativeOne = 0
+    save.GameItemsList.clear()
     StoreWindow_Enabled = False
 
-    # -- Clear Receiving Log -- #
-    print("GameScreen : Clear Receiving Log")
-    TextGrind_Y.clear()
-    TextGrind_X.clear()
-    TextGrind_AliveTime.clear()
-    TextGrind_IsGrindText.clear()
-    TextGrind_Value.clear()
-    TextGrind_Text.clear()
-    TextGrind_TextColor.clear()
+    IncomingLog.Unload()
 
     print("GameScreen : Restart storeWindow")
     storeWindow.RestartAnimation()
@@ -596,7 +373,6 @@ def Unload():
 def EventUpdate(event):
     # -- Update all buttons -- #
     global GrindButton
-    global ReceiveLog_CloseButton
     global GameOptionsButton
     global SaveButton
     global BackToMainMenuButton
@@ -606,18 +382,17 @@ def EventUpdate(event):
     global IsControlsEnabled
     global OpenExperienceWindowButton
     global OpenInfosWindowButton
-    global GameItems_TotalIndx_NegativeOne
 
     if IsControlsEnabled:
         GrindButton.Update(event)
-        ReceiveLog_CloseButton.Update(event)
         GameOptionsButton.Update(event)
         SaveButton.Update(event)
         BackToMainMenuButton.Update(event)
         OpenStoreButton.Update(event)
         ItemsView.Update(event)
+        IncomingLog.EventUpdate(event)
         OpenInfosWindowButton.Update(event)
-        if GameItems_TotalIndx_NegativeOne == 1:
+        if save.GameItems_TotalIndx_NegativeOne == 1:
             OpenExperienceWindowButton.Update(event)
 
         # -- Update store Window -- #
@@ -628,11 +403,23 @@ def EventUpdate(event):
         if InfosWindow_Enabled:
             infosWindow.EventUpdate(event)
 
-        if ExperienceStore_Enabled and GameItems_TotalIndx_NegativeOne == 1:
+        if ExperienceStore_Enabled:
             expStoreWindow.EventUpdate(event)
 
     if event.type == pygame.KEYUP and event.key == pygame.K_z:
-        AddMessageText("+" + str(Current_MoneyValuePerClick), True, (20, 150, 25), Current_MoneyValuePerClick)
+        GrindClick()
 
     if event.type == pygame.KEYUP and event.key == pygame.K_m:
-        AddMessageText("+" + str(Current_MoneyValuePerClick), True, (20, 150, 25), Current_MoneyValuePerClick)
+        GrindClick()
+
+
+
+def GrindClick():
+    save.Current_TotalClicks += 1
+
+    if save.Current_TotalClicks == save.Current_TotalClicksNext:
+        save.Current_TotalClicksNext = save.Current_TotalClicks + save.Current_TotalClicksForEach
+        save.CUrrent_Experience += save.Current_ExperiencePerEach
+        IncomingLog.AddMessageText("€+" + str(save.Current_ExperiencePerEach), False, (150,150,150))
+
+    IncomingLog.AddMessageText("$+" + str(save.Current_MoneyValuePerClick), True, (20, 150, 25), save.Current_MoneyValuePerClick)

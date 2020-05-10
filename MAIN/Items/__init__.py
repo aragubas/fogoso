@@ -30,8 +30,3 @@ def GetItemPrice_ByID(ItemID):
     LastItemLevel = reg.ReadKey_int("/Save/item/last_level/" + str(ItemID))
     CorrectKeyName = "/ItemData/store/price/" + str(ItemID) + "_level_" + str(LastItemLevel)
     return reg.ReadKey_float(CorrectKeyName)
-
-def GetItem_IsVisibleByID(ItemID):
-    if ItemID != "":
-        CorrectKeyName = "/ItemData/" + str(ItemID) + "/is_visible"
-        return reg.ReadKey_bool(CorrectKeyName)

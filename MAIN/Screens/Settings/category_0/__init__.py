@@ -60,28 +60,30 @@ def Update():
 
     if OptionsScreen_ChangeFps.ButtonState == "UP":
         print("MaxFPS is [" + str(gameMain.Engine_MaxFPS) + "]")
-        if gameMain.Engine_MaxFPS == 120:
-            gameMain.Engine_MaxFPS = 0
-        elif gameMain.Engine_MaxFPS == 75:
-            gameMain.Engine_MaxFPS = 120
-        elif gameMain.Engine_MaxFPS == 60:
-            gameMain.Engine_MaxFPS = 75
-        elif gameMain.Engine_MaxFPS == 0:
+        if gameMain.Engine_MaxFPS == 60:
+            gameMain.Engine_MaxFPS = 25
+        elif gameMain.Engine_MaxFPS == 25:
+            gameMain.Engine_MaxFPS = 30
+        elif gameMain.Engine_MaxFPS == 30:
+            gameMain.Engine_MaxFPS = 45
+        elif gameMain.Engine_MaxFPS == 45:
             gameMain.Engine_MaxFPS = 60
+
         gameMain.Messages.append("SET_FPS:" + str(gameMain.Engine_MaxFPS))
         reg.WriteKey("/OPTIONS/maxFPS", str(gameMain.Engine_MaxFPS))
         print("MaxFPS is now set to[" + str(gameMain.Engine_MaxFPS) + "]")
 
     if OptionsScreen_ChangeFps.ButtonState == "DOWN":
         print("MaxFPS is [" + str(gameMain.Engine_MaxFPS) + "]")
-        if gameMain.Engine_MaxFPS == 120:
-            gameMain.Engine_MaxFPS = 75
-        elif gameMain.Engine_MaxFPS == 75:
+        if gameMain.Engine_MaxFPS == 60:
+            gameMain.Engine_MaxFPS = 45
+        elif gameMain.Engine_MaxFPS == 45:
+            gameMain.Engine_MaxFPS = 30
+        elif gameMain.Engine_MaxFPS == 30:
+            gameMain.Engine_MaxFPS = 25
+        elif gameMain.Engine_MaxFPS == 25:
             gameMain.Engine_MaxFPS = 60
-        elif gameMain.Engine_MaxFPS == 60:
-            gameMain.Engine_MaxFPS = 0
-        elif gameMain.Engine_MaxFPS == 0:
-            gameMain.Engine_MaxFPS = 120
+
         gameMain.Messages.append("SET_FPS:" + str(gameMain.Engine_MaxFPS))
         reg.WriteKey("/OPTIONS/maxFPS", str(gameMain.Engine_MaxFPS))
         print("MaxFPS is now set to[" + str(gameMain.Engine_MaxFPS) + "]")

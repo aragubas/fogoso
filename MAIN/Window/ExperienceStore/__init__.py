@@ -17,9 +17,10 @@
 
 from ENGINE import SPRITE as sprite
 from ENGINE import REGISTRY as reg
-from Fogoso.MAIN.Screens import Game as GameScreen 
+from ENGINE import UTILS as utils
+from Fogoso.MAIN.Screens.Game import IncomingLog as IncomingLog
 from Fogoso.MAIN import ClassesUtils as gameObjs
-from Fogoso import MAIN as GameMain
+from Fogoso.MAIN import GameVariables as save
 import pygame
 
 print("Fogoso Experience Store Window, Version 1.0")
@@ -93,7 +94,7 @@ def Render(DISPLAY):
             # -- Draw the Item Title -- #
             sprite.RenderFont(DrawnSurface, "/PressStart2P.ttf", 15, ListItems.LastItemClicked,(250,250,250),10,DrawnSurface.get_height() - DownBar_BuyPanelYOffset + 5, reg.ReadKey_bool("/OPTIONS/font_aa"))
             # -- Draw the Item Price -- #
-            sprite.RenderFont(DrawnSurface,"/PressStart2P.ttf",8, "€xp" + str(SelectedItemPrice),(250,250,250),10,DrawnSurface.get_height() - DownBar_BuyPanelYOffset + 20, reg.ReadKey_bool("/OPTIONS/font_aa"))
+            sprite.RenderFont(DrawnSurface,"/PressStart2P.ttf",8, "€xp" + str(utils.FormatNumber(SelectedItemPrice)),(250,250,250),10,DrawnSurface.get_height() - DownBar_BuyPanelYOffset + 20, reg.ReadKey_bool("/OPTIONS/font_aa"))
 
     WindowObject.Render(DISPLAY)
     DISPLAY.blit(DrawnSurface, WindowObject.WindowSurface_Dest)
@@ -112,7 +113,7 @@ def UpdateControls():
     BuyButton.Set_ColisionY(WindowObject.WindowRectangle[1] + BuyButton.Rectangle[1] + BuyButton.Rectangle[3])
 
     if BuyButton.ButtonState == "UP":
-        if GameScreen.CUrrent_Experience >= GetItemPrice_ByID(SelectedItemID):
+        if save.CUrrent_Experience >= GetItemPrice_ByID(SelectedItemID):
             BuyItem_ByID(SelectedItemID)
 
     # -- Set Items List Size -- #
@@ -153,19 +154,19 @@ def BuyItem_ByID(ItemID):
     Price = GetItemPrice_ByID(ItemID)
 
     if Price < 0.0:
-        GameScreen.AddMessageText(reg.ReadKey("/strings/window/expecience_store/item_not_upgradable"), False, (250, 140, 140))
+        IncomingLog.AddMessageText(reg.ReadKey("/strings/window/expecience_store/item_not_upgradable"), False, (250, 140, 140))
     else:
-        GameScreen.CUrrent_Experience -= Price
-        ItemLevelKey = "/Save/item/last_level/" + SelectedItemID
+        save.CUrrent_Experience -= Price
+        ItemLevelKey = "/Save/item/last_level/" + str(SelectedItemID)
         reg.WriteKey(ItemLevelKey, str(SelectedItemLevel))
-        GameScreen.AddMessageText(reg.ReadKey("/strings/window/expecience_store/item_upgrade"), False, (140, 240, 140))
+        IncomingLog.AddMessageText(reg.ReadKey("/strings/window/expecience_store/item_upgrade"), False, (140, 240, 140))
         ReloadItemsList()
         
-        print("UpgradeStore : Updating loaded items data...")
-        for x in GameScreen.GameItemsList:
-            x.ItemLevel = reg.ReadKey_int("/Save/item/last_level/" + str(x.ItemID))
-        print("UpgradeStore : Opeation Completed.")
-    
+        # -- Reload Items Data -- #
+        save.SaveItems()
+        save.RestartItems()
+
+
 
 def ReloadItemsList():
     global ListItems
@@ -193,9 +194,6 @@ def RestartAnimation():
     DownBar_BuyPanelAnimEnabled = False
     DownBar_BuyPanelYOffset = 0
     LastClickedItem = "null"
-    SelectedItemID = 0
-    SelectedItemLevel = 0
-    SelectedItemPrice = 0
 
 
 def EventUpdate(event):

@@ -14,10 +14,10 @@
 #   limitations under the License.
 #
 #
+
 from ENGINE import SPRITE as sprite
 from Fogoso import MAIN as mainScript
 from ENGINE import REGISTRY as reg
-from ENGINE import sound as sound
 import pygame
 import random
 
@@ -126,7 +126,6 @@ class Button:
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if self.ColisionRectangle.collidepoint(mainScript.Cursor_Position):
                     self.ButtonState = "DOWN"
-                    sound.PlaySound("/chinas.ogg")
                     self.ButtonDowed = True
             elif event.type == pygame.MOUSEBUTTONUP:
                 if self.ColisionRectangle.collidepoint(mainScript.Cursor_Position):
@@ -217,7 +216,6 @@ class Button:
         DISPLAY.blit(ButtonSurface, (self.Rectangle[0], self.Rectangle[1]))
         if self.ButtonState == "UP":
             self.ButtonState = "INATIVE"
-
 
 class UpDownButton:
     def __init__(self, X, Y, TextSize):
@@ -553,9 +551,9 @@ class HorizontalItemsView:
             # -- Render the Item Little Info -- #
             LittleInfoText = "CANNOT OBTAIN\nITEM DATA."
             if self.ItemsName[i] == "-1":
-                LittleInfoText = "Count:\n{0}\nLevel:\n{1}".format(str(mainScript.ScreenGame.GameItems_TotalIndx_NegativeOne), str(reg.ReadKey("/Save/item/last_level/" + str(itemNam))))
+                LittleInfoText = "Count:\n{0}\nLevel:\n{1}".format(str(mainScript.save.GameItems_TotalIndx_NegativeOne), str(reg.ReadKey("/Save/item/last_level/" + str(itemNam))))
             if self.ItemsName[i] == "0":
-                LittleInfoText = "Count:\n{0}\nLevel:\n{1}".format(str(mainScript.ScreenGame.GameItems_TotalIndx_0), str(reg.ReadKey("/Save/item/last_level/" + str(itemNam))))
+                LittleInfoText = "Count:\n{0}\nLevel:\n{1}".format(str(mainScript.save.GameItems_TotalIndx_0), str(reg.ReadKey("/Save/item/last_level/" + str(itemNam))))
 
             sprite.RenderFont(self.ListSurface, "/PressStart2P.ttf", 10, LittleInfoText, (250, 250, 250), ItemRect[0] + 65, ItemRect[1] + 12, reg.ReadKey_bool("/OPTIONS/font_aa"))
 
@@ -602,6 +600,7 @@ class Item_AutoClicker:
         self.InternalDelay = 0
         self.DeltaTimeAction = int(reg.ReadKey("/ItemData/0/lv_" + str(self.ItemLevel) + "_delta"))
         self.maintenance_cost = reg.ReadKey_float("/ItemData/0/lv_" + str(self.ItemLevel) + "_cost_maintenance")
+        self.ExpMiningTotal = reg.ReadKey_float("/ItemData/0/lv_" + str(self.ItemLevel) + "_exp")
 
     def Update(self):
         self.DeltaTime += 1
@@ -610,7 +609,11 @@ class Item_AutoClicker:
             self.InternalDelay += 1
 
             if self.InternalDelay >= random.randint(100, int(self.DeltaTimeAction)):
-                mainScript.ScreenGame.AddMessageText("+" + str(self.ItemClickPerSecound), True, (100, 210, 100), self.ItemClickPerSecound)
+                mainScript.ScreenGame.IncomingLog.AddMessageText("+" + str(self.ItemClickPerSecound), True, (100, 210, 100), self.ItemClickPerSecound)
+                if self.ExpMiningTotal > 0:
+                    mainScript.ScreenGame.save.CUrrent_Experience += self.ExpMiningTotal
+                    mainScript.ScreenGame.IncomingLog.AddMessageText("€+" + str(self.ItemClickPerSecound), True, (100, 110, 100), self.ItemClickPerSecound)
+
                 self.DeltaTime = 0
                 self.InternalDelay = 0
 
@@ -628,5 +631,5 @@ class Item_ExperienceStore:
         self.DeltaTime += 1
 
         if int(self.DeltaTime) >= int(self.DeltaTimeAction):
-            mainScript.ScreenGame.AddMessageText("+" + str(self.ItemClickPerSecound), True, (100, 210, 100), self.ItemClickPerSecound)
+            mainScript.ScreenGame.IncomingLog.AddMessageText("+" + str(self.ItemClickPerSecound), True, (100, 210, 100), self.ItemClickPerSecound)
             self.DeltaTime = 0

@@ -25,7 +25,7 @@ from Fogoso.MAIN.Screens import Intro as ScreenIntro
 from Fogoso.MAIN.Screens.Game import MapRender as ScreenMap
 from ENGINE import SPRITE as sprite
 from random import randint
-from ENGINE import sound as sound
+from Fogoso.MAIN import GameVariables as save
 import pygame, sys
 
 
@@ -142,11 +142,12 @@ def GameDraw(DISPLAY):
             LastErrorText = ""
 
 def GeneratedWindowTitle():
-    NumberMax = reg.ReadKey_int("/strings/gme_wt/all")
-    Current = randint(0, NumberMax)
-    print("GeneratedWindowTitle : ID=" + str(Current))
+    if reg.ReadKey_bool("/OPTIONS/random_title"):
+        NumberMax = reg.ReadKey_int("/strings/gme_wt/all")
+        Current = randint(0, NumberMax)
+        print("GeneratedWindowTitle : ID=" + str(Current))
 
-    pygame.display.set_caption("Fogoso : " + reg.ReadKey("/strings/gme_wt/" + str(Current)))
+        pygame.display.set_caption("Fogoso : " + reg.ReadKey("/strings/gme_wt/" + str(Current)))
 
 
 def FadeAnimation():
