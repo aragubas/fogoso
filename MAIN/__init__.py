@@ -126,9 +126,6 @@ def GameDraw(DISPLAY):
     # -- Render Cursor -- #
     sprite.Render(DefaultDisplay, "/cursors/{0}.png".format(str(Cursor_CurrentLevel)), Cursor_Position[0], Cursor_Position[1], CursorW, CursorH)
 
-    # -- Update the Screen --
-    pygame.display.update()
-
     # -- Render the Error Overlay -- #
     if LastErrorTextEnabled:
         LastErrorTextDeltaTime += 1
@@ -254,9 +251,6 @@ def EventUpdate(event):
     # -- Update Cursor Location -- #
     if event.type == pygame.MOUSEMOTION:
         Cursor_Position[0], Cursor_Position[1] = pygame.mouse.get_pos()
-    if event.type == pygame.KEYUP and event.key == pygame.K_F12:
-        reg.Reload()
-        SendErrorMessage("Registry Reloaded.")
 
     if not reg.ReadKey_bool("/OPTIONS/debug_enabled"):
         try:
