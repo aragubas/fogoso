@@ -23,7 +23,7 @@ import random
 
 print("Game : Classes Utils v1.1")
 
-def Draw_Panel(DISPLAY, Rectangle, Color=(0,0,0)):
+def Draw_Panel(DISPLAY, Rectangle, Color=(0,0,0,0)):
     if reg.ReadKey_bool("/OPTIONS/UI_blur_enabled"):
         if not reg.ReadKey_bool("/OPTIONS/UI_Pixelate"):
             DISPLAY.blit(sprite.Surface_Blur(DISPLAY, reg.ReadKey_float("/OPTIONS/UI_blur_ammount")),(Rectangle[0], Rectangle[1]), Rectangle)
@@ -32,13 +32,6 @@ def Draw_Panel(DISPLAY, Rectangle, Color=(0,0,0)):
 
     else:
         sprite.RenderRectangle(DISPLAY, Color, Rectangle)
-
-    if reg.ReadKey_int("/OPTIONS/UI_contrast") > 1:
-        Color = (0, 0, 0)
-        BackContrast = pygame.Surface((Rectangle[2], Rectangle[3]), pygame.SRCALPHA)
-        pygame.draw.rect(BackContrast, (Color[0], Color[0], Color[0], reg.ReadKey_int("/OPTIONS/UI_contrast")),
-                         (0, 0, Rectangle[2], Rectangle[3]))
-        DISPLAY.blit(BackContrast, (Rectangle[0], Rectangle[1]))
 
 
 class SpriteButton:
@@ -117,10 +110,16 @@ class Button:
         self.ColisionRectangle = self.Rectangle
         self.CustomColisionRectangle = False
         self.BackgroundColor = (1, 22, 39)
+        self.ButtonSurface = pygame.Surface((self.Rectangle[2], self.Rectangle[3]), pygame.SRCALPHA)
+        self.ButtonSurfaceUpdated = False
 
     def Update(self, event):
         if not self.CustomColisionRectangle:
             self.ColisionRectangle = self.Rectangle
+
+        if not self.ButtonSurfaceUpdated:
+            self.ButtonSurfaceUpdated = False
+            self.ButtonSurface = pygame.Surface((self.Rectangle[2], self.Rectangle[3]), pygame.SRCALPHA)
 
         if self.IsButtonEnabled:
             if event.type == pygame.MOUSEBUTTONDOWN:
@@ -160,9 +159,11 @@ class Button:
 
     def Set_Width(self, Value):
         self.Rectangle[2] = Value
+        self.ButtonSurfaceUpdated = True
 
     def Set_Height(self, Value):
         self.Rectangle[3] = Value
+        self.ButtonSurfaceUpdated = True
 
     def Set_ColisionX(self, Value):
         self.ColisionRectangle[0] = Value
@@ -175,28 +176,27 @@ class Button:
 
     def Render(self, DISPLAY):
         # -- Render the Background -- #
-        ButtonSurface = pygame.Surface((self.Rectangle[2], self.Rectangle[3]), pygame.SRCALPHA)
-        pygame.draw.rect(ButtonSurface, self.BackgroundColor, (0,0, self.Rectangle[2], self.Rectangle[3]))
+        pygame.draw.rect(self.ButtonSurface, self.BackgroundColor, (0,0, self.Rectangle[2], self.Rectangle[3]))
 
         if not self.WhiteButton:
             if self.ButtonState == "INATIVE":
                 self.BackgroundColor = (1, 22, 39, 50)
 
                 # -- Indicator Bar -- #
-                sprite.RenderRectangle(ButtonSurface, (255, 51, 102), (0, 0, self.Rectangle[2],1))
+                sprite.RenderRectangle(self.ButtonSurface, (255, 51, 102), (0, 0, self.Rectangle[2],1))
 
                 # -- Text -- #
-                sprite.RenderFont(ButtonSurface, "/PressStart2P.ttf", self.TextSize, self.ButtonText, (200, 200, 200),
+                sprite.RenderFont(self.ButtonSurface, "/PressStart2P.ttf", self.TextSize, self.ButtonText, (200, 200, 200),
                                   3, 3, reg.ReadKey_bool("/OPTIONS/font_aa"))
 
             else:
                 # -- Background -- #
                 self.BackgroundColor = (15, 27, 44, 100)
                 # -- Indicator Bar -- #
-                sprite.RenderRectangle(ButtonSurface, (46, 196, 182), (0, 0,self.Rectangle[2],1))
+                sprite.RenderRectangle(self.ButtonSurface, (46, 196, 182), (0, 0,self.Rectangle[2],1))
 
                 # -- Text -- #
-                sprite.RenderFont(ButtonSurface, "/PressStart2P.ttf", self.TextSize, self.ButtonText, (255, 255, 255),
+                sprite.RenderFont(self.ButtonSurface, "/PressStart2P.ttf", self.TextSize, self.ButtonText, (255, 255, 255),
                                   3, 3, reg.ReadKey_bool("/OPTIONS/font_aa"))
         else:
             if self.ButtonState == "INATIVE":
@@ -204,16 +204,16 @@ class Button:
                 self.BackgroundColor = (1, 22, 39, 50)
 
                 # -- Indicator Bar -- #
-                sprite.RenderRectangle(ButtonSurface, (255, 51, 102), (0, 0,self.Rectangle[2],4))
+                sprite.RenderRectangle(self.ButtonSurface, (255, 51, 102), (0, 0,self.Rectangle[2],4))
 
             else:
                 # -- Background -- #
                 self.BackgroundColor = (15, 27, 44, 100)
                 # -- Indicator Bar -- #
-                sprite.RenderRectangle(ButtonSurface, (46, 196, 182), (0, 0, self.Rectangle[2],2))
+                sprite.RenderRectangle(self.ButtonSurface, (46, 196, 182), (0, 0, self.Rectangle[2],2))
 
         # -- Draw the Button -- #
-        DISPLAY.blit(ButtonSurface, (self.Rectangle[0], self.Rectangle[1]))
+        DISPLAY.blit(self.ButtonSurface, (self.Rectangle[0], self.Rectangle[1]))
         if self.ButtonState == "UP":
             self.ButtonState = "INATIVE"
 
@@ -298,6 +298,9 @@ class Window:
         self.OriginalResiziable = False
         self.WindowSurface_Dest = (0, 0)
         self.Minimizable = True
+        self.SurfaceSizeFixed = False
+        if not self.WindowMinimized:
+            self.WindowSurface = pygame.Surface((self.WindowRectangle[2], self.WindowRectangle[3] - 20), pygame.SRCALPHA)
 
     def Render(self, DISPLAY):
         # -- Window Rectangle -- #
@@ -318,9 +321,7 @@ class Window:
         if self.Minimizable:
             self.MinimizeButton.Set_X(self.WindowRectangle[0] + self.WindowRectangle[2] - 21)
             self.MinimizeButton.Set_Y(self.WindowRectangle[1])
-        # -- Window Surface -- #
-        if not self.WindowMinimized:
-            self.WindowSurface = pygame.Surface((self.WindowRectangle[2], self.WindowRectangle[3] - 20), pygame.SRCALPHA)
+
         # -- Update Window Surface Destination -- #
         if not self.WindowMinimized:
             self.WindowSurface_Dest = self.WindowRectangle[0], self.WindowRectangle[1] + 20
@@ -391,19 +392,34 @@ class Window:
         if self.Window_IsBeingGrabbed:
             self.TitleBarRectangle[0] = self.Cursor_Position[0] - self.WindowRectangle[2] / 2
             self.TitleBarRectangle[1] = self.Cursor_Position[1] - self.TitleBarRectangle[3] / 2
+
         # -- Resize Window -- #
-        if self.Window_IsBeingResized and self.Resiziable:
+        if self.Window_IsBeingResized and self.Resiziable: # <- Resize the Window
+            # -- Limit Window Size -- #
+
             if self.WindowRectangle[2] >= self.Window_MinimunW:
                 self.WindowRectangle[2] = self.Cursor_Position[0] - self.WindowRectangle[0]
+                self.UpdateSurface()
 
-            if self.WindowRectangle[3] >= self.Window_MinimunH:
+            if self.WindowRectangle[3] >= self.Window_MinimunH: # <- Resize the Window
                 self.WindowRectangle[3] = self.Cursor_Position[1] - self.WindowRectangle[1]
+                self.UpdateSurface()
 
-        if self.WindowRectangle[2] <= self.Window_MinimunW:
+            print("Window is being resized")
+
+        if self.WindowRectangle[2] < self.Window_MinimunW:
             self.WindowRectangle[2] = self.Window_MinimunW
-        # -------------------------------------------------
-        if self.WindowRectangle[3] <= self.Window_MinimunH:
+            self.UpdateSurface()
+
+            # -------------------------------------------------
+        if self.WindowRectangle[3] < self.Window_MinimunH:
             self.WindowRectangle[3] = self.Window_MinimunH
+            self.UpdateSurface()
+
+
+    def UpdateSurface(self):
+        self.WindowSurface = pygame.Surface((self.WindowRectangle[2], self.WindowRectangle[3] - 20), pygame.SRCALPHA)
+        print("Surface updated")
 
     def ToggleMinimize(self):
         if self.WindowMinimized:

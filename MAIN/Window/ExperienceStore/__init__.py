@@ -66,7 +66,7 @@ def Render(DISPLAY):
     global StoreLocked
     # -- Update the Surface -- #
     DrawnSurface = WindowObject.WindowSurface
-
+    DrawnSurface.fill((0,0,0,0))
     if not StoreLocked:
         # -- Update Controls -- #
         UpdateControls()

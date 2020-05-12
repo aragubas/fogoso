@@ -71,6 +71,7 @@ def Render(DISPLAY):
     global TransitionAdder
     # -- Update the Surface -- #
     DrawnSurface = WindowObject.WindowSurface
+    DrawnSurface.fill((0,0,0,0))
     if TransitionEnabled and reg.ReadKey_bool("/OPTIONS/Windows_transitions"):
         # -- Render the Transition Surface -- #
         TransitionBGSurf = pygame.Surface((DrawnSurface.get_width(),DrawnSurface.get_height()), pygame.SRCALPHA)        
