@@ -18,21 +18,23 @@
 from ENGINE import SPRITE as sprite
 from Fogoso import MAIN as mainScript
 from ENGINE import REGISTRY as reg
+from ENGINE import SOUND as sound
 import pygame
 import random
 
 print("Game : Classes Utils v1.1")
 
 def Draw_Panel(DISPLAY, Rectangle, Color=(0,0,0,0)):
+    ResultPanel = pygame.Surface((Rectangle[2], Rectangle[3]))
+
     if reg.ReadKey_bool("/OPTIONS/UI_blur_enabled"):
         if not reg.ReadKey_bool("/OPTIONS/UI_Pixelate"):
-            DISPLAY.blit(sprite.Surface_Blur(DISPLAY, reg.ReadKey_float("/OPTIONS/UI_blur_ammount")),(Rectangle[0], Rectangle[1]), Rectangle)
+            ResultPanel.blit(sprite.Surface_Blur(DISPLAY, reg.ReadKey_float("/OPTIONS/UI_blur_ammount")), (0, 0), Rectangle)
         else:
-            DISPLAY.blit(sprite.Surface_Pixalizate(DISPLAY, reg.ReadKey_float("/OPTIONS/UI_blur_ammount")),(Rectangle[0], Rectangle[1]), Rectangle)
+            ResultPanel.blit(sprite.Surface_Pixalizate(DISPLAY, reg.ReadKey_float("/OPTIONS/UI_blur_ammount")), (0, 0), Rectangle)
 
-    else:
-        sprite.RenderRectangle(DISPLAY, Color, Rectangle)
-
+    DISPLAY.blit(ResultPanel, (Rectangle[0], Rectangle[1]))
+    ResultPanel = pygame.Surface((0,0))
 
 class SpriteButton:
     def __init__(self, Rectangle, SpriteList):
@@ -126,6 +128,7 @@ class Button:
                 if self.ColisionRectangle.collidepoint(mainScript.Cursor_Position):
                     self.ButtonState = "DOWN"
                     self.ButtonDowed = True
+                    sound.PlaySound(reg.ReadKey("/TaiyouSystem/SND/Click"))
             elif event.type == pygame.MOUSEBUTTONUP:
                 if self.ColisionRectangle.collidepoint(mainScript.Cursor_Position):
                     if self.ButtonDowed:
@@ -453,9 +456,12 @@ class VerticalListWithDescription:
         self.ButtonUpRectangle = pygame.Rect(0, 0, 32, 32)
         self.ButtonDownRectangle = pygame.Rect(34, 0, 32, 32)
         self.Cursor_Position = mainScript.Cursor_Position
+        self.ListSurfaceUpdated = False
 
     def Render(self,DISPLAY):
-        self.ListSurface = pygame.Surface((self.Rectangle[2],self.Rectangle[3]), pygame.SRCALPHA)
+        if not self.ListSurfaceUpdated:
+            self.ListSurface = pygame.Surface((self.Rectangle[2],self.Rectangle[3]), pygame.SRCALPHA)
+            self.ListSurfaceUpdated = True
 
         for i, itemNam in enumerate(self.ItemsName):
             ItemRect = (self.Rectangle[0],self.ScrollY + self.Rectangle[1] + 42 * i,self.Rectangle[2],40)
@@ -541,9 +547,14 @@ class HorizontalItemsView:
         self.ListSurface = pygame.Surface
         self.ButtonLeftRectangle = pygame.Rect(0, 0, 32, 32)
         self.ButtonRightRectangle = pygame.Rect(34, 0, 32, 32)
+        self.ListSurface = pygame.Surface((self.Rectangle[2], self.Rectangle[3]), pygame.SRCALPHA)
+        self.ListSurfaceUpdated = False
 
     def Render(self, DISPLAY):
-        self.ListSurface = pygame.Surface((self.Rectangle[2], self.Rectangle[3]), pygame.SRCALPHA)
+        if not self.ListSurfaceUpdated:
+            self.ListSurfaceUpdated = True
+            self.ListSurface = pygame.Surface((self.Rectangle[2], self.Rectangle[3]), pygame.SRCALPHA)
+
         Draw_Panel(DISPLAY, self.Rectangle)
 
         for i, itemNam in enumerate(self.ItemsName):
