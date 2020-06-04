@@ -1,4 +1,4 @@
-#!/usr/bin/ python3.6
+#!/usr/bin/ python3.7
 #   Copyright 2020 Aragubas
 #
 #   Licensed under the Apache License, Version 2.0 (the "License");
@@ -463,6 +463,7 @@ class VerticalListWithDescription:
             self.ListSurface = pygame.Surface((self.Rectangle[2],self.Rectangle[3]), pygame.SRCALPHA)
             self.ListSurfaceUpdated = True
 
+        self.ListSurface.fill((0, 0, 0, 0))
         for i, itemNam in enumerate(self.ItemsName):
             ItemRect = (self.Rectangle[0],self.ScrollY + self.Rectangle[1] + 42 * i,self.Rectangle[2],40)
 
@@ -478,6 +479,8 @@ class VerticalListWithDescription:
                     sprite.RenderRectangle(self.ListSurface, (20, 42, 59, 50), ItemRect)
                     # -- Indicator Bar -- #
                     sprite.RenderRectangle(self.ListSurface, (32, 164, 243), (ItemRect[0],ItemRect[1],ItemRect[2],1))
+
+
             else:
                 # -- Background -- #
                 sprite.RenderRectangle(self.ListSurface, (30, 52, 69, 150), ItemRect)

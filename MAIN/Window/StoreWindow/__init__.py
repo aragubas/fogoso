@@ -72,6 +72,7 @@ def Render(DISPLAY):
     global LastClickedItem
     global SelectedItemID
     global StoreLocked
+    global SelectedItemPrice
     # -- Update the Surface -- #
     DrawnSurface = WindowObject.WindowSurface
 
