@@ -34,7 +34,6 @@ def Draw_Panel(DISPLAY, Rectangle, Color=(0,0,0,0)):
             ResultPanel.blit(sprite.Surface_Pixalizate(DISPLAY, reg.ReadKey_float("/OPTIONS/UI_blur_ammount")), (0, 0), Rectangle)
 
     DISPLAY.blit(ResultPanel, (Rectangle[0], Rectangle[1]))
-    ResultPanel = pygame.Surface((0,0))
 
 class SpriteButton:
     def __init__(self, Rectangle, SpriteList):

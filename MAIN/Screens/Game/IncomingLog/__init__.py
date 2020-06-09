@@ -17,6 +17,7 @@
 
 # -- Imports -- #
 from ENGINE import REGISTRY as reg
+from ENGINE import SOUND as sound
 from Fogoso.MAIN import ClassesUtils as gameObjs
 from Fogoso import MAIN as gameMain
 from ENGINE import SPRITE as sprite
@@ -130,6 +131,11 @@ def DrawGrindText(DISPLAY):
         if x > 128 or gameScr.IsControlsEnabled == False or TextGrind_AliveTime[x] >= 500 + x or TextGrind_Y[x] <= ReceiveLog_Y_Offset + DISPLAY.get_height() - 350:
             if TextGrind_IsGrindText[x]:
                 save.Current_Money += float(TextGrind_Value[x])
+                if float(TextGrind_Value[x]) > 0:
+                    sound.PlaySound("/hit_1.wav")
+                if float(TextGrind_Value[x]) < 0:
+                    sound.PlaySound("/hit_2.wav")
+
             TextGrind_Text.pop(x)
             TextGrind_X.pop(x)
             TextGrind_Y.pop(x)

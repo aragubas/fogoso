@@ -17,6 +17,7 @@
 
 # -- Imports -- #
 from ENGINE import REGISTRY as reg
+from ENGINE import SOUND as sound
 from Fogoso.MAIN import ClassesUtils as gameObjs
 from Fogoso.MAIN.Screens import Settings as ScreenSettings
 from Fogoso import MAIN as gameMain
@@ -422,4 +423,4 @@ def GrindClick():
         save.CUrrent_Experience += save.Current_ExperiencePerEach
         IncomingLog.AddMessageText("€+" + str(save.Current_ExperiencePerEach), False, (150,150,150))
 
-    IncomingLog.AddMessageText("$+" + str(save.Current_MoneyValuePerClick), True, (20, 150, 25), save.Current_MoneyValuePerClick)
+    IncomingLog.AddMessageText( "$+" + str(save.Current_MoneyValuePerClick), True, (20, 150, 25), save.Current_MoneyValuePerClick)

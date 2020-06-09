@@ -144,7 +144,9 @@ def GeneratedWindowTitle():
         Current = randint(0, NumberMax)
         print("GeneratedWindowTitle : ID=" + str(Current))
 
-        pygame.display.set_caption("Fogoso : " + reg.ReadKey("/strings/gme_wt/" + str(Current)))
+        Messages.append("SET_TITLE;" + "Fogoso : " + reg.ReadKey("/strings/gme_wt/" + str(Current)))
+#        Messages.append("RESIZIABLE_WINDOW:True")
+
 
 
 def FadeAnimation():

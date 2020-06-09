@@ -109,24 +109,6 @@ def LoadItems():
             GameItemsList.append(gameObjs.Item_ExperienceStore())
     GameItemsInitialized = True
     print("LoadItems ; AllItemsLoaded: " + str(AllKeys))
-    if GameItems_TotalIndx_NegativeOne > 1:
-        print(reg.ReadKey("/strings/game/save_reset"))
-        RestartSaveData()
-
-def RestartSaveData():
-    print("RestartSave : Restarting save data...")
-
-    ResetKeysString = reg.ReadKey("/Save/reset_keys").splitlines()
-    DefaultValuesStrings = reg.ReadKey("/Save/reset_keys_default_values").splitlines()
-
-    for x in range(0, len(ResetKeysString)):
-        print("RestartSave : CurrentID{0}".format(x))
-        reg.WriteKey(ResetKeysString[x], DefaultValuesStrings[x])
-
-    print("RestartSave : Operation completed successfully.")
-    reg.WriteKey("/Save/cheater", "True")
-    LoadSaveData()
-    LoadItems()
 
 def SaveData():
     reg.WriteKey("/Save/money", str(Current_Money))
