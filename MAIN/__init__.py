@@ -21,16 +21,18 @@ from Fogoso.MAIN import ClassesUtils as gameObjs
 from Fogoso.MAIN.Screens import Game as ScreenGame
 from Fogoso.MAIN.Screens import MainMenu as ScreenMenu
 from Fogoso.MAIN.Screens import Settings as ScreenSettings
+from Fogoso.MAIN import GameVariables as gameVar
 from Fogoso.MAIN.Screens import Intro as ScreenIntro
 from Fogoso.MAIN.Screens.Game import MapRender as ScreenMap
 from ENGINE import SPRITE as sprite
 from random import randint
 from Fogoso.MAIN import GameVariables as save
-import pygame, sys
+from Fogoso.MAIN import ScreenTransition as transition
+import pygame, sys, traceback
 
 
 
-# -- Messages -- #
+# -- Taiyou Game Engine Necessary Variables -- #
 Messages = list()
 
 # -- Cursor Variables -- #
@@ -38,13 +40,6 @@ Cursor_Position = list((20, 20))
 Cursor_CurrentLevel = 0 #-- 0 = Arrow, 1 = Resize, 2 = Move, 3 = Hand, 4 = Ibeam, 5 = Pirate *x cursor*
 CursorW = 0
 CursorH = 0
-
-# -- Game Start Fade Effect -- #
-FadeEffectState = False
-FadeEffectCurrentState = 0
-FadeEffectValue = 0
-FadeEffectSpeed = 5
-FadeEffectStyle = 0 # 0 = Blur, 1 = Pixalizate, 2 = Blur + Pixalizate, 3 = Pixalizate + Blur
 
 # -- Engine Options -- #
 Engine_MaxFPS = 0
@@ -61,9 +56,9 @@ DefaultDisplay = pygame.Surface((0, 0))
 
 # -- Screens -- #
 CurrentScreen = 3
-
 ClearColor = (0,0,0)
 
+# -- Error Message -- #
 ErrorMessageEnabled = False
 ErrorMessage = 'null'
 ErrorMessageDelay = 0
@@ -72,7 +67,7 @@ CursorX = 0
 CursorY = 0
 
 
-def GameDraw(DISPLAY):
+def GameDraw(DISPLAY):  # -- Engine Required Function
     global DefaultDisplay
     global LastErrorText
     global LastErrorTextDeltaTime
@@ -97,41 +92,29 @@ def GameDraw(DISPLAY):
     else:
         ScreenDraw(DefaultDisplay)
 
-    # -- Render Fade Effect -- #
-    if FadeEffectValue > 0:
-        FadeEffect = pygame.Surface((DefaultDisplay.get_width(), DefaultDisplay.get_height()))
-        GeneratedWindowTitle()
-        if FadeEffectStyle == 0:
-            FadeEffect.blit(sprite.Surface_Blur(DISPLAY, FadeEffectValue), (0,0))
-        if FadeEffectStyle == 1:
-            FadeEffect.blit(sprite.Surface_Pixalizate(DISPLAY, FadeEffectValue), (0,0))
-        if FadeEffectStyle == 2:
-            FadeEffect.blit(sprite.Surface_Blur(sprite.Surface_Pixalizate(DISPLAY, FadeEffectValue), FadeEffectValue), (0,0))
-        if FadeEffectStyle == 3:
-            FadeEffect.blit(sprite.Surface_Pixalizate(sprite.Surface_Blur(DISPLAY, FadeEffectValue), FadeEffectValue), (0, 0))
-
-        DefaultDisplay.blit(FadeEffect, (0, 0))
-
     # -- Render the Error Message -- #
     if ErrorMessageEnabled:
         ErrorMessageDelay += 1
 
-        gameObjs.Draw_Panel(DISPLAY, (0,5,DISPLAY.get_width(), sprite.GetText_height("/PressStart2P.ttf", reg.ReadKey_int("/props/error_message_text_size"), ErrorMessage)))
-        sprite.RenderFont(DISPLAY, "/PressStart2P.ttf", reg.ReadKey_int("/props/error_message_text_size"), ErrorMessage,(150,50,50),0,5,False)
+        gameObjs.Draw_Panel(DISPLAY, (0,5,DISPLAY.get_width(), sprite.GetFont_height("/PressStart2P.ttf", reg.ReadKey_int("/props/error_message_text_size"), ErrorMessage)))
+        sprite.FontRender(DISPLAY, "/PressStart2P.ttf", reg.ReadKey_int("/props/error_message_text_size"), ErrorMessage, (150, 50, 50), 0, 5, False)
 
         if ErrorMessageDelay >= reg.ReadKey_int("/props/error_message_delay_max"):
             ErrorMessageDelay = 0
             ErrorMessageEnabled = False
 
     # -- Render Cursor -- #
-    sprite.Render(DefaultDisplay, "/cursors/{0}.png".format(str(Cursor_CurrentLevel)), Cursor_Position[0], Cursor_Position[1], CursorW, CursorH)
+    sprite.ImageRender(DefaultDisplay, "/cursors/{0}.png".format(str(Cursor_CurrentLevel)), Cursor_Position[0], Cursor_Position[1])
+
+    # -- Render the Transition -- #
+    transition.Render(DefaultDisplay)
 
     # -- Render the Error Overlay -- #
     if LastErrorTextEnabled:
         LastErrorTextDeltaTime += 1
 
-        sprite.RenderRectangle(DISPLAY, (0, 0, 0), (0, 2, DISPLAY.get_width() ,sprite.GetText_height("/PressStart2P.ttf",9,LastErrorText) * 2 + 4))
-        sprite.RenderFont(DISPLAY, "/PressStart2P.ttf", 9, LastErrorText, (200, 0, 0), 5, 5, False)
+        sprite.Shape_Rectangle(DISPLAY, (0, 0, 0), (0, 2, DISPLAY.get_width() , sprite.GetFont_height("/PressStart2P.ttf", 9, LastErrorText) * 2 + 4))
+        sprite.FontRender(DISPLAY, "/PressStart2P.ttf", 9, LastErrorText, (200, 0, 0), 5, 5, False)
 
         if LastErrorTextDeltaTime >= 1500:
             LastErrorTextDeltaTime = 0
@@ -145,23 +128,8 @@ def GeneratedWindowTitle():
         print("GeneratedWindowTitle : ID=" + str(Current))
 
         Messages.append("SET_TITLE;" + "Fogoso : " + reg.ReadKey("/strings/gme_wt/" + str(Current)))
-#        Messages.append("RESIZIABLE_WINDOW:True")
 
-
-
-def FadeAnimation():
-    global FadeEffectCurrentState
-    global FadeEffectValue
-    global FadeEffectState
-    FadeEffectCurrentState = 0
-    FadeEffectValue = 255
-    FadeEffectState = True
-
-def Update():
-    global FadeEffectSpeed
-    global FadeEffectValue
-    global FadeEffectState
-    global FadeEffectCurrentState
+def Update():  # -- Engine Required Function
     global CursorW
     global CursorH
     
@@ -177,15 +145,12 @@ def Update():
     else:
         ScreensUpdate()
 
-    # -- Update the Fade Effect -- #
-    if FadeEffectState:
-        if FadeEffectCurrentState == 0:
-            FadeEffectValue -= FadeEffectSpeed
+    # -- Update the Screen Transtion -- #
+    try:
+        transition.Update()
+    except Exception as ex:
+        WriteErrorLog(ex, "TransitionUpdate", False)
 
-            if FadeEffectValue <= 0:
-                FadeEffectState = False
-                FadeEffectValue = 0
-                FadeEffectCurrentState = 0
 
 def SendErrorMessage(Message):
     global ErrorMessageEnabled
@@ -243,7 +208,7 @@ def ScreensInitialize(DISPLAY):
     if CurrentScreen == 3:
         ScreenMap.Initialize()
 
-def EventUpdate(event):
+def EventUpdate(event):  # -- Engine Required Function
     global Cursor_Position
     global CursorX
     global CursorY
@@ -263,34 +228,22 @@ def EventUpdate(event):
         ScreenEventUpdate(event)
 
 def LoadOptions():
-    global FadeEffectCurrentState
-    global FadeEffectState
-    global FadeEffectValue
-    global FadeEffectSpeed
     global Engine_ResH
     global Engine_ResW
     global Engine_MaxFPS
     global Cursor_CurrentLevel
-    global FadeEffectStyle
     print("LoadOptions : Init")
-    FadeEffectState = True
-    FadeEffectCurrentState = 0
-    FadeEffectValue = 255
 
     # -- Engine Flags -- #
     Engine_MaxFPS = reg.ReadKey_int("/OPTIONS/maxFPS")
 
     # -- Fade Effect -- #
-    FadeEffectSpeed = reg.ReadKey_int("/OPTIONS/fade_flash_speed")
-
-    # -- Fade Style -- #
-    FadeEffectStyle = reg.ReadKey_int("/OPTIONS/fade_flash_style")
-
+    transition.Initialize()
 
     print("LoadOptions : Data loading complete")
 
     
-def Initialize(DISPLAY):
+def Initialize(DISPLAY):  # -- Engine Required Function
     global CurrentScreen
     print("Game Initialization")
 
@@ -311,7 +264,10 @@ def Initialize(DISPLAY):
             WriteErrorLog(ex,"Initialize", True)
     else:
         ScreensInitialize(DISPLAY)
-    
+
+
+def Unload():  # -- Engine Required Function
+    gameVar.Unload()
 
 def SetWindowParameters():
     global DefaultDisplay
@@ -328,15 +284,8 @@ def SetWindowParameters():
 
 # -- Send the messages on the Message Quee to the Game Engine -- #
 def ReadCurrentMessages():
-    global FadeEffectCurrentState
-    global FadeEffectState
-    global FadeEffectValue
     try:
         for x in Messages:
-            if "SET_RESOLUTION" in x:
-                FadeEffectState = True
-                FadeEffectCurrentState = 0
-                FadeEffectValue = 255
             Messages.remove(x)
             print("Game : MessageSent[" + x + "]")
             return x
@@ -349,14 +298,15 @@ def WriteErrorLog(ex, func, ExitWhenFinished=False):
 
     print("A fatal error has been occoured:\n" + str(ex))
 
+    ExcTraceback = traceback.format_exc()
+
     LastErrorText = str(ex) + "\nfunc(" + func + ")"
     LastErrorTextEnabled = True
 
     if ExitWhenFinished:
         ErrorLogName = "/LOG/crash_func(" + str(func) + ")"
         print("WriteErrorLog ; Error log file write at:\n" + ErrorLogName)
-        reg.WriteKey(ErrorLogName, str(ex))
-        print("WriteErrorLog ; Closing Game...\n")
-        pygame.quit()
-        sys.exit()
 
+        print("WriteErrorLog ; Exception Traceback:\n\n" + ExcTraceback + "\n\n")
+
+        reg.WriteKey(ErrorLogName, ExcTraceback)

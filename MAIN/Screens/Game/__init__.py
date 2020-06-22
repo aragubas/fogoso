@@ -27,6 +27,9 @@ from Fogoso.MAIN.Window import InfosWindow as infosWindow
 from ENGINE import SPRITE as sprite
 from Fogoso.MAIN import GameVariables as save
 from Fogoso.MAIN.Screens.Game import IncomingLog
+from Fogoso.MAIN.Screens.Game import Maintenance as maintenance
+from Fogoso.MAIN import GameItems as gameItems
+from Fogoso.MAIN import ScreenTransition as transition
 import pygame
 
 # -- Objects Definition -- #
@@ -42,38 +45,43 @@ OpenExperienceWindowButton = gameObjs.Button
 ItemsView = gameObjs.HorizontalItemsView
 
 # -- Store Window -- #
-StoreWindow_Enabled = True
+StoreWindow_Enabled = False
 
 # -- Infos Window -- #
-InfosWindow_Enabled = False
+InfosWindow_Enabled = True
 
 # -- Experience Store Windows -- #
 ExperienceStore_Enabled = False
 
 # -- Unload -- #
-UnloadRequested = False
-UnloadDelay = 0
+BackToMainMenu = False
+BackToMainMenu_Delay = 0
 
 # -- Saving Screen Variables -- #
 IsControlsEnabled = True
 SavingScreenEnabled = False
+SavingScreen_DISPLAYCopied = False
+SavingSurfaceBackground = pygame.Surface
+SavingScreenCopyOfScreen = pygame.Surface
 
 Current_Maintenance = 0.0
 
+# -- Background Animation -- #
+BackgroundAnim_Type = 0
+BackgroundAnim_Enabled = True
+BackgroundAnim_Numb = 1.0
+
+# -- HUD -- #
+HUD_Surface = pygame.Surface
 
 # -- Load/Save Functions -- #
 def LoadGame():
     global ItemsView
     print("LoadGame : Init")
-    gameMain.FadeEffectState = True
-    gameMain.FadeEffectCurrentState = 0
-    gameMain.FadeEffectValue = 255
+    transition.Run()
 
     save.LoadSaveData()
 
-    save.LoadItems()
-
-    gameMain.FadeEffectState = True
     print("LoadGame : Game Loaded Sucefully")
 
 def SaveGame():
@@ -83,21 +91,24 @@ def SaveGame():
     global BackgroundAnim_Enabled
     global BackgroundAnim_Numb
 
+    # -- Save Game Data -- #
     save.SaveData()
-    save.SaveItems()
+    # -- Save Items Data -- #
+    gameItems.SaveItems()
 
     BackgroundAnim_Type = 1
     BackgroundAnim_Enabled = True
 
-BackgroundAnim_Type = 0
-BackgroundAnim_Enabled = True
-BackgroundAnim_Numb = 1.0
+
 def UpdateSavingScreen(DISPLAY):
     global SavingScreenEnabled
     global IsControlsEnabled
     global BackgroundAnim_Type
     global BackgroundAnim_Enabled
     global BackgroundAnim_Numb
+    global SavingScreen_DISPLAYCopied
+    global SavingSurfaceBackground
+    global SavingScreenCopyOfScreen
 
     if BackgroundAnim_Enabled:
         if BackgroundAnim_Type == 0:
@@ -107,8 +118,8 @@ def UpdateSavingScreen(DISPLAY):
                 BackgroundAnim_Enabled = False
                 BackgroundAnim_Type = 1
                 BackgroundAnim_Numb = 30.5
-
                 SaveGame()
+
         if BackgroundAnim_Type == 1:
             BackgroundAnim_Numb -= 0.5
             if BackgroundAnim_Numb <= 1.1:
@@ -118,22 +129,29 @@ def UpdateSavingScreen(DISPLAY):
 
                 SavingScreenEnabled = False
                 IsControlsEnabled = True
+                SavingScreen_DISPLAYCopied = False
+
+    # -- Copy the Screen -- #
+    if not SavingScreen_DISPLAYCopied:
+        SavingScreen_DISPLAYCopied = True
+        SavingScreenCopyOfScreen = HUD_Surface.copy()
 
     SavingSurfaceBackground = pygame.Surface((DISPLAY.get_width(), DISPLAY.get_height()))
-    SavingSurfaceBackground.blit(sprite.Surface_Blur(DISPLAY, BackgroundAnim_Numb), (0,0))
+    SavingSurfaceBackground.blit(sprite.Surface_Blur(SavingScreenCopyOfScreen, BackgroundAnim_Numb), (0,0))
     DISPLAY.blit(SavingSurfaceBackground, (0, 0))
 
-    TextsSurface = pygame.Surface((DISPLAY.get_width(), DISPLAY.get_height()), pygame.SRCCOLORKEY)
-    TextsSurface.fill((255,0,255))
-    TextsSurface.set_colorkey((255,0,255))
+    TextsSurface = pygame.Surface((DISPLAY.get_width(), DISPLAY.get_height()), pygame.SRCALPHA)
+    TextsSurface.fill((0,0,0, 0))
     TextsSurface.set_alpha(BackgroundAnim_Numb * 8.5)
 
     SavingText = reg.ReadKey("/strings/game/save_screen/title")
     SavingStatusText = reg.ReadKey("/strings/game/save_screen/message")
-    TextSavingX = DISPLAY.get_width() / 2 - sprite.GetText_width("/PressStart2P.ttf", 50, SavingText) / 2
-    TextSavingY = DISPLAY.get_height() / 2 - sprite.GetText_height("/PressStart2P.ttf", 50, SavingText) / 2 - 100
-    sprite.RenderFont(TextsSurface, "/PressStart2P.ttf", 50, SavingText, (250,250,255),TextSavingX, TextSavingY, False)
-    sprite.RenderFont(TextsSurface, "/PressStart2P.ttf", 35, SavingStatusText, (250,250,255),DISPLAY.get_width() / 2 - sprite.GetText_width("/PressStart2P.ttf", 35, SavingStatusText) / 2, TextSavingY + 100, False)
+
+    TextSavingX = DISPLAY.get_width() / 2 - sprite.GetFont_width("/PressStart2P.ttf", 50, SavingText) / 2
+    TextSavingY = DISPLAY.get_height() / 2 - sprite.GetFont_height("/PressStart2P.ttf", 50, SavingText) / 2 - 100
+
+    sprite.FontRender(TextsSurface, "/PressStart2P.ttf", 50, SavingText, (250, 250, 255), TextSavingX, TextSavingY, reg.ReadKey_bool("/OPTIONS/font_aa"))
+    sprite.FontRender(TextsSurface, "/PressStart2P.ttf", 35, SavingStatusText, (250, 250, 255), DISPLAY.get_width() / 2 - sprite.GetFont_width("/PressStart2P.ttf", 35, SavingStatusText) / 2, TextSavingY + 100, reg.ReadKey_bool("/OPTIONS/font_aa"))
 
     DISPLAY.blit(TextsSurface, (0,0))
 
@@ -143,8 +161,8 @@ def Update():
     global OpenStoreButton
     global StoreWindow_Enabled
     global ItemsView
-    global UnloadDelay
-    global UnloadRequested
+    global BackToMainMenu_Delay
+    global BackToMainMenu
     global IsControlsEnabled
     global SavingScreenEnabled
     global ExperienceStore_Enabled
@@ -154,41 +172,47 @@ def Update():
         # -- Update Save -- #
         save.Update()
 
+        # -- Update Experience Blink -- #
+        UpdateExperienceBlink()
+
         ItemsView.Set_X(5)
         ItemsView.Set_Y(gameMain.DefaultDisplay.get_height() - 130)
 
         # -- Update General Maintenance -- #
-        MaintenanceCost()
+        maintenance.Update()
 
         # -- Update Buttons Click -- #
         if GrindButton.ButtonState == "UP":
             GrindClick()
+        # -- Game Options Button -- #
         if GameOptionsButton.ButtonState == "UP":
-            gameMain.FadeEffectValue = 255
-            gameMain.FadeEffectCurrentState = 0
-            gameMain.FadeEffectState = True
+            transition.Run()
             ScreenSettings.ScreenToReturn = gameMain.CurrentScreen
             ScreenSettings.Initialize()
             storeWindow.RestartAnimation()
             gameMain.CurrentScreen += 1
 
+        # -- Save Buttons -- #
         if SaveButton.ButtonState == "UP":
             SavingScreenEnabled = True
             IsControlsEnabled = False
 
+        # -- Back to Main Menu Button -- #
         if BackToMainMenuButton.ButtonState == "UP":
-            gameMain.FadeEffectState = 0
-            gameMain.FadeEffectValue = 255
-            gameMain.FadeEffectState = True
-            UnloadRequested = True
+            transition.Run()
+            BackToMainMenu = True
 
-        if UnloadRequested:
-            UnloadDelay += 1
+        if BackToMainMenu:
+            BackToMainMenu_Delay += 1
 
-            if UnloadDelay >= 5:
-                Unload()
+            if BackToMainMenu_Delay >= 5:
                 gameMain.CurrentScreen -= 1
 
+                # -- Reset Variables -- #
+                BackToMainMenu_Delay = 0
+                BackToMainMenu = False
+
+        # -- Open Store Button -- #
         if OpenStoreButton.ButtonState == "UP":
             if StoreWindow_Enabled:
                 StoreWindow_Enabled = False
@@ -198,6 +222,7 @@ def Update():
                 InfosWindow_Enabled = False
                 ExperienceStore_Enabled = False
 
+        # -- Open Infos Button -- #
         if OpenInfosWindowButton.ButtonState == "UP":
             if InfosWindow_Enabled:
                 InfosWindow_Enabled = False
@@ -207,7 +232,8 @@ def Update():
                 StoreWindow_Enabled = False
                 ExperienceStore_Enabled = False
 
-        if OpenExperienceWindowButton.ButtonState == "UP" and save.GameItems_TotalIndx_NegativeOne == 1:
+        # -- Open Experience Store Button -- #
+        if OpenExperienceWindowButton.ButtonState == "UP" and gameItems.GetItemCount_ByID(-1) >= 1:
             if ExperienceStore_Enabled:
                 ExperienceStore_Enabled = False
                 storeWindow.RestartAnimation()
@@ -216,7 +242,7 @@ def Update():
                 StoreWindow_Enabled = False
                 InfosWindow_Enabled = False
 
-
+        # -- Update Buttons Location -- #
         GameOptionsButton.Set_X(gameMain.DefaultDisplay.get_width() - 120)
         SaveButton.Set_X(gameMain.DefaultDisplay.get_width() - 120)
         BackToMainMenuButton.Set_X(gameMain.DefaultDisplay.get_width() - 120)
@@ -226,31 +252,34 @@ def Update():
         OpenStoreButton.Set_Y(gameMain.DefaultDisplay.get_height() - OpenStoreButton.Rectangle[3] - 5)
         OpenInfosWindowButton.Set_X(OpenStoreButton.Rectangle[0] + OpenStoreButton.Rectangle[2] + 5)
         OpenInfosWindowButton.Set_Y(OpenStoreButton.Rectangle[1])
-        if save.GameItems_TotalIndx_NegativeOne == 1:
+        if gameItems.GetItemCount_ByID(-1) >= 1:
             OpenExperienceWindowButton.Set_X(OpenInfosWindowButton.Rectangle[0] + OpenInfosWindowButton.Rectangle[2] + 5)
             OpenExperienceWindowButton.Set_Y(OpenInfosWindowButton.Rectangle[1])
 
-
         IncomingLog.Update()
 
-MaintenanceCost_Delta = 0
-def MaintenanceCost():
-    global MaintenanceCost_Delta
-    global Current_Maintenance
-    global GameItemsList
 
-    MaintenanceCost_Delta += 1
+BlinkExperienceEnabled = False
+BlinkExperienceValue = 0
+LastExperience = 0
+def UpdateExperienceBlink():
+    global BlinkExperienceEnabled
+    global BlinkExperienceValue
+    global LastExperience
 
-    if MaintenanceCost_Delta >= reg.ReadKey_float("/Save/general_maintenance_delta"):
-        TotalItemsMaintenance = 0
+    # -- Check if Experience has changed. -- #
+    if not save.CUrrent_Experience == LastExperience:
+        LastExperience = save.CUrrent_Experience
+        BlinkExperienceEnabled = True
 
-        for item in save.GameItemsList:
-            TotalItemsMaintenance = TotalItemsMaintenance + item.maintenance_cost
+    # -- Do Animation -- #
+    if BlinkExperienceEnabled:
+        if BlinkExperienceValue < 100:
+            BlinkExperienceValue += 5
 
-        MaintenanceGeral = reg.ReadKey_float("/Save/general_maintenance") + TotalItemsMaintenance
-        IncomingLog.AddMessageText(reg.ReadKey("/strings/game/GeneralMaintenance") , True, (250, 150, 150, ), -MaintenanceGeral)
-        MaintenanceCost_Delta = 0
-        Current_Maintenance = MaintenanceGeral
+        if BlinkExperienceValue >= 100:
+            BlinkExperienceValue = 0
+            BlinkExperienceEnabled = False
 
 def GameDraw(DISPLAY):
     global BackToMainMenuButton
@@ -260,64 +289,91 @@ def GameDraw(DISPLAY):
     global StoreWindow_Enabled
     global ItemsView
     global SavingScreenEnabled
-    global Current_MoneyFormated
-    global Current_MoneyPerSecoundFormatted
-    global GameItems_TotalIndx_NegativeOne
-    # -- Draw the Grind Text -- #
-    IncomingLog.DrawGrindText(DISPLAY)
-    # -- Draw the Grind Button -- #
-    GrindButton.Render(DISPLAY)
-    # -- Draw the Options Button -- #
-    GameOptionsButton.Render(DISPLAY)
-    # -- Draw the Save Button -- #
-    SaveButton.Render(DISPLAY)
-    # -- Draw the BackToMenu button -- #
-    BackToMainMenuButton.Render(DISPLAY)
-    # -- Draw the Store Button -- #
-    OpenStoreButton.Render(DISPLAY)
-    # -- Draw the Items View -- #
-    ItemsView.Render(DISPLAY)
-    # -- Draw the OpenInfosWindow -- #
-    OpenInfosWindowButton.Render(DISPLAY)
-    # -- Draw the OpenExperience -- #
-    if save.GameItems_TotalIndx_NegativeOne == 1:
-        OpenExperienceWindowButton.Render(DISPLAY)
+    global BlinkExperienceValue
+    global HUD_Surface
 
-    # -- Render Money Text -- #
-    MoneyColor = (250,250,255)
-    PerSecoundColor = (220, 220, 220)
-    if save.Current_Money > 0.1:
-        MoneyColor = (120, 220, 120)
-    elif save.Current_Money <= 0:
-        MoneyColor = (220, 10, 10)
-    if save.Current_MoneyPerSecound > 0.1:
-        PerSecoundColor = (50, 200, 50)
-    elif save.Current_MoneyPerSecound <= 0:
-        PerSecoundColor = (120, 10, 10)
-
-    # -- Render Current Money, at Top -- #
-    sprite.RenderFont(DISPLAY, "/PressStart2P.ttf", 18, reg.ReadKey("/strings/game/money") + save.Current_MoneyFormated, MoneyColor, 10, 20)
-    # -- Render Money per Secound -- #
-    sprite.RenderFont(DISPLAY,"/PressStart2P.ttf", 18, reg.ReadKey("/strings/game/money_per_secound") + save.Current_MoneyPerSecoundFormatted, PerSecoundColor, 10,50)
-    # -- Render Experience -- #
-    sprite.RenderFont(DISPLAY,"/PressStart2P.ttf", 18, reg.ReadKey("/strings/game/experience") + str(save.CUrrent_ExperienceFormated) + "/" + str(save.Current_TotalClicks - save.Current_TotalClicksNext) + "=" + str(save.Current_ExperiencePerEach), (140, 130, 120) , 10, 80)
-
-
-    # -- Draw the Store Window -- #
-    if StoreWindow_Enabled:
-        storeWindow.Render(DISPLAY)
-
-    # -- Draw the Infos Window -- #
-    if InfosWindow_Enabled:
-        infosWindow.Render(DISPLAY)
-
-    # -- Draw the Exp Store Window -- #
-    if ExperienceStore_Enabled and save.GameItems_TotalIndx_NegativeOne == 1:
-        expStoreWindow.Render(DISPLAY)
-
-    # -- Draw the Saving Screen -- #
     if SavingScreenEnabled:
         UpdateSavingScreen(DISPLAY)
+
+    if not SavingScreenEnabled:
+        HUD_Surface.fill((5, 13, 17))
+
+        # -- Draw the Grind Text -- #
+        IncomingLog.Draw(HUD_Surface)
+        # -- Draw the Grind Button -- #
+        GrindButton.Render(HUD_Surface)
+        # -- Draw the Options Button -- #
+        GameOptionsButton.Render(HUD_Surface)
+        # -- Draw the Save Button -- #
+        SaveButton.Render(HUD_Surface)
+        # -- Draw the BackToMenu button -- #
+        BackToMainMenuButton.Render(HUD_Surface)
+        # -- Draw the Store Button -- #
+        OpenStoreButton.Render(HUD_Surface)
+        # -- Draw the Items View -- #
+        ItemsView.Render(HUD_Surface)
+        # -- Draw the OpenInfosWindow -- #
+        OpenInfosWindowButton.Render(HUD_Surface)
+        # -- Draw the OpenExperience -- #
+        if gameItems.GetItemCount_ByID(-1) == 1:
+            OpenExperienceWindowButton.Render(HUD_Surface)
+
+        # -- Render Money Text -- #
+        MoneyColor = (250,250,255)
+        PerSecoundColor = (220, 220, 220)
+        if save.Current_Money > 0.1:
+            MoneyColor = (120, 220, 120)
+        elif save.Current_Money <= 0:
+            MoneyColor = (220, 10, 10)
+        if save.Current_MoneyPerSecound > 0.1:
+            PerSecoundColor = (50, 200, 50)
+        elif save.Current_MoneyPerSecound <= 0:
+            PerSecoundColor = (120, 10, 10)
+
+        # -- Render Current Money, at Top -- #
+        MoneyText = reg.ReadKey("/strings/game/money") + save.Current_MoneyFormated
+        sprite.FontRender(HUD_Surface, "/PressStart2P.ttf", 18, reg.ReadKey("/strings/game/money") + save.Current_MoneyFormated, (0, 0, 0), 12, 22)
+        sprite.FontRender(HUD_Surface, "/PressStart2P.ttf", 18, MoneyText, MoneyColor, 10, 20)
+
+        # -- Render Money per Secound -- #
+        MoneyPerSecoundText = reg.ReadKey("/strings/game/money_per_secound") + save.Current_MoneyPerSecoundFormatted
+        sprite.FontRender(HUD_Surface, "/PressStart2P.ttf", 18, MoneyPerSecoundText, (0, 0, 0), 12, 52)
+        sprite.FontRender(HUD_Surface, "/PressStart2P.ttf", 18, MoneyPerSecoundText, PerSecoundColor, 10, 50)
+
+        # -- Render Experience -- #
+        ExperienceText = reg.ReadKey("/strings/game/experience") + str(save.CUrrent_ExperienceFormated) + "/" + str(save.Current_TotalClicks - save.Current_TotalClicksNext) + "=" + str(save.Current_ExperiencePerEach)
+        sprite.FontRender(HUD_Surface, "/PressStart2P.ttf", 18, ExperienceText, (BlinkExperienceValue, BlinkExperienceValue, BlinkExperienceValue), 12, 82)
+        sprite.FontRender(HUD_Surface, "/PressStart2P.ttf", 18, ExperienceText, (140 + BlinkExperienceValue, 130 + BlinkExperienceValue, 120 + BlinkExperienceValue), 10, 80)
+
+        # -- Render the Clock -- #
+        # -- Time -- #
+        SecoundsText = reg.ReadKey("/strings/game/clock").format(str(save.CurrentDate_Minute), str(save.CurrentDate_Secound), str(save.CurrentDate_DayLimiter), str(save.CurrentDate_MinuteLimiter))
+        sprite.FontRender(HUD_Surface, "/PressStart2P.ttf", 10, SecoundsText, (0, 0, 0), HUD_Surface.get_width() / 2 - sprite.GetFont_width("/PressStart2P.ttf", 10, SecoundsText) / 2 + 2, 7, reg.ReadKey_bool("/OPTIONS/font_aa"))
+        sprite.FontRender(HUD_Surface, "/PressStart2P.ttf", 10, SecoundsText, (230, 230, 230), HUD_Surface.get_width() / 2 - sprite.GetFont_width("/PressStart2P.ttf", 10, SecoundsText) / 2, 5, reg.ReadKey_bool("/OPTIONS/font_aa"))
+
+        # -- Day -- #
+        DateText = reg.ReadKey("/strings/game/calendar").format(str(save.CurrentDate_Day), str(save.CurrentDate_Month), str(save.CurrentDate_Year), str(save.CurrentDate_MonthLimiter), str(save.CurrentDate_YearLimiter))
+        sprite.FontRender(HUD_Surface, "/PressStart2P.ttf", 10, DateText, (0, 0, 0), HUD_Surface.get_width() / 2 - sprite.GetFont_width("/PressStart2P.ttf", 10, DateText) / 2 + 2, sprite.GetFont_height("/PressStart2P.ttf", 10, SecoundsText) + 12, reg.ReadKey_bool("/OPTIONS/font_aa"))
+        sprite.FontRender(HUD_Surface, "/PressStart2P.ttf", 10, DateText, (230, 230, 230), HUD_Surface.get_width() / 2 - sprite.GetFont_width("/PressStart2P.ttf", 10, DateText) / 2, sprite.GetFont_height("/PressStart2P.ttf", 10, SecoundsText) + 10, reg.ReadKey_bool("/OPTIONS/font_aa"))
+
+        # -- Draw the Store Window -- #
+        if StoreWindow_Enabled:
+            storeWindow.Render(HUD_Surface)
+
+        # -- Draw the Infos Window -- #
+        if InfosWindow_Enabled:
+            infosWindow.Render(HUD_Surface)
+
+        # -- Draw the Exp Store Window -- #
+        if ExperienceStore_Enabled and gameItems.GetItemCount_ByID(-1) >= 1:
+            expStoreWindow.Render(HUD_Surface)
+
+        DISPLAY.blit(HUD_Surface, (0, 0))
+
+        # -- Update Surface Size -- #
+        if not HUD_Surface.get_width() == DISPLAY.get_width() or not HUD_Surface.get_height() == DISPLAY.get_height():
+            print("GameRenderMain : HUD_Surface has been updated.")
+            HUD_Surface = pygame.Surface((DISPLAY.get_width(), DISPLAY.get_height()), pygame.SRCALPHA)
 
 def Initialize(DISPLAY):
     # -- Set Buttons -- #
@@ -329,6 +385,7 @@ def Initialize(DISPLAY):
     global ItemsView
     global OpenInfosWindowButton
     global OpenExperienceWindowButton
+    global HUD_Surface
     # -- Initialize Buttons -- #
     GrindButton = gameObjs.Button(pygame.rect.Rect(15, 115, 130, 150), "Loremk ipsum dolor sit amet...", 18)
     GrindButton.WhiteButton = True
@@ -352,24 +409,8 @@ def Initialize(DISPLAY):
     infosWindow.Initialize()
     gameMain.ClearColor = (5, 20, 14)
 
-def Unload():
-    global StoreWindow_Enabled
-    global UnloadDelay
-    global UnloadRequested
-    save.Unload()
-
-    # -- Clear Game Items -- #
-    save.GameItemsList.clear()
-    StoreWindow_Enabled = False
-
-    IncomingLog.Unload()
-
-    print("GameScreen : Restart storeWindow")
-    storeWindow.RestartAnimation()
-
-    print("GameScreen : Restart Unload Variables")
-    UnloadRequested = False
-    UnloadDelay = 0
+    # -- Initialize the Screen -- #
+    HUD_Surface = pygame.Surface((DISPLAY.get_width(), DISPLAY.get_height()))
 
 def EventUpdate(event):
     # -- Update all buttons -- #
@@ -383,6 +424,8 @@ def EventUpdate(event):
     global IsControlsEnabled
     global OpenExperienceWindowButton
     global OpenInfosWindowButton
+    global BlinkExperienceEnabled
+    global HUD_Surface
 
     if IsControlsEnabled:
         GrindButton.Update(event)
@@ -393,7 +436,8 @@ def EventUpdate(event):
         ItemsView.Update(event)
         IncomingLog.EventUpdate(event)
         OpenInfosWindowButton.Update(event)
-        if save.GameItems_TotalIndx_NegativeOne == 1:
+
+        if gameItems.GetItemCount_ByID(-1) == 1:
             OpenExperienceWindowButton.Update(event)
 
         # -- Update store Window -- #
@@ -414,13 +458,13 @@ def EventUpdate(event):
         GrindClick()
 
 
-
 def GrindClick():
     save.Current_TotalClicks += 1
 
+    # -- €xp Mining -- #
     if save.Current_TotalClicks == save.Current_TotalClicksNext:
         save.Current_TotalClicksNext = save.Current_TotalClicks + save.Current_TotalClicksForEach
         save.CUrrent_Experience += save.Current_ExperiencePerEach
         IncomingLog.AddMessageText("€+" + str(save.Current_ExperiencePerEach), False, (150,150,150))
 
-    IncomingLog.AddMessageText( "$+" + str(save.Current_MoneyValuePerClick), True, (20, 150, 25), save.Current_MoneyValuePerClick)
+    IncomingLog.AddMessageText("+" + str(save.Current_MoneyValuePerClick), True, (20, 150, 25), save.Current_MoneyValuePerClick)

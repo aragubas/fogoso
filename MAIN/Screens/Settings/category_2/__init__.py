@@ -95,13 +95,13 @@ def Render(DISPLAY):
     OptionsScreen_NumberFormatting.Render(DISPLAY)
 
     # -- Debug Mode -- #
-    sprite.RenderFont(DISPLAY, "/PressStart2P.ttf", 14, reg.ReadKey("/strings/settings/debug_mode") + str(reg.ReadKey_bool("/OPTIONS/debug_enabled")), (240, 240, 240), ElementsX + 95, ElementsY + 52, reg.ReadKey_bool("/OPTIONS/font_aa"))
+    sprite.FontRender(DISPLAY, "/PressStart2P.ttf", 14, reg.ReadKey("/strings/settings/debug_mode") + str(reg.ReadKey_bool("/OPTIONS/debug_enabled")), (240, 240, 240), ElementsX + 95, ElementsY + 52, reg.ReadKey_bool("/OPTIONS/font_aa"))
 
     # -- Random Title -- #
-    sprite.RenderFont(DISPLAY, "/PressStart2P.ttf", 14, reg.ReadKey("/strings/settings/random_title") + str(reg.ReadKey_bool("/OPTIONS/random_title")), (240, 240, 240), ElementsX + 95, ElementsY + 77, reg.ReadKey_bool("/OPTIONS/font_aa"))
+    sprite.FontRender(DISPLAY, "/PressStart2P.ttf", 14, reg.ReadKey("/strings/settings/random_title") + str(reg.ReadKey_bool("/OPTIONS/random_title")), (240, 240, 240), ElementsX + 95, ElementsY + 77, reg.ReadKey_bool("/OPTIONS/font_aa"))
 
     # -- Number Formatting -- #
-    sprite.RenderFont(DISPLAY, "/PressStart2P.ttf", 14, reg.ReadKey("/strings/settings/number_formatting") + str(reg.ReadKey_bool("/OPTIONS/format_numbers")), (240, 240, 240), ElementsX + 95, ElementsY + 102, reg.ReadKey_bool("/OPTIONS/font_aa"))
+    sprite.FontRender(DISPLAY, "/PressStart2P.ttf", 14, reg.ReadKey("/strings/settings/number_formatting") + str(reg.ReadKey_bool("/OPTIONS/format_numbers")), (240, 240, 240), ElementsX + 95, ElementsY + 102, reg.ReadKey_bool("/OPTIONS/font_aa"))
 
 
 

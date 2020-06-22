@@ -21,19 +21,41 @@ from ENGINE import REGISTRY as reg
 from ENGINE import SOUND as sound
 import pygame
 import random
+from Fogoso.MAIN import GameItems as gameItems
 
 print("Game : Classes Utils v1.1")
 
 def Draw_Panel(DISPLAY, Rectangle, Color=(0,0,0,0)):
+    # -- the Result Surface -- #
     ResultPanel = pygame.Surface((Rectangle[2], Rectangle[3]))
 
-    if reg.ReadKey_bool("/OPTIONS/UI_blur_enabled"):
-        if not reg.ReadKey_bool("/OPTIONS/UI_Pixelate"):
-            ResultPanel.blit(sprite.Surface_Blur(DISPLAY, reg.ReadKey_float("/OPTIONS/UI_blur_ammount")), (0, 0), Rectangle)
-        else:
-            ResultPanel.blit(sprite.Surface_Pixalizate(DISPLAY, reg.ReadKey_float("/OPTIONS/UI_blur_ammount")), (0, 0), Rectangle)
+    if reg.ReadKey_bool("/OPTIONS/UI_blur_enabled"):  # -- If Blur is Enabled -- #
+        # -- Render the Darker Background -- #
+        if reg.ReadKey_int("/OPTIONS/UI_contrast") > 5:
+            DarkerBg = pygame.Surface((Rectangle[2], Rectangle[3]))
+            DarkerBg.set_alpha(reg.ReadKey_int("/OPTIONS/UI_contrast"))
+            DISPLAY.blit(DarkerBg, (Rectangle[0], Rectangle[1]))
+
+        # -- Only Blur the Necessary Area -- #
+        AreaToBlur = pygame.Surface((Rectangle[2], Rectangle[3]))
+        AreaToBlur.blit(DISPLAY, (0, 0), Rectangle)
+
+        if not reg.ReadKey_bool("/OPTIONS/UI_Pixelate"):  # -- If Pixalizate is Disabled -- #
+            ResultPanel.blit(sprite.Surface_Blur(AreaToBlur, reg.ReadKey_float("/OPTIONS/UI_blur_ammount")), (0, 0))
+
+            del AreaToBlur
+
+        else:  # -- If Pixalizate is Enabled -- #
+            ResultPanel.blit(sprite.Surface_Blur(AreaToBlur, reg.ReadKey_float("/OPTIONS/UI_blur_ammount"), True), (0, 0))
+            del AreaToBlur
+
+    else:  # -- If blur is Disabled -- #
+        ResultPanel.fill((0, 12, 29))
+
+        sprite.Shape_Rectangle(ResultPanel, (1, 22, 39), (0, 0, Rectangle[2], Rectangle[3]), 2, 5)
 
     DISPLAY.blit(ResultPanel, (Rectangle[0], Rectangle[1]))
+    del ResultPanel
 
 class SpriteButton:
     def __init__(self, Rectangle, SpriteList):
@@ -48,11 +70,11 @@ class SpriteButton:
 
     def Render(self,DISPLAY):
         if self.ButtonState == "INATIVE":
-            sprite.Render(DISPLAY, self.SpriteList[0], self.Rectangle[0], self.Rectangle[1], self.Rectangle[2], self.Rectangle[3])
+            sprite.ImageRender(DISPLAY, self.SpriteList[0], self.Rectangle[0], self.Rectangle[1], self.Rectangle[2], self.Rectangle[3])
         if self.ButtonState == "DOWN":
-            sprite.Render(DISPLAY, self.SpriteList[1], self.Rectangle[0], self.Rectangle[1], self.Rectangle[2], self.Rectangle[3])
+            sprite.ImageRender(DISPLAY, self.SpriteList[1], self.Rectangle[0], self.Rectangle[1], self.Rectangle[2], self.Rectangle[3])
         if self.ButtonState == "UP":
-            sprite.Render(DISPLAY, self.SpriteList[2], self.Rectangle[0], self.Rectangle[1], self.Rectangle[2], self.Rectangle[3])
+            sprite.ImageRender(DISPLAY, self.SpriteList[2], self.Rectangle[0], self.Rectangle[1], self.Rectangle[2], self.Rectangle[3])
 
     def EventUpdate(self, event):
         if not self.CustomColisionRectangle:
@@ -102,16 +124,16 @@ class Button:
         self.IsButtonEnabled = True
         self.WhiteButton = False
         self.Rectangle = pygame.rect.Rect(self.Rectangle[0], self.Rectangle[1],
-                                          sprite.GetText_width("/PressStart2P.ttf", self.TextSize,
+                                          sprite.GetFont_width("/PressStart2P.ttf", self.TextSize,
                                                                self.ButtonText) + 5,
-                                          sprite.GetText_height("/PressStart2P.ttf", self.TextSize,
+                                          sprite.GetFont_height("/PressStart2P.ttf", self.TextSize,
                                                                 self.ButtonText) + 3)
         self.CursorSettedToggle = False
         self.ButtonDowed = False
         self.ColisionRectangle = self.Rectangle
         self.CustomColisionRectangle = False
         self.BackgroundColor = (1, 22, 39)
-        self.ButtonSurface = pygame.Surface((self.Rectangle[2], self.Rectangle[3]), pygame.SRCALPHA)
+        self.ButtonSurface = pygame.Surface((self.Rectangle[2], self.Rectangle[3]))
         self.ButtonSurfaceUpdated = False
 
     def Update(self, event):
@@ -120,7 +142,7 @@ class Button:
 
         if not self.ButtonSurfaceUpdated:
             self.ButtonSurfaceUpdated = False
-            self.ButtonSurface = pygame.Surface((self.Rectangle[2], self.Rectangle[3]), pygame.SRCALPHA)
+            self.ButtonSurface = pygame.Surface((self.Rectangle[2], self.Rectangle[3]))
 
         if self.IsButtonEnabled:
             if event.type == pygame.MOUSEBUTTONDOWN:
@@ -148,9 +170,9 @@ class Button:
 
         if not self.WhiteButton:
             self.Rectangle = pygame.rect.Rect(self.Rectangle[0], self.Rectangle[1],
-                                              sprite.GetText_width("/PressStart2P.ttf", self.TextSize,
+                                              sprite.GetFont_width("/PressStart2P.ttf", self.TextSize,
                                                                    self.ButtonText) + 5,
-                                              sprite.GetText_height("/PressStart2P.ttf", self.TextSize,
+                                              sprite.GetFont_height("/PressStart2P.ttf", self.TextSize,
                                                                     self.ButtonText) + 3)
 
     def Set_X(self, Value):
@@ -178,41 +200,41 @@ class Button:
 
     def Render(self, DISPLAY):
         # -- Render the Background -- #
-        pygame.draw.rect(self.ButtonSurface, self.BackgroundColor, (0,0, self.Rectangle[2], self.Rectangle[3]))
+        sprite.Shape_Rectangle(self.ButtonSurface, self.BackgroundColor, (0, 0, self.Rectangle[2], self.Rectangle[3]), 0, 0, 5, 5)
 
         if not self.WhiteButton:
             if self.ButtonState == "INATIVE":
-                self.BackgroundColor = (1, 22, 39, 50)
+                self.BackgroundColor = (1, 22, 39)
 
                 # -- Indicator Bar -- #
-                sprite.RenderRectangle(self.ButtonSurface, (255, 51, 102), (0, 0, self.Rectangle[2],1))
+                sprite.Shape_Rectangle(self.ButtonSurface, (255, 51, 102), (0, 0, self.Rectangle[2], 1))
 
                 # -- Text -- #
-                sprite.RenderFont(self.ButtonSurface, "/PressStart2P.ttf", self.TextSize, self.ButtonText, (200, 200, 200),
+                sprite.FontRender(self.ButtonSurface, "/PressStart2P.ttf", self.TextSize, self.ButtonText, (200, 200, 200),
                                   3, 3, reg.ReadKey_bool("/OPTIONS/font_aa"))
 
             else:
                 # -- Background -- #
-                self.BackgroundColor = (15, 27, 44, 100)
+                self.BackgroundColor = (15, 27, 44)
                 # -- Indicator Bar -- #
-                sprite.RenderRectangle(self.ButtonSurface, (46, 196, 182), (0, 0,self.Rectangle[2],1))
+                sprite.Shape_Rectangle(self.ButtonSurface, (46, 196, 182), (0, 0, self.Rectangle[2], 1))
 
                 # -- Text -- #
-                sprite.RenderFont(self.ButtonSurface, "/PressStart2P.ttf", self.TextSize, self.ButtonText, (255, 255, 255),
+                sprite.FontRender(self.ButtonSurface, "/PressStart2P.ttf", self.TextSize, self.ButtonText, (255, 255, 255),
                                   3, 3, reg.ReadKey_bool("/OPTIONS/font_aa"))
         else:
             if self.ButtonState == "INATIVE":
                 # -- Background -- #
-                self.BackgroundColor = (1, 22, 39, 50)
+                self.BackgroundColor = (1, 22, 39)
 
                 # -- Indicator Bar -- #
-                sprite.RenderRectangle(self.ButtonSurface, (255, 51, 102), (0, 0,self.Rectangle[2],4))
+                sprite.Shape_Rectangle(self.ButtonSurface, (255, 51, 102), (0, 0, self.Rectangle[2], 4))
 
             else:
                 # -- Background -- #
-                self.BackgroundColor = (15, 27, 44, 100)
+                self.BackgroundColor = (15, 27, 44)
                 # -- Indicator Bar -- #
-                sprite.RenderRectangle(self.ButtonSurface, (46, 196, 182), (0, 0, self.Rectangle[2],2))
+                sprite.Shape_Rectangle(self.ButtonSurface, (46, 196, 182), (0, 0, self.Rectangle[2], 2))
 
         # -- Draw the Button -- #
         DISPLAY.blit(self.ButtonSurface, (self.Rectangle[0], self.Rectangle[1]))
@@ -225,7 +247,7 @@ class UpDownButton:
         self.Y = Y
         self.TextSize = TextSize
         self.UpButton = Button(pygame.Rect(X, Y, 20, 20), "/\\", TextSize)
-        self.DownButton = Button(pygame.Rect(X + sprite.GetText_width("/PressStart2P.ttf", TextSize, "\/") + 5, Y, 20, 20), "\/", TextSize)
+        self.DownButton = Button(pygame.Rect(X + sprite.GetFont_width("/PressStart2P.ttf", TextSize, "\/") + 5, Y, 20, 20), "\/", TextSize)
         self.ButtonState = "INATIVE"
         self.BackStateWaitLoop = 0
         print("ObjectCreation : UpDownButton created.")
@@ -251,17 +273,17 @@ class UpDownButton:
                 self.BackStateWaitLoop = 0
 
     def Get_Width(self):
-        return sprite.GetText_width("/PressStart2P.ttf", self.TextSize, "\/") + 4 + sprite.GetText_width(
+        return sprite.GetFont_width("/PressStart2P.ttf", self.TextSize, "\/") + 4 + sprite.GetFont_width(
             "/PressStart2P.ttf", self.TextSize, "/\\") + 4
 
     def Get_Height(self):
-        return sprite.GetText_height("/PressStart2P.ttf", self.TextSize, "\/") + 4 + sprite.GetText_height(
+        return sprite.GetFont_height("/PressStart2P.ttf", self.TextSize, "\/") + 4 + sprite.GetFont_height(
             "/PressStart2P.ttf", self.TextSize, "/\\") + 4
 
     def Set_X(self, NewXValue):
         self.UpButton.Set_X(NewXValue)
         self.DownButton.Set_X(
-            NewXValue + sprite.GetText_width("/PressStart2P.ttf", self.TextSize, "\/") + 5)
+            NewXValue + sprite.GetFont_width("/PressStart2P.ttf", self.TextSize, "\/") + 5)
 
     def Set_Y(self, NewYValue):
         self.UpButton.Set_Y(NewYValue)
@@ -273,10 +295,7 @@ class UpDownButton:
 
         self.UpButton.Set_X(self.X)
         self.DownButton.Set_X(
-            self.X + sprite.GetText_width("/PressStart2P.ttf", self.TextSize, "\/") + 5)
-
-
-
+            self.X + sprite.GetFont_width("/PressStart2P.ttf", self.TextSize, "\/") + 5)
 
 class Window:
     def __init__(self, Rectangle, Title, Resiziable):
@@ -301,6 +320,7 @@ class Window:
         self.WindowSurface_Dest = (0, 0)
         self.Minimizable = True
         self.SurfaceSizeFixed = False
+
         if not self.WindowMinimized:
             self.WindowSurface = pygame.Surface((self.WindowRectangle[2], self.WindowRectangle[3] - 20), pygame.SRCALPHA)
 
@@ -343,22 +363,22 @@ class Window:
             IndicatorLineColor = (32, 164, 243)
         else:
             IndicatorLineColor = (255, 51, 102)
-        Draw_Panel(DISPLAY, self.WindowRectangle, (6, 27, 45))
+        Draw_Panel(DISPLAY, WindowBorderRectangle, (6, 27, 45))
 
         pygame.draw.line(DISPLAY, IndicatorLineColor, (self.TitleBarRectangle[0], self.TitleBarRectangle[1] - 2 + self.TitleBarRectangle[3]), (self.TitleBarRectangle[0] + self.TitleBarRectangle[2], self.TitleBarRectangle[1] - 2 + self.TitleBarRectangle[3]), 2)
 
         # -- Draw the Resize Block -- #
         if self.Resiziable:
-            sprite.Render(DISPLAY, "/window/resize.png", self.ResizeRectangle[0], self.ResizeRectangle[1],
-                          self.ResizeRectangle[2], self.ResizeRectangle[3])
+            sprite.ImageRender(DISPLAY, "/window/resize.png", self.ResizeRectangle[0], self.ResizeRectangle[1],
+                               self.ResizeRectangle[2], self.ResizeRectangle[3])
 
         # -- Render the Minimize Button -- #
         if self.Minimizable:
             self.MinimizeButton.Render(DISPLAY)
 
         # -- Draw the window title -- #
-        sprite.RenderFont(DISPLAY, "/PressStart2P.ttf", 18, self.Title, (250, 250, 255),
-                          self.TitleBarRectangle[0] + self.TitleBarRectangle[2] / 2 - sprite.GetText_width(
+        sprite.FontRender(DISPLAY, "/PressStart2P.ttf", 18, self.Title, (250, 250, 255),
+                          self.TitleBarRectangle[0] + self.TitleBarRectangle[2] / 2 - sprite.GetFont_width(
                               "/PressStart2P.ttf", 18, self.Title) / 2, self.TitleBarRectangle[1] + 1, reg.ReadKey_bool("/OPTIONS/font_aa"))
 
 
@@ -418,7 +438,6 @@ class Window:
             self.WindowRectangle[3] = self.Window_MinimunH
             self.UpdateSurface()
 
-
     def UpdateSurface(self):
         self.WindowSurface = pygame.Surface((self.WindowRectangle[2], self.WindowRectangle[3] - 20), pygame.SRCALPHA)
         print("Surface updated")
@@ -444,9 +463,11 @@ class VerticalListWithDescription:
         self.Rectangle = Rectangle
         self.ItemsName = list()
         self.ItemsDescription = list()
+        self.ItemOrderID = list()
         self.ItemSprite = list()
         self.ItemSelected = list()
         self.LastItemClicked = "null"
+        self.LastItemOrderID = None
         self.ScrollY = 0
         self.ListSurface = pygame.Surface
         self.ClickedItem = ""
@@ -458,11 +479,8 @@ class VerticalListWithDescription:
         self.ListSurfaceUpdated = False
 
     def Render(self,DISPLAY):
-        if not self.ListSurfaceUpdated:
-            self.ListSurface = pygame.Surface((self.Rectangle[2],self.Rectangle[3]), pygame.SRCALPHA)
-            self.ListSurfaceUpdated = True
+        self.ListSurface = pygame.Surface((self.Rectangle[2],self.Rectangle[3]), pygame.SRCALPHA)
 
-        self.ListSurface.fill((0, 0, 0, 0))
         for i, itemNam in enumerate(self.ItemsName):
             ItemRect = (self.Rectangle[0],self.ScrollY + self.Rectangle[1] + 42 * i,self.Rectangle[2],40)
 
@@ -470,33 +488,33 @@ class VerticalListWithDescription:
             if not self.ItemSelected[i]:
                 if self.LastItemClicked == itemNam:
                     # -- Background -- #
-                    sprite.RenderRectangle(self.ListSurface, (20, 42, 59, 100), ItemRect)
+                    sprite.Shape_Rectangle(self.ListSurface, (20, 42, 59, 100), ItemRect)
                     # -- Indicator Bar -- #
-                    sprite.RenderRectangle(self.ListSurface, (46, 196, 182), (ItemRect[0], ItemRect[1], ItemRect[2], 1))
+                    sprite.Shape_Rectangle(self.ListSurface, (46, 196, 182), (ItemRect[0], ItemRect[1], ItemRect[2], 1))
                 else:
                     # -- Background -- #
-                    sprite.RenderRectangle(self.ListSurface, (20, 42, 59, 50), ItemRect)
+                    sprite.Shape_Rectangle(self.ListSurface, (20, 42, 59, 50), ItemRect)
                     # -- Indicator Bar -- #
-                    sprite.RenderRectangle(self.ListSurface, (32, 164, 243), (ItemRect[0],ItemRect[1],ItemRect[2],1))
+                    sprite.Shape_Rectangle(self.ListSurface, (32, 164, 243), (ItemRect[0], ItemRect[1], ItemRect[2], 1))
 
 
             else:
                 # -- Background -- #
-                sprite.RenderRectangle(self.ListSurface, (30, 52, 69, 150), ItemRect)
+                sprite.Shape_Rectangle(self.ListSurface, (30, 52, 69, 150), ItemRect)
                 # -- Indicator Bar -- #
-                sprite.RenderRectangle(self.ListSurface, (255, 51, 102), (ItemRect[0],ItemRect[1],ItemRect[2],1))
+                sprite.Shape_Rectangle(self.ListSurface, (255, 51, 102), (ItemRect[0], ItemRect[1], ItemRect[2], 1))
 
             # -- Render the Item Name and Description -- #
             if not self.ItemSelected[i]:
-                sprite.RenderFont(self.ListSurface, "/PressStart2P.ttf", 12, itemNam, (250, 250, 250), ItemRect[0] + 45, ItemRect[1] + 5, reg.ReadKey_bool("/OPTIONS/font_aa"))
-                sprite.RenderFont(self.ListSurface, "/PressStart2P.ttf", 10, self.ItemsDescription[i], (250, 250, 250), ItemRect[0] + 45,ItemRect[1] + 30, reg.ReadKey_bool("/OPTIONS/font_aa"))
+                sprite.FontRender(self.ListSurface, "/PressStart2P.ttf", 12, itemNam, (250, 250, 250), ItemRect[0] + 45, ItemRect[1] + 5, reg.ReadKey_bool("/OPTIONS/font_aa"))
+                sprite.FontRender(self.ListSurface, "/PressStart2P.ttf", 10, self.ItemsDescription[i], (250, 250, 250), ItemRect[0] + 45, ItemRect[1] + 30, reg.ReadKey_bool("/OPTIONS/font_aa"))
             else:
-                sprite.RenderFont(self.ListSurface, "/PressStart2P.ttf", 12, itemNam, (255, 255, 255), ItemRect[0] + 45, ItemRect[1] + 5, reg.ReadKey_bool("/OPTIONS/font_aa"))
-                sprite.RenderFont(self.ListSurface, "/PressStart2P.ttf", 10, self.ItemsDescription[i], (255, 255, 255), ItemRect[0] + 45, ItemRect[1] + 30, reg.ReadKey_bool("/OPTIONS/font_aa"))
+                sprite.FontRender(self.ListSurface, "/PressStart2P.ttf", 12, itemNam, (255, 255, 255), ItemRect[0] + 45, ItemRect[1] + 5, reg.ReadKey_bool("/OPTIONS/font_aa"))
+                sprite.FontRender(self.ListSurface, "/PressStart2P.ttf", 10, self.ItemsDescription[i], (255, 255, 255), ItemRect[0] + 45, ItemRect[1] + 30, reg.ReadKey_bool("/OPTIONS/font_aa"))
 
             # -- Render the Item Sprite -- #
             if self.ItemSprite[i] != "null":
-                sprite.Render(self.ListSurface,self.ItemSprite[i],ItemRect[0] + 4,ItemRect[1] + 4,36, 32)
+                sprite.ImageRender(self.ListSurface, self.ItemSprite[i], ItemRect[0] + 4, ItemRect[1] + 4, 36, 32)
 
         DISPLAY.blit(self.ListSurface,(self.Rectangle[0], self.Rectangle[1]))
 
@@ -517,6 +535,7 @@ class VerticalListWithDescription:
                 if ItemRect.collidepoint(self.Cursor_Position):
                     self.LastItemClicked = itemNam
                     self.ItemSelected[i] = True
+                    self.LastItemOrderID = self.ItemOrderID[i]
                     print("LastClickedItem : " + self.LastItemClicked)
             if event.type == pygame.MOUSEBUTTONUP:
                 self.ItemSelected[i] = False
@@ -538,6 +557,7 @@ class VerticalListWithDescription:
         self.ItemsDescription.append(ItemDescription)
         self.ItemSprite.append(ItemSprite)
         self.ItemSelected.append(False)
+        self.ItemOrderID.append((len(self.ItemOrderID) - 2) + 1)
 
 class HorizontalItemsView:
     def __init__(self, Rectangle):
@@ -553,9 +573,8 @@ class HorizontalItemsView:
         self.ListSurfaceUpdated = False
 
     def Render(self, DISPLAY):
-        if not self.ListSurfaceUpdated:
-            self.ListSurfaceUpdated = True
-            self.ListSurface = pygame.Surface((self.Rectangle[2], self.Rectangle[3]), pygame.SRCALPHA)
+        # -- Recreate Surface -- #
+        self.ListSurface = pygame.Surface((self.Rectangle[2], self.Rectangle[3]), pygame.SRCALPHA)
 
         Draw_Panel(DISPLAY, self.Rectangle)
 
@@ -567,24 +586,20 @@ class HorizontalItemsView:
             ItemRect = (ItemX, self.Rectangle[3] / 2 - 90 / 2, ItemWidth - 5, 90)
 
             # -- Background -- #
-            sprite.RenderRectangle(self.ListSurface, (120, 142, 159, 200), ItemRect)
+            sprite.Shape_Rectangle(self.ListSurface, (120, 142, 159, 200), ItemRect)
             # -- Indicator Bar -- #
-            sprite.RenderRectangle(self.ListSurface, (46, 196, 182, 230), (ItemRect[0], ItemRect[1], ItemRect[2], 1))
+            sprite.Shape_Rectangle(self.ListSurface, (46, 196, 182, 230), (ItemRect[0], ItemRect[1], ItemRect[2], 1))
 
             # -- Render the Item Title -- #
-            sprite.RenderFont(self.ListSurface, "/PressStart2P.ttf", 9, ItemName, (250, 250, 250), ItemRect[0] + ItemRect[2] / 2 - sprite.GetText_width("/PressStart2P.ttf", 9, ItemName) / 2, ItemRect[1], reg.ReadKey_bool("/OPTIONS/font_aa"))
+            sprite.FontRender(self.ListSurface, "/PressStart2P.ttf", 9, ItemName, (250, 250, 250), ItemRect[0] + ItemRect[2] / 2 - sprite.GetFont_width("/PressStart2P.ttf", 9, ItemName) / 2, ItemRect[1], reg.ReadKey_bool("/OPTIONS/font_aa"))
 
             # -- Render the Item Sprite -- #
-            sprite.Render(self.ListSurface, reg.ReadKey("/ItemData/store/" + str(itemNam) + "_sprite"), ItemRect[0] + 4, ItemRect[1] + 9, 64, 64)
+            sprite.ImageRender(self.ListSurface, reg.ReadKey("/ItemData/store/" + str(itemNam) + "_sprite"), ItemRect[0] + 4, ItemRect[1] + 9, 64, 64)
 
             # -- Render the Item Little Info -- #
-            LittleInfoText = "CANNOT OBTAIN\nITEM DATA."
-            if self.ItemsName[i] == "-1":
-                LittleInfoText = "Count:\n{0}\nLevel:\n{1}".format(str(mainScript.save.GameItems_TotalIndx_NegativeOne), str(reg.ReadKey("/Save/item/last_level/" + str(itemNam))))
-            if self.ItemsName[i] == "0":
-                LittleInfoText = "Count:\n{0}\nLevel:\n{1}".format(str(mainScript.save.GameItems_TotalIndx_0), str(reg.ReadKey("/Save/item/last_level/" + str(itemNam))))
+            LittleInfoText = "Count:\n{0}\nLevel:\n{1}".format(str(gameItems.GetItemCount_ByID(int(self.ItemsName[i]))), str(gameItems.GetItemLevel_ByID(int(self.ItemsName[i]))))
 
-            sprite.RenderFont(self.ListSurface, "/PressStart2P.ttf", 10, LittleInfoText, (250, 250, 250), ItemRect[0] + 65, ItemRect[1] + 12, reg.ReadKey_bool("/OPTIONS/font_aa"))
+            sprite.FontRender(self.ListSurface, "/PressStart2P.ttf", 10, LittleInfoText, (250, 250, 250), ItemRect[0] + 65, ItemRect[1] + 12, reg.ReadKey_bool("/OPTIONS/font_aa"))
 
         DISPLAY.blit(self.ListSurface, (self.Rectangle[0], self.Rectangle[1]))
 
@@ -618,47 +633,3 @@ class HorizontalItemsView:
             self.ItemsName.append(ItemName)
             self.ItemSprite.append(ItemSprite)
             self.ItemSelected.append(False)
-
-
-class Item_AutoClicker:
-    def __init__(self):
-        self.ItemID = 0
-        self.ItemLevel = reg.ReadKey_int("/Save/item/last_level/" + str(self.ItemID))
-        self.ItemClickPerSecound = reg.ReadKey("/ItemData/0/lv_" + str(self.ItemLevel) + "_click")
-        self.DeltaTime = 0
-        self.InternalDelay = 0
-        self.DeltaTimeAction = int(reg.ReadKey("/ItemData/0/lv_" + str(self.ItemLevel) + "_delta"))
-        self.maintenance_cost = reg.ReadKey_float("/ItemData/0/lv_" + str(self.ItemLevel) + "_cost_maintenance")
-        self.ExpMiningTotal = reg.ReadKey_float("/ItemData/0/lv_" + str(self.ItemLevel) + "_exp")
-
-    def Update(self):
-        self.DeltaTime += 1
-
-        if int(self.DeltaTime) >= int(self.DeltaTimeAction):
-            self.InternalDelay += 1
-
-            if self.InternalDelay >= random.randint(100, int(self.DeltaTimeAction)):
-                mainScript.ScreenGame.IncomingLog.AddMessageText("+" + str(self.ItemClickPerSecound), True, (100, 210, 100), self.ItemClickPerSecound)
-                if self.ExpMiningTotal > 0:
-                    mainScript.ScreenGame.save.CUrrent_Experience += self.ExpMiningTotal
-                    mainScript.ScreenGame.IncomingLog.AddMessageText("€+" + str(self.ItemClickPerSecound), True, (100, 110, 100), self.ItemClickPerSecound)
-
-                self.DeltaTime = 0
-                self.InternalDelay = 0
-
-class Item_ExperienceStore:
-    def __init__(self):
-        self.ItemID = -1
-        self.ItemLevel = reg.ReadKey_int("/Save/item/last_level/" + str(self.ItemID))
-        self.ItemClickPerSecound = reg.ReadKey("/ItemData/-1/lv_" + str(self.ItemLevel) + "_click")
-        self.DeltaTime = 0
-        self.DeltaTimeAction = reg.ReadKey("/ItemData/-1/lv_" + str(self.ItemLevel) + "_delta")
-        self.maintenance_cost = reg.ReadKey_float("/ItemData/-1/lv_" + str(self.ItemLevel) + "_cost_maintenance")
-
-
-    def Update(self):
-        self.DeltaTime += 1
-
-        if int(self.DeltaTime) >= int(self.DeltaTimeAction):
-            mainScript.ScreenGame.IncomingLog.AddMessageText("+" + str(self.ItemClickPerSecound), True, (100, 210, 100), self.ItemClickPerSecound)
-            self.DeltaTime = 0

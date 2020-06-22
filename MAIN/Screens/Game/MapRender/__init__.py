@@ -28,7 +28,6 @@ from Fogoso.MAIN.Window import ExperienceStore as expStoreWindow
 from Fogoso.MAIN.Window import InfosWindow as infosWindow
 from ENGINE import SPRITE as sprite
 from random import randint
-from Fogoso.MAIN import Items as items
 import pygame, os
 import importlib
 import time
@@ -53,8 +52,8 @@ class Player:
         self.MoveYDest = self.Rectangle[1]
 
     def Draw(self, DISPLAY):
-        sprite.RenderRectangle(DISPLAY, (255,255,0), self.DrawnRectangle)
-        sprite.RenderRectangle(DISPLAY, (255,0,0), self.Rectangle)
+        sprite.Shape_Rectangle(DISPLAY, (255, 255, 0), self.DrawnRectangle)
+        sprite.Shape_Rectangle(DISPLAY, (255, 0, 0), self.Rectangle)
 
     def Update(self):
         PlayerMovA = False
@@ -200,9 +199,9 @@ def GameDraw(DISPLAY):
     global PlayerObj
     for x, row in enumerate(MapData):
         for y, data in enumerate(row):
-            sprite.Render(DISPLAY, "/map/{0}/{1}.png".format(str(MapTileset), data), MapCamX + x * MapTileSize, MapCamY + y * MapTileSize, MapTileSize, MapTileSize)
+            sprite.ImageRender(DISPLAY, "/map/{0}/{1}.png".format(str(MapTileset), data), MapCamX + x * MapTileSize, MapCamY + y * MapTileSize, MapTileSize, MapTileSize)
 
-    sprite.RenderFont(DISPLAY, "/PressStart2P.ttf",12, "X: " + str(MapCamX) + ", Y:" + str(MapCamY) + "\nPlayer[Rect{" + str(PlayerObj.Rectangle) + "}, DrawnRect{" + str(PlayerObj.DrawnRectangle) + "}]." , (255,255,255), 5,5 )
+    sprite.FontRender(DISPLAY, "/PressStart2P.ttf", 12, "X: " + str(MapCamX) + ", Y:" + str(MapCamY) + "\nPlayer[Rect{" + str(PlayerObj.Rectangle) + "}, DrawnRect{" + str(PlayerObj.DrawnRectangle) + "}].", (255, 255, 255), 5, 5)
 
     PlayerObj.Draw(DISPLAY)
 

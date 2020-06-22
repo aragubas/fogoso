@@ -85,15 +85,15 @@ def Update():
     if OptionsScreen_UI_Blur_Ammount.ButtonState == "UP":
         CurrentVal = reg.ReadKey_float("/OPTIONS/UI_blur_ammount")
         CurrentVal += 0.5
-        if CurrentVal >= 50:
-            reg.WriteKey("/OPTIONS/UI_blur_ammount", "10.0")
+        if CurrentVal >= 120:
+            reg.WriteKey("/OPTIONS/UI_blur_ammount", "50.0")
         else:
             reg.WriteKey("/OPTIONS/UI_blur_ammount", str(CurrentVal))
     if OptionsScreen_UI_Blur_Ammount.ButtonState == "DOWN":
         CurrentVal = reg.ReadKey_float("/OPTIONS/UI_blur_ammount")
         CurrentVal -= 0.5
-        if CurrentVal < 10.0:
-            reg.WriteKey("/OPTIONS/UI_blur_ammount", "50.0")
+        if CurrentVal < 50.0:
+            reg.WriteKey("/OPTIONS/UI_blur_ammount", "120.0")
         else:
             reg.WriteKey("/OPTIONS/UI_blur_ammount", str(CurrentVal))
 
@@ -101,15 +101,15 @@ def Update():
     if OptionsScreen_UI_Blur_Contrast.ButtonState == "UP":
         CurrentVal = reg.ReadKey_int("/OPTIONS/UI_contrast")
         CurrentVal += 1
-        if CurrentVal >= 255:
+        if CurrentVal >= 151:
             reg.WriteKey("/OPTIONS/UI_contrast", "0")
         else:
             reg.WriteKey("/OPTIONS/UI_contrast", str(CurrentVal))
     if OptionsScreen_UI_Blur_Contrast.ButtonState == "DOWN":
         CurrentVal = reg.ReadKey_int("/OPTIONS/UI_contrast")
         CurrentVal -= 1
-        if CurrentVal <= 0:
-            reg.WriteKey("/OPTIONS/UI_contrast", "10")
+        if CurrentVal <= -1:
+            reg.WriteKey("/OPTIONS/UI_contrast", "150")
         else:
             reg.WriteKey("/OPTIONS/UI_contrast", str(CurrentVal))
 
@@ -169,20 +169,20 @@ def Render(DISPLAY):
     OptionsScreen_Window_Indicator.Render(DISPLAY)
 
     # -- UI Blur -- #
-    sprite.RenderFont(DISPLAY, "/PressStart2P.ttf", 14, "UI Blur:" + str(reg.ReadKey_bool("/OPTIONS/UI_blur_enabled")), (240, 240, 240), ElementsX + 95, ElementsY + 52, reg.ReadKey_bool("/OPTIONS/font_aa"))
+    sprite.FontRender(DISPLAY, "/PressStart2P.ttf", 14, "UI Blur:" + str(reg.ReadKey_bool("/OPTIONS/UI_blur_enabled")), (240, 240, 240), ElementsX + 95, ElementsY + 52, reg.ReadKey_bool("/OPTIONS/font_aa"))
 
     # -- UI Blur Ammount -- #
-    sprite.RenderFont(DISPLAY, "/PressStart2P.ttf", 14, "Blur Ammount:" + str(reg.ReadKey_float("/OPTIONS/UI_blur_ammount")), (240, 240, 240), ElementsX + 95, ElementsY + 77, reg.ReadKey_bool("/OPTIONS/font_aa"))
+    sprite.FontRender(DISPLAY, "/PressStart2P.ttf", 14, "Blur Ammount:" + str(reg.ReadKey_float("/OPTIONS/UI_blur_ammount")), (240, 240, 240), ElementsX + 95, ElementsY + 77, reg.ReadKey_bool("/OPTIONS/font_aa"))
 
     # -- UI Contrast -- #
-    sprite.RenderFont(DISPLAY, "/PressStart2P.ttf", 14, "BG Contrast:" + str(reg.ReadKey_int("/OPTIONS/UI_contrast")), (240, 240, 240), ElementsX + 95, ElementsY + 102, reg.ReadKey_bool("/OPTIONS/font_aa"))
+    sprite.FontRender(DISPLAY, "/PressStart2P.ttf", 14, "BG Contrast:" + str(reg.ReadKey_int("/OPTIONS/UI_contrast")), (240, 240, 240), ElementsX + 95, ElementsY + 102, reg.ReadKey_bool("/OPTIONS/font_aa"))
 
     # -- UI Pixalizate Instead of Blur -- #
-    sprite.RenderFont(DISPLAY, "/PressStart2P.ttf", 14, "Pixalizate:" + str(reg.ReadKey_bool("/OPTIONS/UI_Pixelate")), (240, 240, 240), ElementsX + 95, ElementsY + 127, reg.ReadKey_bool("/OPTIONS/font_aa"))
+    sprite.FontRender(DISPLAY, "/PressStart2P.ttf", 14, "Pixalizate:" + str(reg.ReadKey_bool("/OPTIONS/UI_Pixelate")), (240, 240, 240), ElementsX + 95, ElementsY + 127, reg.ReadKey_bool("/OPTIONS/font_aa"))
 
     # -- Windows Transitions -- #
-    sprite.RenderFont(DISPLAY, "/PressStart2P.ttf", 14, "Windows Transitions:" + str(reg.ReadKey_bool("/OPTIONS/Windows_transitions")), (240, 240, 240), ElementsX + 95, ElementsY + 152, reg.ReadKey_bool("/OPTIONS/font_aa"))
+    sprite.FontRender(DISPLAY, "/PressStart2P.ttf", 14, "Windows Transitions:" + str(reg.ReadKey_bool("/OPTIONS/Windows_transitions")), (240, 240, 240), ElementsX + 95, ElementsY + 152, reg.ReadKey_bool("/OPTIONS/font_aa"))
 
     # -- Windows Indicator -- #
-    sprite.RenderFont(DISPLAY, "/PressStart2P.ttf", 14, "Windows Indicator:" + str(reg.ReadKey_bool("/OPTIONS/UI_WindowIndicator")), (240, 240, 240), ElementsX + 95, ElementsY + 177, reg.ReadKey_bool("/OPTIONS/font_aa"))
+    sprite.FontRender(DISPLAY, "/PressStart2P.ttf", 14, "Windows Indicator:" + str(reg.ReadKey_bool("/OPTIONS/UI_WindowIndicator")), (240, 240, 240), ElementsX + 95, ElementsY + 177, reg.ReadKey_bool("/OPTIONS/font_aa"))
 

@@ -26,7 +26,7 @@ from ENGINE import SPRITE as sprite
 from Fogoso.MAIN.Screens.Settings import category_0 as Category0
 from Fogoso.MAIN.Screens.Settings import category_1 as Category1
 from Fogoso.MAIN.Screens.Settings import category_2 as Category2
-
+from Fogoso.MAIN import ScreenTransition as transition
 import pygame, sys
 
 import importlib
@@ -43,8 +43,6 @@ Current_Category = 2
 # -- Elements -- #
 ElementsX = 0
 ElementsY = 0
-
-
 
 def Update():
     global ScreenToReturn
@@ -67,14 +65,14 @@ def Update():
         Current_Category += 1
         if Current_Category > MaxCategory:
             Current_Category = 0
-        gameMain.FadeAnimation()
+        transition.Run()
 
     if OptionsScreen_UpDownCategory.ButtonState == "DOWN":
         MaxCategory = reg.ReadKey_int("/props/settings_max_category")
         Current_Category -= 1
         if Current_Category < 0:
             Current_Category = MaxCategory
-        gameMain.FadeAnimation()
+        transition.Run()
 
     if Current_Category == 0:
         Category0.Update()
@@ -93,9 +91,7 @@ def Update():
         Category2.ElementsY = ElementsY
 
     if OptionsScreen_CloseButton.ButtonState == "UP":
-        gameMain.FadeEffectValue = 255
-        gameMain.FadeEffectCurrentState = 0
-        gameMain.FadeEffectState = True
+        transition.Run()
         gameMain.CurrentScreen = ScreenToReturn
 
     OptionsScreen_CloseButton.Set_X(gameMain.DefaultDisplay.get_width() - 120)
@@ -111,8 +107,8 @@ def GameDraw(DISPLAY):
     gameObjs.Draw_Panel(DISPLAY, (ElementsX, ElementsY, 558, 258))
 
     # -- Render the Title Text -- #
-    sprite.RenderRectangle(DISPLAY, (1, 22, 39), (ElementsX, ElementsY, 558, 22))
-    sprite.RenderFont(DISPLAY, "/PressStart2P.ttf", 15, reg.ReadKey("/strings/settings/category/{0}".format(str(Current_Category))), (246, 247, 248), ElementsX + 5,
+    sprite.Shape_Rectangle(DISPLAY, (1, 22, 39), (ElementsX, ElementsY, 558, 22))
+    sprite.FontRender(DISPLAY, "/PressStart2P.ttf", 15, reg.ReadKey("/strings/settings/category/{0}".format(str(Current_Category))), (246, 247, 248), ElementsX + 5,
                       ElementsY + 4, reg.ReadKey_bool("/OPTIONS/font_aa"))
 
     # -- Render Close Button -- #

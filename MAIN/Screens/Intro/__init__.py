@@ -20,6 +20,7 @@ from ENGINE import REGISTRY as reg
 from ENGINE import SPRITE as sprite
 from Fogoso.MAIN.Screens import MainMenu as ScreenMenu
 from Fogoso import MAIN as gameMain
+from Fogoso.MAIN import ScreenTransition as transition
 import pygame, os
 from random import randint
 
@@ -38,10 +39,9 @@ def Initialize(DISPLAY):
     print("ScreenLogos : Initialize.")
     CurrentLogo_AnimType = 0
     CurrentLogo_AnimEnabled = True
-    CurrentLogo_DeltaBeforeNext = 0
     CurrentLogo_Opacity = 0
     CurrentLogo_Current = 0
-    gameMain.FadeAnimation()
+    transition.Run()
     gameMain.ClearColor = (0,0,0)
 
 def Update():
@@ -76,8 +76,7 @@ def Update():
                     CurrentLogo_AnimType = 0
                     CurrentLogo_AnimEnabled = True
                     CurrentLogo_DeltaBeforeNext = 0
-                    gameMain.FadeAnimation()
-                    
+
     # -- Detect Animation End -- #
     if CurrentLogo_Current >= 1:
         BlackScreenDelay += 1
@@ -86,6 +85,7 @@ def Update():
             ScreenMenu.Initialize(gameMain.DefaultDisplay)
             gameMain.CurrentScreen += 1
             BlackScreenDelay = 0
+            transition.Run()
 
     # -- Set the Fill Color -- #
     gameMain.CurrentFillColor = (0,0,0)
@@ -103,10 +103,10 @@ def GameDraw(DISPLAY):
     BottomTextSurface.set_alpha(CurrentLogo_Opacity)
 
     if CurrentLogo_Current == 0:
-        sprite.Render(LogoSurface, "/icon.png", 5, 15, 167, 145)
-        sprite.RenderFont(LogoSurface, "/PressStart2P.ttf", 20, reg.ReadKey("/strings/intro/text") + "\n\n" + reg.ReadKey("/VersionStatus"), (240, 240, 240), 180, 15, True)
+        sprite.ImageRender(LogoSurface, "/icon.png", 5, 15, 167, 145)
+        sprite.FontRender(LogoSurface, "/PressStart2P.ttf", 20, reg.ReadKey("/strings/intro/text") + "\n\n" + reg.ReadKey("/VersionStatus"), (240, 240, 240), 180, 15, True)
 
-        sprite.RenderFont(BottomTextSurface, "/PressStart2P.ttf", 10, reg.ReadKey("/strings/intro/license_text"), (250,250,250), 5,5, True)
+        sprite.FontRender(BottomTextSurface, "/PressStart2P.ttf", 10, reg.ReadKey("/strings/intro/license_text"), (250, 250, 250), 5, 5, True)
 
     DISPLAY.blit(LogoSurface, (DISPLAY.get_width() / 2 - LogoSurface.get_width() / 2, DISPLAY.get_height() / 2 - LogoSurface.get_height() / 2 - 50))
     DISPLAY.blit(BottomTextSurface, (DISPLAY.get_width() / 2 - BottomTextSurface.get_width() / 2, DISPLAY.get_height() / 2 - LogoSurface.get_height() / 2 + BottomTextSurface.get_height() * 2))

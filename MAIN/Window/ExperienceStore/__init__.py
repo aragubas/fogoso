@@ -22,6 +22,7 @@ from Fogoso.MAIN.Screens.Game import IncomingLog as IncomingLog
 from Fogoso.MAIN import ClassesUtils as gameObjs
 from Fogoso.MAIN import GameVariables as save
 import pygame
+from Fogoso.MAIN import GameItems as gameItems
 
 print("Fogoso Experience Store Window, Version 1.0")
 
@@ -82,19 +83,19 @@ def Render(DISPLAY):
             LastClickedItem = ListItems.LastItemClicked
 
             # -- Set Item Price and ID -- #
-            SelectedItemID = GetItemID_ByName(ListItems.LastItemClicked)
+            SelectedItemID = ListItems.LastItemOrderID
             SelectedItemLevel = GetNextLevelByID(SelectedItemID)
             SelectedItemPrice = GetItemPrice_ByID(SelectedItemID)
-            
+
             # -- Down Panel Background -- #
-            sprite.RenderRectangle(DrawnSurface, (0, 0, 0, 100), (0, DrawnSurface.get_height() - DownBar_BuyPanelYOffset, DrawnSurface.get_width(), DownBar_BuyPanelYOffset))
-            sprite.RenderRectangle(DrawnSurface, (16, 166, 152), (0, DrawnSurface.get_height() - DownBar_BuyPanelYOffset - 1, DrawnSurface.get_width(), 1))
+            sprite.Shape_Rectangle(DrawnSurface, (0, 0, 0, 100), (0, DrawnSurface.get_height() - DownBar_BuyPanelYOffset, DrawnSurface.get_width(), DownBar_BuyPanelYOffset))
+            sprite.Shape_Rectangle(DrawnSurface, (16, 166, 152), (0, DrawnSurface.get_height() - DownBar_BuyPanelYOffset - 1, DrawnSurface.get_width(), 1))
             # -- Draw the Buy Button -- #
             BuyButton.Render(DrawnSurface)
             # -- Draw the Item Title -- #
-            sprite.RenderFont(DrawnSurface, "/PressStart2P.ttf", 15, ListItems.LastItemClicked,(250,250,250),10,DrawnSurface.get_height() - DownBar_BuyPanelYOffset + 5, reg.ReadKey_bool("/OPTIONS/font_aa"))
+            sprite.FontRender(DrawnSurface, "/PressStart2P.ttf", 15, ListItems.LastItemClicked, (250, 250, 250), 10, DrawnSurface.get_height() - DownBar_BuyPanelYOffset + 5, reg.ReadKey_bool("/OPTIONS/font_aa"))
             # -- Draw the Item Price -- #
-            sprite.RenderFont(DrawnSurface,"/PressStart2P.ttf",8, "€xp" + str(utils.FormatNumber(SelectedItemPrice)),(250,250,250),10,DrawnSurface.get_height() - DownBar_BuyPanelYOffset + 20, reg.ReadKey_bool("/OPTIONS/font_aa"))
+            sprite.FontRender(DrawnSurface, "/PressStart2P.ttf", 8, "€xp" + str(utils.FormatNumber(SelectedItemPrice)), (250, 250, 250), 10, DrawnSurface.get_height() - DownBar_BuyPanelYOffset + 20, reg.ReadKey_bool("/OPTIONS/font_aa"))
 
     WindowObject.Render(DISPLAY)
     DISPLAY.blit(DrawnSurface, WindowObject.WindowSurface_Dest)
@@ -104,7 +105,6 @@ def UpdateControls():
     global DownBar_BuyPanelYOffset
     global DownBar_BuyPanelAnimEnabled
     global DownBar_BuyPanelYOffsetAdder
-    global BuyAmout
     # -- Set the Buy Button Location -- #
     BuyButton.Set_X(WindowObject.WindowRectangle[2] - BuyButton.Rectangle[2] - 5)
     BuyButton.Set_Y(WindowObject.WindowRectangle[3] - BuyButton.Rectangle[3] - DownBar_BuyPanelYOffset + 5)
@@ -113,6 +113,7 @@ def UpdateControls():
     BuyButton.Set_ColisionY(WindowObject.WindowRectangle[1] + BuyButton.Rectangle[1] + BuyButton.Rectangle[3])
 
     if BuyButton.ButtonState == "UP":
+        BuyButton.ButtonState = "INACTIVE"
         if save.CUrrent_Experience >= GetItemPrice_ByID(SelectedItemID):
             BuyItem_ByID(SelectedItemID)
 
@@ -132,13 +133,10 @@ def UpdateControls():
             DownBar_BuyPanelAnimEnabled = False
             DownBar_BuyPanelYOffsetAdder = 0
 
-def GetItemID_ByName(ItemName):
-    global SelectedItemLevel
-    return reg.ReadKey("/ItemData/upgrade/name/" + ItemName)
-
 def GetNextLevelByID(ItemID):
-    CurrentLevel = reg.ReadKey_int("/Save/item/last_level/" + ItemID)
-    CurrentLevel = CurrentLevel + 1
+    CurrentLevel = gameItems.GetItemLevel_ByID(ItemID)
+    CurrentLevel += 1
+
     return CurrentLevel
 
 def GetItemPrice_ByID(ItemID):
@@ -153,20 +151,18 @@ def BuyItem_ByID(ItemID):
     global SelectedItemID
     Price = GetItemPrice_ByID(ItemID)
 
+    print("BuyItemUpgrade : ItemID[{0}] Price[{1}]".format(str(ItemID), str(Price)))
+
     if Price < 0.0:
         IncomingLog.AddMessageText(reg.ReadKey("/strings/window/expecience_store/item_not_upgradable"), False, (250, 140, 140))
     else:
         save.CUrrent_Experience -= Price
-        ItemLevelKey = "/Save/item/last_level/" + str(SelectedItemID)
-        reg.WriteKey(ItemLevelKey, str(SelectedItemLevel))
         IncomingLog.AddMessageText(reg.ReadKey("/strings/window/expecience_store/item_upgrade"), False, (140, 240, 140))
+
+        # -- Write item level Information -- #
+        gameItems.IncreaseItemLevel_ByID(ItemID)
+
         ReloadItemsList()
-        
-        # -- Reload Items Data -- #
-        save.SaveItems()
-        save.RestartItems()
-
-
 
 def ReloadItemsList():
     global ListItems
@@ -179,7 +175,8 @@ def ReloadItemsList():
     print("ReloadItemsList : Add Store Items")
     for x in range(-1, reg.ReadKey_int("/ItemData/upgrade/all") + 1):
         CurrentItemRoot = "/ItemData/upgrade/" + str(x) + "_"
-        CurrentItemLevel = reg.ReadKey_int("/Save/item/last_level/" + str(x)) + 1
+        CurrentItemLevel = gameItems.GetItemLevel_ByID(x) + 1
+
         print("ReloadItemsList : CurrentItem[" + CurrentItemRoot + "]")
         ListItems.AddItem(reg.ReadKey(CurrentItemRoot + "name_" + str(CurrentItemLevel)), reg.ReadKey(CurrentItemRoot + "description_" + str(CurrentItemLevel)), reg.ReadKey(CurrentItemRoot + "sprite"))
     print("ReloadItemsList : Add Store Items")

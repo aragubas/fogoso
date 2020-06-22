@@ -19,7 +19,7 @@ from ENGINE import SPRITE as sprite
 from ENGINE import REGISTRY as reg
 from Fogoso.MAIN.Screens import Game as GameScreen 
 from Fogoso.MAIN import ClassesUtils as gameObjs
-from Fogoso.MAIN import Items as items
+from Fogoso.MAIN import GameItems as gameItems
 from Fogoso.MAIN import GameVariables as save
 from ENGINE import UTILS as utils
 from Fogoso.MAIN.Screens.Game import IncomingLog as IncomingLog
@@ -41,6 +41,7 @@ LastClickedItem = "null"
 BuyAmout = 1
 StoreLocked = False
 BuyAmountButton = gameObjs.UpDownButton
+LastItemIDSelected = None
 
 def Initialize():
     global WindowObject
@@ -91,19 +92,15 @@ def Render(DISPLAY):
                 DownBar_BuyPanelYOffset = 0
             LastClickedItem = ListItems.LastItemClicked
 
-            # -- Set Item Price and ID -- #
-            SelectedItemPrice = items.GetItemPrice_ByID(items.GetItemID_ByName(ListItems.LastItemClicked))
-            SelectedItemID = items.GetItemID_ByName(ListItems.LastItemClicked)
-
             # -- Down Panel Background -- #
-            sprite.RenderRectangle(DrawnSurface, (0, 0, 0, 100), (0, DrawnSurface.get_height() - DownBar_BuyPanelYOffset, DrawnSurface.get_width(), DownBar_BuyPanelYOffset))
-            sprite.RenderRectangle(DrawnSurface, (16, 166, 152), (0, DrawnSurface.get_height() - DownBar_BuyPanelYOffset - 1, DrawnSurface.get_width(), 1))
+            sprite.Shape_Rectangle(DrawnSurface, (0, 0, 0, 100), (0, DrawnSurface.get_height() - DownBar_BuyPanelYOffset, DrawnSurface.get_width(), DownBar_BuyPanelYOffset))
+            sprite.Shape_Rectangle(DrawnSurface, (16, 166, 152), (0, DrawnSurface.get_height() - DownBar_BuyPanelYOffset - 1, DrawnSurface.get_width(), 1))
             # -- Draw the Buy Button -- #
             BuyButton.Render(DrawnSurface)
             # -- Draw the Item Title -- #
-            sprite.RenderFont(DrawnSurface, "/PressStart2P.ttf", 15, ListItems.LastItemClicked,(250,250,250),10,DrawnSurface.get_height() - DownBar_BuyPanelYOffset + 5, reg.ReadKey_bool("/OPTIONS/font_aa"))
+            sprite.FontRender(DrawnSurface, "/PressStart2P.ttf", 15, ListItems.LastItemClicked, (250, 250, 250), 10, DrawnSurface.get_height() - DownBar_BuyPanelYOffset + 5, reg.ReadKey_bool("/OPTIONS/font_aa"))
             # -- Draw the Item Price -- #
-            sprite.RenderFont(DrawnSurface,"/PressStart2P.ttf",8, "$" + str(utils.FormatNumber(SelectedItemPrice)),(250,250,250),10,DrawnSurface.get_height() - DownBar_BuyPanelYOffset + 20, reg.ReadKey_bool("/OPTIONS/font_aa"))
+            sprite.FontRender(DrawnSurface, "/PressStart2P.ttf", 8, "$" + str(utils.FormatNumber(SelectedItemPrice)), (250, 250, 250), 10, DrawnSurface.get_height() - DownBar_BuyPanelYOffset + 20, reg.ReadKey_bool("/OPTIONS/font_aa"))
 
     WindowObject.Render(DISPLAY)
     DISPLAY.blit(DrawnSurface, WindowObject.WindowSurface_Dest)
@@ -114,6 +111,18 @@ def UpdateControls():
     global DownBar_BuyPanelAnimEnabled
     global DownBar_BuyPanelYOffsetAdder
     global BuyAmout
+    global LastItemIDSelected
+    global SelectedItemPrice
+    global SelectedItemID
+
+    # -- Update Selected ItemID -- #
+    # -- Set Item Price and ID -- #
+    if not LastItemIDSelected == ListItems.LastItemOrderID:
+        SelectedItemPrice = gameItems.GetItemPrice_ByID(ListItems.LastItemOrderID)
+        SelectedItemID = ListItems.LastItemOrderID
+
+        LastItemIDSelected = ListItems.LastItemOrderID
+
     # -- Set the Buy Button Location -- #
     BuyButton.Set_X(WindowObject.WindowRectangle[2] - BuyButton.Rectangle[2] - 5)
     BuyButton.Set_Y(WindowObject.WindowRectangle[3] - BuyButton.Rectangle[3] - DownBar_BuyPanelYOffset + 5)
@@ -121,9 +130,9 @@ def UpdateControls():
     BuyButton.Set_ColisionX(WindowObject.WindowRectangle[0] + BuyButton.Rectangle[0])
     BuyButton.Set_ColisionY(WindowObject.WindowRectangle[1] + BuyButton.Rectangle[1] + BuyButton.Rectangle[3])
 
-
+    # -- Update Buy Button -- #
     if BuyButton.ButtonState == "UP":
-        if save.Current_Money >= items.GetItemPrice_ByID(SelectedItemID):
+        if save.Current_Money >= gameItems.GetItemPrice_ByID(SelectedItemID):
             for buyAmount in range(0, BuyAmout):
                 BuyItem_ByID(SelectedItemID)
 
@@ -152,33 +161,32 @@ def RestartAnimation():
     LastClickedItem = "null"
 
 def BuyItem_ByID(ItemID):
-    ItemPrice = items.GetItemPrice_ByID(ItemID)
-    ItemLevel = reg.ReadKey_int("/Save/item/last_level/" + str(ItemID))
+    ItemPrice = gameItems.GetItemPrice_ByID(ItemID)
+    ItemLevel = gameItems.GetItemLevel_ByID(ItemID)
     ItemBuyedSucefully = False
 
     print("BuyItem : ItemPrice:{0}; ItemLevel{1}; ItemID:{2}".format(str(ItemPrice), str(ItemLevel), str(ItemID)))
 
-
-    if ItemID == "-1":
-        if save.GameItems_TotalIndx_NegativeOne == 0:
-            save.GameItems_TotalIndx_NegativeOne = 1
-            print("BuyItem : ItemID -1")
-            save.GameItemsList.append(gameObjs.Item_ExperienceStore())
+    if gameItems.GetItemIsUnlocker_ByID(ItemID): # -- Buy Unlocker Items
+        if not gameItems.GetItemCount_ByID(ItemID) >= 1:
+            # -- Increase Item Count -- #
+            gameItems.IncreaseItemCount_ByID(ItemID)
+            # -- Create Item Object -- #
+            gameItems.CreateItemObject(ItemID)
             ItemBuyedSucefully = True
-        
-    if ItemID == "0":
-        save.GameItemsList.append(gameObjs.Item_AutoClicker())
-        save.GameItems_TotalIndx_0 += 1
-        print("BuyItem : ItemID 0")
+
+    else: # -- Buy Common Items -- #
+        # -- Increase Item Count -- #
+        gameItems.IncreaseItemCount_ByID(ItemID)
+        # -- Create Item Object -- #
+        gameItems.CreateItemObject(ItemID)
         ItemBuyedSucefully = True
 
+    # -- Add Item to the Item View on Game Screen -- #
     GameScreen.ItemsView.AddItem(str(ItemID))
     
     if ItemBuyedSucefully:
-        save.Current_Money -= ItemPrice
-        IncomingLog.AddMessageText(reg.ReadKey("/strings/window/store/item_bought").format(str(SelectedItemID)), False, (210, 220, 240))
-    else:
-        IncomingLog.AddMessageText(reg.ReadKey("/strings/window/store/item_not_bought").format(str(SelectedItemID)), False, (210, 220, 240))
+        IncomingLog.AddMessageText(utils.FormatNumber(-ItemPrice, 2), True, (250, 150, 150), -ItemPrice)
 
 def EventUpdate(event):
     global StoreLocked

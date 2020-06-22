@@ -21,6 +21,7 @@ from Fogoso.MAIN.Screens import Game as GameScreen
 from Fogoso.MAIN import ClassesUtils as gameObjs
 from Fogoso.MAIN import GameVariables as save
 from ENGINE import UTILS as utils
+from Fogoso.MAIN.Screens.Game import Maintenance as maintenance
 import pygame
 
 print("Fogoso Infos Window, Version 1.2")
@@ -89,8 +90,8 @@ def Render(DISPLAY):
         
 
     # -- Draw the Top Bar -- #
-    sprite.RenderRectangle(DrawnSurface, (1, 22, 39, 100), (0,0, DrawnSurface.get_width(), 20))
-    sprite.RenderFont(DrawnSurface, "/PressStart2P.ttf", 15, reg.ReadKey("/strings/window/infos/category_" + str(CurrentCategory)), (240, 240, 240), 5,3, reg.ReadKey_bool("/OPTIONS/font_aa"))
+    sprite.Shape_Rectangle(DrawnSurface, (1, 22, 39, 100), (0, 0, DrawnSurface.get_width(), 20))
+    sprite.FontRender(DrawnSurface, "/PressStart2P.ttf", 15, reg.ReadKey("/strings/window/infos/category_" + str(CurrentCategory)), (240, 240, 240), 5, 3, reg.ReadKey_bool("/OPTIONS/font_aa"))
 
     # -- Draw the Arrows -- #
     NextButton.Render(DrawnSurface)
@@ -111,17 +112,17 @@ def Render(DISPLAY):
     DISPLAY.blit(DrawnSurface, WindowObject.WindowSurface_Dest)
     DrawnSurfaceGlob = DrawnSurface
 
-
 # -- Maintenance Category -- #
 def DrawCategory_0(DISPLAY):
-    sprite.RenderFont(DrawnSurface, "/PressStart2P.ttf", 10, reg.ReadKey("/strings/window/infos/txt_maintenance") + utils.FormatNumber(GameScreen.Current_Maintenance), (240, 240, 240), 5, 30, reg.ReadKey_bool("/OPTIONS/font_aa"))
-    sprite.RenderFont(DrawnSurface, "/PressStart2P.ttf", 10, reg.ReadKey("/strings/window/infos/txt_maintenance_delay") + str(reg.ReadKey_int("/Save/general_maintenance_delta")) + "/" + str(GameScreen.MaintenanceCost_Delta), (220, 220, 220), 5, 45, reg.ReadKey_bool("/OPTIONS/font_aa"))
-    sprite.RenderFont(DrawnSurface, "/PressStart2P.ttf", 10, reg.ReadKey("/strings/window/infos/txt_maintenance_base") + utils.FormatNumber(reg.ReadKey_float("/Save/general_maintenance")), (200, 200, 200), 5, 60, reg.ReadKey_bool("/OPTIONS/font_aa"))
+    sprite.FontRender(DISPLAY, "/PressStart2P.ttf", 10, reg.ReadKey("/strings/window/infos/txt_maintenance") + utils.FormatNumber(maintenance.LastMaintenancePrice), (240, 240, 240), 5, 30, reg.ReadKey_bool("/OPTIONS/font_aa"))
+    sprite.FontRender(DISPLAY, "/PressStart2P.ttf", 10, reg.ReadKey("/strings/window/infos/txt_maintenance_delay") + str(maintenance.DayTrigger), (220, 220, 220), 5, 45, reg.ReadKey_bool("/OPTIONS/font_aa"))
+    sprite.FontRender(DISPLAY, "/PressStart2P.ttf", 10, reg.ReadKey("/strings/window/infos/txt_maintenance_base") + utils.FormatNumber(maintenance.BaseMaintenance), (200, 200, 200), 5, 60, reg.ReadKey_bool("/OPTIONS/font_aa"))
+    sprite.FontRender(DISPLAY, "/PressStart2P.ttf", 10, reg.ReadKey("/strings/window/infos/txt_items_maintenance") + utils.FormatNumber(maintenance.ItemsMaintenance), (200, 200, 200), 5, 75, reg.ReadKey_bool("/OPTIONS/font_aa"))
 
 # -- Money Category -- #
 def DrawCategory_1(DISPLAY):
-    sprite.RenderFont(DrawnSurface, "/PressStart2P.ttf", 10, reg.ReadKey("/strings/window/infos/txt_money_per_click") + utils.FormatNumber(save.Current_MoneyValuePerClick), (240, 240, 240), 5, 30, reg.ReadKey_bool("/OPTIONS/font_aa"))
-    sprite.RenderFont(DrawnSurface, "/PressStart2P.ttf", 10, reg.ReadKey("/strings/window/infos/txt_previuos_best") + str(reg.ReadKey_float("/Save/money_per_click_last_best")), (220, 220, 220), 5, 45, reg.ReadKey_bool("/OPTIONS/font_aa"))
+    sprite.FontRender(DISPLAY, "/PressStart2P.ttf", 10, reg.ReadKey("/strings/window/infos/txt_money_per_click") + utils.FormatNumber(save.Current_MoneyValuePerClick), (240, 240, 240), 5, 30, reg.ReadKey_bool("/OPTIONS/font_aa"))
+    sprite.FontRender(DISPLAY, "/PressStart2P.ttf", 10, reg.ReadKey("/strings/window/infos/txt_previuos_best") + utils.FormatNumber(save.Current_MoneyPerClickBest), (220, 220, 220), 5, 45, reg.ReadKey_bool("/OPTIONS/font_aa"))
 
 def UpdateControls(DISPLAY):
     global NextButton

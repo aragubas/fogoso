@@ -20,6 +20,7 @@ from Fogoso.MAIN import ClassesUtils as gameObjs
 from Fogoso import MAIN as gameMain
 from ENGINE import REGISTRY as reg
 from ENGINE import sprite as sprite
+from Fogoso.MAIN import ScreenTransition as transition
 
 # -- Objects Definition -- #
 OptionsScreen_ChangeFps = gameObjs.UpDownButton
@@ -60,14 +61,10 @@ def Update():
 
     if OptionsScreen_ChangeFps.ButtonState == "UP":
         print("MaxFPS is [" + str(gameMain.Engine_MaxFPS) + "]")
-        if gameMain.Engine_MaxFPS == 60:
-            gameMain.Engine_MaxFPS = 25
-        elif gameMain.Engine_MaxFPS == 25:
-            gameMain.Engine_MaxFPS = 30
-        elif gameMain.Engine_MaxFPS == 30:
-            gameMain.Engine_MaxFPS = 45
-        elif gameMain.Engine_MaxFPS == 45:
-            gameMain.Engine_MaxFPS = 60
+        gameMain.Engine_MaxFPS += 5
+
+        if gameMain.Engine_MaxFPS >= 75:
+            gameMain.Engine_MaxFPS = 50
 
         gameMain.Messages.append("SET_FPS:" + str(gameMain.Engine_MaxFPS))
         reg.WriteKey("/OPTIONS/maxFPS", str(gameMain.Engine_MaxFPS))
@@ -75,14 +72,10 @@ def Update():
 
     if OptionsScreen_ChangeFps.ButtonState == "DOWN":
         print("MaxFPS is [" + str(gameMain.Engine_MaxFPS) + "]")
-        if gameMain.Engine_MaxFPS == 60:
-            gameMain.Engine_MaxFPS = 45
-        elif gameMain.Engine_MaxFPS == 45:
-            gameMain.Engine_MaxFPS = 30
-        elif gameMain.Engine_MaxFPS == 30:
-            gameMain.Engine_MaxFPS = 25
-        elif gameMain.Engine_MaxFPS == 25:
-            gameMain.Engine_MaxFPS = 60
+        gameMain.Engine_MaxFPS -= 5
+
+        if gameMain.Engine_MaxFPS <= 45:
+            gameMain.Engine_MaxFPS = 70
 
         gameMain.Messages.append("SET_FPS:" + str(gameMain.Engine_MaxFPS))
         reg.WriteKey("/OPTIONS/maxFPS", str(gameMain.Engine_MaxFPS))
@@ -90,15 +83,16 @@ def Update():
 
     if OptionsScreen_FlashAnimationSpeed.ButtonState == "UP":
         print("Old FlashAnimationSpeed : " + str(reg.ReadKey_int("/OPTIONS/fade_flash_speed")))
-        if gameMain.FadeEffectSpeed <= reg.ReadKey_int("/OPTIONS/props/fade_flash_speed_max"):
-            gameMain.FadeEffectSpeed += 1
-        reg.WriteKey("/OPTIONS/fade_flash_speed", str(gameMain.FadeEffectSpeed))
+        if transition.FadeEffectSpeed <= reg.ReadKey_int("/OPTIONS/props/fade_flash_speed_max"):
+            transition.FadeEffectSpeed += 1
+        reg.WriteKey("/OPTIONS/fade_flash_speed", str(transition.FadeEffectSpeed))
         print("New FlashAnimationSpeed : " + str(reg.ReadKey_int("/OPTIONS/fade_flash_speed")))
+
     if OptionsScreen_FlashAnimationSpeed.ButtonState == "DOWN":
         print("Old FlashAnimationSpeed : " + str(reg.ReadKey_int("/OPTIONS/fade_flash_speed")))
-        if gameMain.FadeEffectSpeed >= 2:
-            gameMain.FadeEffectSpeed -= 1
-        reg.WriteKey("/OPTIONS/fade_flash_speed", str(gameMain.FadeEffectSpeed))
+        if transition.FadeEffectSpeed >= 2:
+            transition.FadeEffectSpeed -= 1
+        reg.WriteKey("/OPTIONS/fade_flash_speed", str(transition.FadeEffectSpeed))
         print("New FlashAnimationSpeed : " + str(reg.ReadKey_int("/OPTIONS/fade_flash_speed")))
 
     if OptionsScreen_FontAntiAlias.ButtonState == "UP":
@@ -117,7 +111,7 @@ def Update():
             CurrentValue = 0
 
         reg.WriteKey("/OPTIONS/fade_flash_style", str(CurrentValue))
-        gameMain.FadeEffectStyle = CurrentValue
+        transition.FadeEffectStyle = CurrentValue
 
     if OptionsScreen_FlashAnimStyle.ButtonState == "DOWN":
         CurrentValue = reg.ReadKey_int("/OPTIONS/fade_flash_style")
@@ -129,7 +123,7 @@ def Update():
             CurrentValue = MaxValue
 
         reg.WriteKey("/OPTIONS/fade_flash_style", str(CurrentValue))
-        gameMain.FadeEffectStyle = CurrentValue
+        transition.FadeEffectStyle = CurrentValue
 
     # -- Set Positions -- #
     OptionsScreen_ChangeFps.Set_X(ElementsX + 20)
@@ -148,24 +142,24 @@ def Update():
 def Render(DISPLAY):
     # -- Render Max FPS Option -- #
     OptionsScreen_ChangeFps.Render(DISPLAY)
-    sprite.RenderFont(DISPLAY, "/PressStart2P.ttf", 14,
+    sprite.FontRender(DISPLAY, "/PressStart2P.ttf", 14,
                       reg.ReadKey("/strings/settings/max_fps") + str(gameMain.Engine_MaxFPS),
                       (255, 255, 255), ElementsX + 95, ElementsY + 52, reg.ReadKey_bool("/OPTIONS/font_aa"))
 
     # -- Render Flash Animation Speed -- #
     OptionsScreen_FlashAnimationSpeed.Render(DISPLAY)
-    sprite.RenderFont(DISPLAY, "/PressStart2P.ttf", 14,
-                      reg.ReadKey("/strings/settings/flash_anim_speed") + str(gameMain.FadeEffectSpeed),
+    sprite.FontRender(DISPLAY, "/PressStart2P.ttf", 14,
+                      reg.ReadKey("/strings/settings/flash_anim_speed") + str(transition.FadeEffectSpeed),
                       (255, 255, 255), ElementsX + 95, ElementsY + 77, reg.ReadKey_bool("/OPTIONS/font_aa"))
 
     # -- Render FontAntiAlias -- #
     OptionsScreen_FontAntiAlias.Render(DISPLAY)
 
-    sprite.RenderFont(DISPLAY, "/PressStart2P.ttf", 14,
+    sprite.FontRender(DISPLAY, "/PressStart2P.ttf", 14,
                       reg.ReadKey("/strings/settings/font_aa") + str(reg.ReadKey_bool("/OPTIONS/font_aa")),
                       (255, 255, 255), ElementsX + 120, ElementsY + 102, reg.ReadKey_bool("/OPTIONS/font_aa"))
 
     # -- Render FlashAnimStyle -- #
     OptionsScreen_FlashAnimStyle.Render(DISPLAY)
-    sprite.RenderFont(DISPLAY, "/PressStart2P.ttf", 14, reg.ReadKey("/strings/settings/flash_anim_style") + reg.ReadKey("/OPTIONS/desc/fade_flash/" + reg.ReadKey("/OPTIONS/fade_flash_style")), (255, 255, 255), ElementsX + 95, ElementsY + 127,
+    sprite.FontRender(DISPLAY, "/PressStart2P.ttf", 14, reg.ReadKey("/strings/settings/flash_anim_style") + reg.ReadKey("/OPTIONS/desc/fade_flash/" + reg.ReadKey("/OPTIONS/fade_flash_style")), (255, 255, 255), ElementsX + 95, ElementsY + 127,
                       reg.ReadKey_bool("/OPTIONS/font_aa"))
