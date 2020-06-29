@@ -85,7 +85,7 @@ def Update():
     if OptionsScreen_UI_Blur_Ammount.ButtonState == "UP":
         CurrentVal = reg.ReadKey_float("/OPTIONS/UI_blur_ammount")
         CurrentVal += 0.5
-        if CurrentVal >= 120:
+        if CurrentVal >= 100:
             reg.WriteKey("/OPTIONS/UI_blur_ammount", "50.0")
         else:
             reg.WriteKey("/OPTIONS/UI_blur_ammount", str(CurrentVal))
@@ -93,7 +93,7 @@ def Update():
         CurrentVal = reg.ReadKey_float("/OPTIONS/UI_blur_ammount")
         CurrentVal -= 0.5
         if CurrentVal < 50.0:
-            reg.WriteKey("/OPTIONS/UI_blur_ammount", "120.0")
+            reg.WriteKey("/OPTIONS/UI_blur_ammount", "100.0")
         else:
             reg.WriteKey("/OPTIONS/UI_blur_ammount", str(CurrentVal))
 

@@ -63,7 +63,7 @@ def GetItemLevel_ByID(ItemID):
 def GetItemPrice_ByID(ItemID):
     RegDir = "/ItemData/store/price/" + str(ItemID) + "_level_" + str(GetItemLevel_ByID(int(ItemID)))
 
-    return reg.ReadKey_float(RegDir)
+    return max(reg.ReadKey_float(RegDir), reg.ReadKey_float(RegDir) * GetItemCount_ByID(ItemID))
 
 # -- Item Price -- #
 def GetItemIsUnlocker_ByID(ItemID):

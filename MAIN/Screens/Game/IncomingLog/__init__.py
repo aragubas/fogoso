@@ -102,17 +102,15 @@ def Update():
 
     for x, TextGrind_TxT in enumerate(TextGrind_Text):
         # -- Delete Object -- #
-        if x > 32 or not gameScr.IsControlsEnabled or TextGrind_AliveTime[x] >= 50 and TextGrind_Y[x] <= 0:
+        if x > 32 or not gameScr.IsControlsEnabled or TextGrind_AliveTime[x] >= 50 or TextGrind_Y[x] <= 0:
             if TextGrind_IsGrindText[x]:
                 # -- Increase Money -- #
                 save.Current_Money += float(TextGrind_Value[x])
 
-                # -- Play Sound -- #
-                if x < 32:
-                    if float(TextGrind_Value[x]) > 0:
-                        sound.PlaySound("/hit_1.wav", 0.35)
-                    if float(TextGrind_Value[x]) < 0:
-                        sound.PlaySound("/hit_2.wav", 0.7)
+                if float(TextGrind_Value[x]) > 0:
+                    sound.PlaySound("/hit_1.wav", 0.35)
+                if float(TextGrind_Value[x]) < 0:
+                    sound.PlaySound("/hit_2.wav", 0.7)
 
             TextGrind_Text.pop(x)
             TextGrind_X.pop(x)
@@ -123,7 +121,10 @@ def Update():
             TextGrind_Value.pop(x)
         else:
             # -- Move the Text -- #
-            TextGrind_Y[x] -= sprite.GetFont_height("/PressStart2P.ttf", 20, TextGrind_TxT) / 1.2
+            if TextGrind_IsGrindText[x]:
+                TextGrind_Y[x] -= sprite.GetFont_height("/PressStart2P.ttf", 20, TextGrind_TxT) / 1.2
+            else:
+                TextGrind_Y[x] -= sprite.GetFont_height("/PressStart2P.ttf", 20, TextGrind_TxT) / 2.5
 
             # -- Increase Alive Time -- #
             TextGrind_AliveTime[x] += 1
@@ -142,6 +143,7 @@ def AddMessageText(Text, IsGrindText, TextColor, Value=0):
     global TextGrind_TextColor
     global TextGrind_Value
 
+    # -- Add to List Variables -- #
     TextGrind_Text.append(Text)
     TextGrind_X.append(5)
     TextGrind_Y.append(350 + sprite.GetFont_height("/PressStart2P.ttf", 20, Text) * len(TextGrind_Text))
@@ -150,9 +152,12 @@ def AddMessageText(Text, IsGrindText, TextColor, Value=0):
     TextGrind_TextColor.append(TextColor)
     TextGrind_Value.append(Value)
 
+    # -- Play Hit Sound -- #
+    sound.PlaySound("/hit_1.wav", 0.35,)
+
+
 def Draw(DISPLAY):
     global ResultSurface
-    global DeltaTest
 
     # -- Clear the Surface -- #
     ResultSurface.fill((0, 0, 0, 0))
@@ -163,7 +168,7 @@ def Draw(DISPLAY):
     # -- Draw the Texts -- #
     for x, TextGrind_TxT in enumerate(TextGrind_Text):
         # -- Render Object -- #
-        sprite.FontRender(ResultSurface, "/PressStart2P.ttf", 20, TextGrind_TxT, TextGrind_TextColor[x], TextGrind_X[x], TextGrind_Y[x])
+        sprite.FontRender(ResultSurface, "/PressStart2P.ttf", 18, TextGrind_TxT, TextGrind_TextColor[x], TextGrind_X[x], TextGrind_Y[x])
 
     # -- Render the Container Title -- #
     sprite.Shape_Rectangle(ResultSurface, (13, 10, 13), (2, 2, 350 - 4, 24 - 4))

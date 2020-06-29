@@ -23,6 +23,7 @@ from Fogoso.MAIN import GameItems as gameItems
 from Fogoso.MAIN import GameVariables as save
 from ENGINE import UTILS as utils
 from Fogoso.MAIN.Screens.Game import IncomingLog as IncomingLog
+from ENGINE import SOUND as sound
 import pygame
 
 print("Fogoso Store Window, Version 1.2")
@@ -38,7 +39,6 @@ DownBar_BuyPanelYOffset = 0
 DownBar_BuyPanelYOffsetAdder = 0
 DownBar_BuyPanelAnimEnabled = True
 LastClickedItem = "null"
-BuyAmout = 1
 StoreLocked = False
 BuyAmountButton = gameObjs.UpDownButton
 LastItemIDSelected = None
@@ -48,14 +48,12 @@ def Initialize():
     global BuyButton
     global DrawnSurface
     global ListItems
-    global BuyAmout
     WindowObject = gameObjs.Window(pygame.Rect(100,100,430,285), reg.ReadKey("/strings/window/store/window_title"),True)
     WindowObject.Minimizable = False
     BuyButton = gameObjs.Button(pygame.Rect(20, 20, 50, 50), reg.ReadKey("/strings/window/store/buy_button"), 14)
     BuyButton.CustomColisionRectangle = True
     DrawnSurface = WindowObject.WindowSurface
     ListItems = gameObjs.VerticalListWithDescription(pygame.Rect(0, 0, 350, 250))
-    BuyAmout = reg.ReadKey_int("/ItemData/store/buyAmount")
 
     print("StoreWindowInitialize : Add Store Items")
     for x in range(-1, reg.ReadKey_int("/ItemData/store/all") + 1):
@@ -115,9 +113,8 @@ def UpdateControls():
     global SelectedItemPrice
     global SelectedItemID
 
-    # -- Update Selected ItemID -- #
     # -- Set Item Price and ID -- #
-    if not LastItemIDSelected == ListItems.LastItemOrderID:
+    if not LastItemIDSelected == ListItems.LastItemOrderID:  # -- Only Update when needed
         SelectedItemPrice = gameItems.GetItemPrice_ByID(ListItems.LastItemOrderID)
         SelectedItemID = ListItems.LastItemOrderID
 
@@ -126,23 +123,30 @@ def UpdateControls():
     # -- Set the Buy Button Location -- #
     BuyButton.Set_X(WindowObject.WindowRectangle[2] - BuyButton.Rectangle[2] - 5)
     BuyButton.Set_Y(WindowObject.WindowRectangle[3] - BuyButton.Rectangle[3] - DownBar_BuyPanelYOffset + 5)
+
     # -- Set the Buy Button Collision -- #
     BuyButton.Set_ColisionX(WindowObject.WindowRectangle[0] + BuyButton.Rectangle[0])
     BuyButton.Set_ColisionY(WindowObject.WindowRectangle[1] + BuyButton.Rectangle[1] + BuyButton.Rectangle[3])
 
     # -- Update Buy Button -- #
     if BuyButton.ButtonState == "UP":
-        if save.Current_Money >= gameItems.GetItemPrice_ByID(SelectedItemID):
-            for buyAmount in range(0, BuyAmout):
-                BuyItem_ByID(SelectedItemID)
+        # -- Update Item Price -- #
+        SelectedItemPrice = gameItems.GetItemPrice_ByID(ListItems.LastItemOrderID)
 
-    # -- Set Items List Size -- #
+        if save.Current_Money >= gameItems.GetItemPrice_ByID(SelectedItemID):  # -- If you can buy the Item -- #
+            BuyItem_ByID(SelectedItemID)
+
+        else:  # -- Notify that you can't buy that item
+            IncomingLog.AddMessageText(reg.ReadKey("/strings/window/store/cant_buy_item"), False, (250, 150, 150))
+            sound.PlaySound("/hit_2.wav", 0.5)
+
+    # -- Update the Items List -- #
     ListItems.Set_W(DrawnSurface.get_width())
     ListItems.Set_H(DrawnSurface.get_height())
     ListItems.ColisionXOffset = WindowObject.WindowRectangle[0]
     ListItems.ColisionYOffset = WindowObject.WindowRectangle[1] + 20
 
-    # -- Buy Panel -- #
+    # -- Update Buy Panel Animation -- #
     if DownBar_BuyPanelAnimEnabled:
         DownBar_BuyPanelYOffsetAdder += 1
         DownBar_BuyPanelYOffset += DownBar_BuyPanelYOffsetAdder
@@ -163,30 +167,30 @@ def RestartAnimation():
 def BuyItem_ByID(ItemID):
     ItemPrice = gameItems.GetItemPrice_ByID(ItemID)
     ItemLevel = gameItems.GetItemLevel_ByID(ItemID)
-    ItemBuyedSucefully = False
 
     print("BuyItem : ItemPrice:{0}; ItemLevel{1}; ItemID:{2}".format(str(ItemPrice), str(ItemLevel), str(ItemID)))
 
-    if gameItems.GetItemIsUnlocker_ByID(ItemID): # -- Buy Unlocker Items
+    if gameItems.GetItemIsUnlocker_ByID(ItemID):  # -- Buy Unlocker Items
         if not gameItems.GetItemCount_ByID(ItemID) >= 1:
             # -- Increase Item Count -- #
             gameItems.IncreaseItemCount_ByID(ItemID)
+
             # -- Create Item Object -- #
             gameItems.CreateItemObject(ItemID)
-            ItemBuyedSucefully = True
 
-    else: # -- Buy Common Items -- #
+    else:  # -- Buy Common Items -- #
         # -- Increase Item Count -- #
         gameItems.IncreaseItemCount_ByID(ItemID)
+
         # -- Create Item Object -- #
         gameItems.CreateItemObject(ItemID)
-        ItemBuyedSucefully = True
 
     # -- Add Item to the Item View on Game Screen -- #
     GameScreen.ItemsView.AddItem(str(ItemID))
-    
-    if ItemBuyedSucefully:
-        IncomingLog.AddMessageText(utils.FormatNumber(-ItemPrice, 2), True, (250, 150, 150), -ItemPrice)
+
+    # -- Subtract the Money -- #
+    IncomingLog.AddMessageText(utils.FormatNumber(-ItemPrice, 2), True, (250, 150, 150), -ItemPrice)
+
 
 def EventUpdate(event):
     global StoreLocked
