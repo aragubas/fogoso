@@ -198,20 +198,19 @@ def RestartItems():
 
 class Item_AutoClicker:
     def __init__(self):
-        global Item_AutoClicker_LastLevel
-
+        self.DeltaTime = 0
+        self.DeltaTimeAction = 0
+        self.ItemIsActivated = False
+        self.InstanceID = 0
+        self.ItemRoll = 0
         self.ItemID = 0
+
+        # -- Item Statistics -- #
         self.ItemLevel = GetItemLevel_ByID(self.ItemID)
         self.ItemClickPerSecound = reg.ReadKey("/ItemData/0/lv_" + str(self.ItemLevel) + "_click")
         self.SecoundTimeAction = int(reg.ReadKey("/ItemData/0/lv_" + str(self.ItemLevel) + "_activation_sec"))
         self.maintenance_cost = reg.ReadKey_float("/ItemData/0/lv_" + str(self.ItemLevel) + "_cost_maintenance")
-        self.ExpMiningTotal = reg.ReadKey_float("/ItemData/0/lv_" + str(self.ItemLevel) + "_exp")
-        self.DeltaTime = 0
-        self.DeltaTimeAction = 0
-
-        self.ItemIsActivated = False
-        self.InstanceID = 0
-        self.ItemRoll = 0
+        self.ExpMiningTotal = reg.ReadKey_int("/ItemData/0/lv_" + str(self.ItemLevel) + "_exp")
 
     def Update(self):
         if self.ItemRoll == 1:
@@ -230,14 +229,14 @@ class Item_AutoClicker:
                 self.DeltaTime = 0
                 self.DeltaTimeAction = 0
                 self.ItemIsActivated = False
+                self.ItemRoll += 1
 
                 # -- Reload Item Statistics -- #
+                self.ItemLevel = GetItemLevel_ByID(self.ItemID)
                 self.ItemClickPerSecound = reg.ReadKey("/ItemData/0/lv_" + str(self.ItemLevel) + "_click")
                 self.SecoundTimeAction = int(reg.ReadKey("/ItemData/0/lv_" + str(self.ItemLevel) + "_activation_sec"))
                 self.maintenance_cost = reg.ReadKey_float("/ItemData/0/lv_" + str(self.ItemLevel) + "_cost_maintenance")
-                self.ExpMiningTotal = reg.ReadKey_float("/ItemData/0/lv_" + str(self.ItemLevel) + "_exp")
-
-                self.ItemRoll += 1
+                self.ExpMiningTotal = reg.ReadKey_int("/ItemData/0/lv_" + str(self.ItemLevel) + "_exp")
 
                 gameMain.ScreenGame.IncomingLog.AddMessageText("+" + str(self.ItemClickPerSecound), True, (100, 210, 100), self.ItemClickPerSecound)
                 if self.ExpMiningTotal > 0:
@@ -248,16 +247,37 @@ class Item_AutoClicker:
 class Item_ExperienceStore:
     def __init__(self):
         self.ItemID = -1
-        self.ItemLevel = GetItemLevel_ByID(self.ItemID)
-        self.ItemClickPerSecound = reg.ReadKey("/ItemData/-1/lv_" + str(self.ItemLevel) + "_click")
         self.DeltaTime = 0
-        self.DeltaTimeAction = reg.ReadKey("/ItemData/-1/lv_" + str(self.ItemLevel) + "_delta")
-        self.maintenance_cost = reg.ReadKey_float("/ItemData/-1/lv_" + str(self.ItemLevel) + "_cost_maintenance")
         self.InstanceID = 0
+        self.DeltaTimeAction = 0
+        self.ItemIsActivated = False
+        self.ItemRoll = 0
+
+        # -- Item Statistics -- #
+        self.ItemLevel = GetItemLevel_ByID(self.ItemID)
+        self.ItemExpPerSecound = reg.ReadKey_int("/ItemData/-1/lv_" + str(self.ItemLevel) + "_exp_click")
+        self.SecoundTimeAction = int(reg.ReadKey("/ItemData/-1/lv_" + str(self.ItemLevel) + "_activation_sec"))
+        self.maintenance_cost = reg.ReadKey_float("/ItemData/-1/lv_" + str(self.ItemLevel) + "_cost_maintenance")
 
     def Update(self):
-        self.DeltaTime += 1
+        if self.ItemRoll == 1:
+            if gameMain.save.CurrentDate_Secound == 0:
+                self.ItemRoll = 0
 
-        if int(self.DeltaTime) >= int(self.DeltaTimeAction):
-            gameMain.ScreenGame.IncomingLog.AddMessageText("+" + str(self.ItemClickPerSecound), True, (100, 210, 100), self.ItemClickPerSecound)
-            self.DeltaTime = 0
+        if self.ItemRoll == 0:
+            if gameMain.save.CurrentDate_Secound >= int(self.SecoundTimeAction):
+                self.ItemIsActivated = True
+                self.DeltaTimeAction = self.InstanceID + 5
+
+        if self.ItemIsActivated:
+            self.DeltaTime += 1
+
+            if self.DeltaTime >= self.DeltaTimeAction:
+                self.DeltaTime = 0
+                self.DeltaTimeAction = 0
+                self.ItemIsActivated = False
+                self.ItemRoll += 1
+
+                gameMain.ScreenGame.IncomingLog.AddMessageText("€+" + str(self.ItemExpPerSecound), False, (55, 45, 60))
+                gameMain.save.CUrrent_Experience += self.ItemExpPerSecound
+

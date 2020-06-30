@@ -174,11 +174,16 @@ def ReloadItemsList():
 
     print("ReloadItemsList : Add Store Items")
     for x in range(-1, reg.ReadKey_int("/ItemData/upgrade/all") + 1):
+        # -- Reg Keys Locations -- #
         CurrentItemRoot = "/ItemData/upgrade/" + str(x) + "_"
         CurrentItemLevel = gameItems.GetItemLevel_ByID(x) + 1
+        CurrentItemSprite = CurrentItemRoot + "sprite_" + str(CurrentItemLevel)
+        CurrentItemDescription = CurrentItemRoot + "description_" + str(CurrentItemLevel)
+        CurrentItemName = CurrentItemRoot + "name_" + str(CurrentItemLevel)
 
         print("ReloadItemsList : CurrentItem[" + CurrentItemRoot + "]")
-        ListItems.AddItem(reg.ReadKey(CurrentItemRoot + "name_" + str(CurrentItemLevel)), reg.ReadKey(CurrentItemRoot + "description_" + str(CurrentItemLevel)), reg.ReadKey(CurrentItemRoot + "sprite"))
+        ListItems.AddItem(reg.ReadKey(CurrentItemName), reg.ReadKey(CurrentItemDescription), reg.ReadKey(CurrentItemSprite))
+
     print("ReloadItemsList : Add Store Items")
 
     RestartAnimation()

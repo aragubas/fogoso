@@ -76,9 +76,9 @@ def Update():
     # -- UI Blur Enabled -- #
     if OptionsScreen_UI_Blur_Enabled.ButtonState == "UP" or OptionsScreen_UI_Blur_Enabled.ButtonState == "DOWN":
         CurrentVal = reg.ReadKey_bool("/OPTIONS/UI_blur_enabled")
-        if CurrentVal == True:
+        if CurrentVal:
             reg.WriteKey("/OPTIONS/UI_blur_enabled", "False")
-        if CurrentVal == False:
+        if not CurrentVal:
             reg.WriteKey("/OPTIONS/UI_blur_enabled", "True")
 
     # -- UI Blur Ammount -- #
@@ -116,25 +116,25 @@ def Update():
     # -- UI Pixalizate -- #
     if OptionsScreen_UI_PixalizateInstedOfBlur.ButtonState == "UP" or OptionsScreen_UI_PixalizateInstedOfBlur.ButtonState == "DOWN":
         CurrentVal = reg.ReadKey_bool("/OPTIONS/UI_Pixelate")
-        if CurrentVal == True:
+        if CurrentVal:
             reg.WriteKey("/OPTIONS/UI_Pixelate", "False")
-        if CurrentVal == False:
+        if not CurrentVal:
             reg.WriteKey("/OPTIONS/UI_Pixelate", "True")
 
     # -- Windows Transitions -- #
     if OptionsScreen_Windows_Transitions.ButtonState == "UP" or OptionsScreen_Windows_Transitions.ButtonState == "DOWN":
         CurrentVal = reg.ReadKey_bool("/OPTIONS/Windows_transitions")
-        if CurrentVal == True:
+        if CurrentVal:
             reg.WriteKey("/OPTIONS/Windows_transitions", "False")
-        if CurrentVal == False:
+        if not CurrentVal:
             reg.WriteKey("/OPTIONS/Windows_transitions", "True")
 
     # -- Window Indicator -- #
     if OptionsScreen_Window_Indicator.ButtonState == "UP" or OptionsScreen_Window_Indicator.ButtonState == "DOWN":
         CurrentVal = reg.ReadKey_bool("/OPTIONS/UI_WindowIndicator")
-        if CurrentVal == True:
+        if CurrentVal:
             reg.WriteKey("/OPTIONS/UI_WindowIndicator", "False")
-        if CurrentVal == False:
+        if not CurrentVal:
             reg.WriteKey("/OPTIONS/UI_WindowIndicator", "True")
 
 

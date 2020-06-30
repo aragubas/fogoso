@@ -62,6 +62,7 @@ def Unload():
     TextGrind_Text.clear()
     TextGrind_TextColor.clear()
 
+
 def Update():
     global ReceiveLog_CloseButton
     global ReceiveLog_Y_AnimType
@@ -102,16 +103,11 @@ def Update():
 
     for x, TextGrind_TxT in enumerate(TextGrind_Text):
         # -- Delete Object -- #
-        if x > 32 or not gameScr.IsControlsEnabled or TextGrind_AliveTime[x] >= 50 or TextGrind_Y[x] <= 0:
+        if x > 32 or not gameScr.IsControlsEnabled or TextGrind_Y[x] <= 0:
             if TextGrind_IsGrindText[x]:
-                # -- Increase Money -- #
-                save.Current_Money += float(TextGrind_Value[x])
+                AddMoney(TextGrind_Value[x])
 
-                if float(TextGrind_Value[x]) > 0:
-                    sound.PlaySound("/hit_1.wav", 0.35)
-                if float(TextGrind_Value[x]) < 0:
-                    sound.PlaySound("/hit_2.wav", 0.7)
-
+            # -- Remove Item -- #
             TextGrind_Text.pop(x)
             TextGrind_X.pop(x)
             TextGrind_Y.pop(x)
@@ -122,17 +118,21 @@ def Update():
         else:
             # -- Move the Text -- #
             if TextGrind_IsGrindText[x]:
-                TextGrind_Y[x] -= sprite.GetFont_height("/PressStart2P.ttf", 20, TextGrind_TxT) / 1.2
+                TextGrind_Y[x] -= sprite.GetFont_height("/PressStart2P.ttf", 18, TextGrind_TxT) / 1.2
             else:
-                TextGrind_Y[x] -= sprite.GetFont_height("/PressStart2P.ttf", 20, TextGrind_TxT) / 2.5
+                TextGrind_Y[x] -= sprite.GetFont_height("/PressStart2P.ttf", 18, TextGrind_TxT) / 18
 
-            # -- Increase Alive Time -- #
-            TextGrind_AliveTime[x] += 1
+def AddMoney(Value, WithSound=True):
+    # -- Increase Money -- #
+    save.Current_Money += float(Value)
 
-    if ReceiveLog_Y_AnimType == 0:
-        ObjsDeletionTime = 500
-    else:
-        ObjsDeletionTime = 50
+    # -- Play the Hit Sound -- #
+    if WithSound:
+        if float(Value) > 0:
+            sound.PlaySound("/hit_1.wav", 0.35)
+        if float(Value) < 0:
+            sound.PlaySound("/hit_2.wav", 0.7)
+
 
 def AddMessageText(Text, IsGrindText, TextColor, Value=0):
     global TextGrind_Text
@@ -143,21 +143,24 @@ def AddMessageText(Text, IsGrindText, TextColor, Value=0):
     global TextGrind_TextColor
     global TextGrind_Value
 
-    # -- Add to List Variables -- #
-    TextGrind_Text.append(Text)
-    TextGrind_X.append(5)
-    TextGrind_Y.append(350 + sprite.GetFont_height("/PressStart2P.ttf", 20, Text) * len(TextGrind_Text))
-    TextGrind_AliveTime.append(0)
-    TextGrind_IsGrindText.append(IsGrindText)
-    TextGrind_TextColor.append(TextColor)
-    TextGrind_Value.append(Value)
+    if len(TextGrind_Text) >= 32:  # -- Limit the Input of Items
+        if IsGrindText:
+            AddMoney(Value, False)
 
-    # -- Play Hit Sound -- #
-    sound.PlaySound("/hit_1.wav", 0.35,)
+    else:
+        # -- Add to List Variables -- #
+        TextGrind_Text.append(Text)
+        TextGrind_X.append(5)
+        TextGrind_Y.append(350 + sprite.GetFont_height("/PressStart2P.ttf", 20, Text) * len(TextGrind_Text))
+        TextGrind_AliveTime.append(0)
+        TextGrind_IsGrindText.append(IsGrindText)
+        TextGrind_TextColor.append(TextColor)
+        TextGrind_Value.append(Value)
 
 
 def Draw(DISPLAY):
     global ResultSurface
+    global TextGrind_Text
 
     # -- Clear the Surface -- #
     ResultSurface.fill((0, 0, 0, 0))

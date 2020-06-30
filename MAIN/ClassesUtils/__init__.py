@@ -19,43 +19,46 @@ from ENGINE import SPRITE as sprite
 from Fogoso import MAIN as mainScript
 from ENGINE import REGISTRY as reg
 from ENGINE import SOUND as sound
+from ENGINE import UTILS as utils
 import pygame
 import random
 from Fogoso.MAIN import GameItems as gameItems
 
+
 print("Game : Classes Utils v1.1")
 
-def Draw_Panel(DISPLAY, Rectangle, Color=(0,0,0,0)):
+def Draw_Panel(DISPLAY, Rectangle, DisableBlur=False):
     # -- the Result Surface -- #
     ResultPanel = pygame.Surface((Rectangle[2], Rectangle[3]))
 
-    if reg.ReadKey_bool("/OPTIONS/UI_blur_enabled"):  # -- If Blur is Enabled -- #
-        # -- Render the Darker Background -- #
-        if reg.ReadKey_int("/OPTIONS/UI_contrast") > 5:
-            DarkerBg = pygame.Surface((Rectangle[2], Rectangle[3]))
-            DarkerBg.set_alpha(reg.ReadKey_int("/OPTIONS/UI_contrast"))
-            DISPLAY.blit(DarkerBg, (Rectangle[0], Rectangle[1]))
+    if not DisableBlur:
+        if reg.ReadKey_bool("/OPTIONS/UI_blur_enabled"):  # -- If Blur is Enabled -- #
+            # -- Render the Darker Background -- #
+            if reg.ReadKey_int("/OPTIONS/UI_contrast") > 0:
+                DarkerBg = pygame.Surface((Rectangle[2], Rectangle[3]))
+                DarkerBg.set_alpha(reg.ReadKey_int("/OPTIONS/UI_contrast"))
+                DISPLAY.blit(DarkerBg, (Rectangle[0], Rectangle[1]))
 
-        # -- Only Blur the Necessary Area -- #
-        AreaToBlur = pygame.Surface((Rectangle[2], Rectangle[3]))
-        AreaToBlur.blit(DISPLAY, (0, 0), Rectangle)
+            # -- Only Blur the Necessary Area -- #
+            AreaToBlur = pygame.Surface((Rectangle[2], Rectangle[3]))
+            AreaToBlur.blit(DISPLAY, (0, 0), Rectangle)
 
-        if not reg.ReadKey_bool("/OPTIONS/UI_Pixelate"):  # -- If Pixalizate is Disabled -- #
-            ResultPanel.blit(sprite.Surface_Blur(AreaToBlur, reg.ReadKey_float("/OPTIONS/UI_blur_ammount")), (0, 0))
+            if not reg.ReadKey_bool("/OPTIONS/UI_Pixelate"):  # -- If Pixalizate is Disabled -- #
+                ResultPanel.blit(sprite.Surface_Blur(AreaToBlur, reg.ReadKey_float("/OPTIONS/UI_blur_ammount")), (0, 0))
 
-            del AreaToBlur
+            else:  # -- If Pixalizate is Enabled -- #
+                ResultPanel.blit(sprite.Surface_Blur(AreaToBlur, reg.ReadKey_float("/OPTIONS/UI_blur_ammount"), True), (0, 0))
 
-        else:  # -- If Pixalizate is Enabled -- #
-            ResultPanel.blit(sprite.Surface_Blur(AreaToBlur, reg.ReadKey_float("/OPTIONS/UI_blur_ammount"), True), (0, 0))
-            del AreaToBlur
+        else:  # -- If blur is Disabled -- #
+            ResultPanel.fill((0, 12, 29))
 
-    else:  # -- If blur is Disabled -- #
+            sprite.Shape_Rectangle(ResultPanel, (1, 22, 39), (0, 0, Rectangle[2], Rectangle[3]), 2, 5)
+    else:
         ResultPanel.fill((0, 12, 29))
 
         sprite.Shape_Rectangle(ResultPanel, (1, 22, 39), (0, 0, Rectangle[2], Rectangle[3]), 2, 5)
 
     DISPLAY.blit(ResultPanel, (Rectangle[0], Rectangle[1]))
-    del ResultPanel
 
 class SpriteButton:
     def __init__(self, Rectangle, SpriteList):
@@ -363,7 +366,7 @@ class Window:
             IndicatorLineColor = (32, 164, 243)
         else:
             IndicatorLineColor = (255, 51, 102)
-        Draw_Panel(DISPLAY, WindowBorderRectangle, (6, 27, 45))
+        Draw_Panel(DISPLAY, WindowBorderRectangle)
 
         pygame.draw.line(DISPLAY, IndicatorLineColor, (self.TitleBarRectangle[0], self.TitleBarRectangle[1] - 2 + self.TitleBarRectangle[3]), (self.TitleBarRectangle[0] + self.TitleBarRectangle[2], self.TitleBarRectangle[1] - 2 + self.TitleBarRectangle[3]), 2)
 
@@ -479,10 +482,10 @@ class VerticalListWithDescription:
         self.ListSurfaceUpdated = False
 
     def Render(self,DISPLAY):
-        self.ListSurface = pygame.Surface((self.Rectangle[2],self.Rectangle[3]), pygame.SRCALPHA)
+        self.ListSurface = pygame.Surface((self.Rectangle[2], self.Rectangle[3]), pygame.SRCALPHA)
 
         for i, itemNam in enumerate(self.ItemsName):
-            ItemRect = (self.Rectangle[0],self.ScrollY + self.Rectangle[1] + 42 * i,self.Rectangle[2],40)
+            ItemRect = (self.Rectangle[0], self.ScrollY + self.Rectangle[1] + 42 * i, self.Rectangle[2], 40)
 
             # -- When the item is not clicked -- #
             if not self.ItemSelected[i]:
@@ -497,7 +500,6 @@ class VerticalListWithDescription:
                     # -- Indicator Bar -- #
                     sprite.Shape_Rectangle(self.ListSurface, (32, 164, 243), (ItemRect[0], ItemRect[1], ItemRect[2], 1))
 
-
             else:
                 # -- Background -- #
                 sprite.Shape_Rectangle(self.ListSurface, (30, 52, 69, 150), ItemRect)
@@ -506,16 +508,21 @@ class VerticalListWithDescription:
 
             # -- Render the Item Name and Description -- #
             if not self.ItemSelected[i]:
+                # -- Render Item Name -- #
                 sprite.FontRender(self.ListSurface, "/PressStart2P.ttf", 12, itemNam, (250, 250, 250), ItemRect[0] + 45, ItemRect[1] + 5, reg.ReadKey_bool("/OPTIONS/font_aa"))
+                # -- Render Item Description -- #
                 sprite.FontRender(self.ListSurface, "/PressStart2P.ttf", 10, self.ItemsDescription[i], (250, 250, 250), ItemRect[0] + 45, ItemRect[1] + 30, reg.ReadKey_bool("/OPTIONS/font_aa"))
             else:
+                # -- Render Item Name -- #
                 sprite.FontRender(self.ListSurface, "/PressStart2P.ttf", 12, itemNam, (255, 255, 255), ItemRect[0] + 45, ItemRect[1] + 5, reg.ReadKey_bool("/OPTIONS/font_aa"))
+                # -- Render Item Description -- #
                 sprite.FontRender(self.ListSurface, "/PressStart2P.ttf", 10, self.ItemsDescription[i], (255, 255, 255), ItemRect[0] + 45, ItemRect[1] + 30, reg.ReadKey_bool("/OPTIONS/font_aa"))
 
             # -- Render the Item Sprite -- #
             if self.ItemSprite[i] != "null":
                 sprite.ImageRender(self.ListSurface, self.ItemSprite[i], ItemRect[0] + 4, ItemRect[1] + 4, 36, 32)
 
+        # -- Blit All Work to Screen -- #
         DISPLAY.blit(self.ListSurface,(self.Rectangle[0], self.Rectangle[1]))
 
     def Update(self, event):
@@ -531,12 +538,11 @@ class VerticalListWithDescription:
         for i, itemNam in enumerate(self.ItemsName):
             ItemRect = pygame.Rect(self.ColisionXOffset + self.Rectangle[0], self.ColisionYOffset + self.ScrollY + self.Rectangle[1] + 42 * i, self.Rectangle[2], 40)
 
-            if event.type == pygame.MOUSEBUTTONDOWN:
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 if ItemRect.collidepoint(self.Cursor_Position):
                     self.LastItemClicked = itemNam
                     self.ItemSelected[i] = True
                     self.LastItemOrderID = self.ItemOrderID[i]
-                    print("LastClickedItem : " + self.LastItemClicked)
             if event.type == pygame.MOUSEBUTTONUP:
                 self.ItemSelected[i] = False
 
@@ -564,7 +570,6 @@ class HorizontalItemsView:
         self.Rectangle = Rectangle
         self.ItemsName = list()
         self.ItemSprite = list()
-        self.ItemSelected = list()
         self.ScrollX = 0
         self.ListSurface = pygame.Surface
         self.ButtonLeftRectangle = pygame.Rect(0, 0, 32, 32)
@@ -585,30 +590,32 @@ class HorizontalItemsView:
             ItemX = self.ScrollX + ItemWidth * i
             ItemRect = (ItemX, self.Rectangle[3] / 2 - 90 / 2, ItemWidth - 5, 90)
 
-            # -- Background -- #
-            sprite.Shape_Rectangle(self.ListSurface, (120, 142, 159, 200), ItemRect)
-            # -- Indicator Bar -- #
-            sprite.Shape_Rectangle(self.ListSurface, (46, 196, 182, 230), (ItemRect[0], ItemRect[1], ItemRect[2], 1))
+            # -- Draw the Background -- #
+            Draw_Panel(self.ListSurface, ItemRect, True)
 
             # -- Render the Item Title -- #
-            sprite.FontRender(self.ListSurface, "/PressStart2P.ttf", 9, ItemName, (250, 250, 250), ItemRect[0] + ItemRect[2] / 2 - sprite.GetFont_width("/PressStart2P.ttf", 9, ItemName) / 2, ItemRect[1], reg.ReadKey_bool("/OPTIONS/font_aa"))
+            sprite.FontRender(self.ListSurface, "/PressStart2P.ttf", 9, ItemName, (250, 250, 250), ItemRect[0] + ItemRect[2] / 2 - sprite.GetFont_width("/PressStart2P.ttf", 9, ItemName) / 2, ItemRect[1] + 2, reg.ReadKey_bool("/OPTIONS/font_aa"))
 
             # -- Render the Item Sprite -- #
-            sprite.ImageRender(self.ListSurface, reg.ReadKey("/ItemData/store/" + str(itemNam) + "_sprite"), ItemRect[0] + 4, ItemRect[1] + 9, 64, 64)
+            sprite.ImageRender(self.ListSurface, reg.ReadKey("/ItemData/store/" + str(itemNam) + "_sprite"), ItemRect[0] + 3, ItemRect[1] + 10, 64, 64)
 
-            # -- Render the Item Little Info -- #
+            # -- Render the Item Info -- #
             LittleInfoText = "Count:\n{0}\nLevel:\n{1}".format(str(gameItems.GetItemCount_ByID(int(self.ItemsName[i]))), str(gameItems.GetItemLevel_ByID(int(self.ItemsName[i]))))
 
-            sprite.FontRender(self.ListSurface, "/PressStart2P.ttf", 10, LittleInfoText, (250, 250, 250), ItemRect[0] + 65, ItemRect[1] + 12, reg.ReadKey_bool("/OPTIONS/font_aa"))
+            sprite.FontRender(self.ListSurface, "/PressStart2P.ttf", 10, LittleInfoText, (250, 250, 250), ItemRect[0] + 70, ItemRect[1] + 12, reg.ReadKey_bool("/OPTIONS/font_aa"))
 
         DISPLAY.blit(self.ListSurface, (self.Rectangle[0], self.Rectangle[1]))
 
     def Update(self, event):
-        if event.type == pygame.KEYUP:
-            if event.key == pygame.K_q:
-                self.ScrollX += 5
-            if event.key == pygame.K_e:
-                self.ScrollX -= 5
+        # -- Scroll the List -- #
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if self.Rectangle.collidepoint(gameItems.gameMain.Cursor_Position):
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    if event.button == 4:
+                        self.ScrollX += 5
+
+                    elif event.button == 5:
+                        self.ScrollX -= 5
 
     def Set_X(self, Value):
         self.Rectangle[0] = float(Value)
@@ -632,4 +639,3 @@ class HorizontalItemsView:
         if not ItemAlreadyExists:
             self.ItemsName.append(ItemName)
             self.ItemSprite.append(ItemSprite)
-            self.ItemSelected.append(False)

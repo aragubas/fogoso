@@ -468,3 +468,4 @@ def GrindClick():
         IncomingLog.AddMessageText("€+" + str(save.Current_ExperiencePerEach), False, (150,150,150))
 
     IncomingLog.AddMessageText("+" + str(save.Current_MoneyValuePerClick), True, (20, 150, 25), save.Current_MoneyValuePerClick)
+
