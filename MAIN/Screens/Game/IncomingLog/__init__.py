@@ -118,9 +118,9 @@ def Update():
         else:
             # -- Move the Text -- #
             if TextGrind_IsGrindText[x]:
-                TextGrind_Y[x] -= sprite.GetFont_height("/PressStart2P.ttf", 18, TextGrind_TxT) / 1.2
+                TextGrind_Y[x] -= sprite.GetFont_height("/PressStart2P.ttf", 18, TextGrind_TxT) / 1.2 + x
             else:
-                TextGrind_Y[x] -= sprite.GetFont_height("/PressStart2P.ttf", 18, TextGrind_TxT) / 18
+                TextGrind_Y[x] -= sprite.GetFont_height("/PressStart2P.ttf", 18, TextGrind_TxT) / 5.5
 
 def AddMoney(Value, WithSound=True):
     # -- Increase Money -- #
@@ -162,8 +162,8 @@ def Draw(DISPLAY):
     global ResultSurface
     global TextGrind_Text
 
-    # -- Clear the Surface -- #
-    ResultSurface.fill((0, 0, 0, 0))
+    # -- Update the Surface -- #
+    ResultSurface = pygame.Surface((350, 350), pygame.SRCALPHA)
 
     # -- Render the Background -- #
     gameObjs.Draw_Panel(DISPLAY, (DISPLAY.get_width() - 355, ReceiveLog_Y_Offset + DISPLAY.get_height() - 355, ResultSurface.get_width(), ResultSurface.get_height()))
@@ -171,7 +171,8 @@ def Draw(DISPLAY):
     # -- Draw the Texts -- #
     for x, TextGrind_TxT in enumerate(TextGrind_Text):
         # -- Render Object -- #
-        sprite.FontRender(ResultSurface, "/PressStart2P.ttf", 18, TextGrind_TxT, TextGrind_TextColor[x], TextGrind_X[x], TextGrind_Y[x])
+        ObjOpacity = TextGrind_Y[x] * 2
+        sprite.FontRender(ResultSurface, "/PressStart2P.ttf", 18, TextGrind_TxT, TextGrind_TextColor[x], TextGrind_X[x], TextGrind_Y[x], Opacity=ObjOpacity, antialias=reg.ReadKey_bool("/OPTIONS/font_aa"))
 
     # -- Render the Container Title -- #
     sprite.Shape_Rectangle(ResultSurface, (13, 10, 13), (2, 2, 350 - 4, 24 - 4))

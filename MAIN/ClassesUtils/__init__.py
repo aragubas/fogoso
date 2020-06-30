@@ -314,18 +314,14 @@ class Window:
         self.Window_MinimunW = Rectangle[2]
         self.Window_MinimunH = Rectangle[3]
         self.MinimizeButton = Button(pygame.Rect(self.WindowRectangle[0] + self.WindowRectangle[2] - 20, self.WindowRectangle[1], 16, 20),"↑",16)
-        self.WindowSurface = pygame.Surface((self.WindowRectangle[0], self.WindowRectangle[1] + 20), pygame.SRCALPHA)
         self.WindowMinimized = False
         self.Resiziable = Resiziable
         self.WindowOriginalRect = pygame.Rect(0, 0, 0, 0)
         self.OriginalMinumunHeight = 0
         self.OriginalResiziable = False
-        self.WindowSurface_Dest = (0, 0)
+        self.WindowSurface_Rect = (0, 0, 200, 200)
         self.Minimizable = True
         self.SurfaceSizeFixed = False
-
-        if not self.WindowMinimized:
-            self.WindowSurface = pygame.Surface((self.WindowRectangle[2], self.WindowRectangle[3] - 20), pygame.SRCALPHA)
 
     def Render(self, DISPLAY):
         # -- Window Rectangle -- #
@@ -349,7 +345,7 @@ class Window:
 
         # -- Update Window Surface Destination -- #
         if not self.WindowMinimized:
-            self.WindowSurface_Dest = self.WindowRectangle[0], self.WindowRectangle[1] + 20
+            self.WindowSurface_Rect = (self.WindowRectangle[0], self.WindowRectangle[1] + 20, self.WindowRectangle[2], self.WindowRectangle[3] - 20)
 
         # -- Update Window Border -- #
         if not self.Resiziable:
@@ -424,26 +420,16 @@ class Window:
 
             if self.WindowRectangle[2] >= self.Window_MinimunW:
                 self.WindowRectangle[2] = self.Cursor_Position[0] - self.WindowRectangle[0]
-                self.UpdateSurface()
 
             if self.WindowRectangle[3] >= self.Window_MinimunH: # <- Resize the Window
                 self.WindowRectangle[3] = self.Cursor_Position[1] - self.WindowRectangle[1]
-                self.UpdateSurface()
-
-            print("Window is being resized")
 
         if self.WindowRectangle[2] < self.Window_MinimunW:
             self.WindowRectangle[2] = self.Window_MinimunW
-            self.UpdateSurface()
 
             # -------------------------------------------------
         if self.WindowRectangle[3] < self.Window_MinimunH:
             self.WindowRectangle[3] = self.Window_MinimunH
-            self.UpdateSurface()
-
-    def UpdateSurface(self):
-        self.WindowSurface = pygame.Surface((self.WindowRectangle[2], self.WindowRectangle[3] - 20), pygame.SRCALPHA)
-        print("Surface updated")
 
     def ToggleMinimize(self):
         if self.WindowMinimized:

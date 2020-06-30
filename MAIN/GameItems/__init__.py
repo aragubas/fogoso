@@ -40,6 +40,18 @@ def LoadItemsLevels():
     Item_ExperienceStore_LastLevel = reg.ReadAppData_WithTry("savegame/item_level/-1_level", int, "0")
 
 
+# -- Get Item Sprite Name -- #
+def GetItemSprite_ByID(ItemID):
+    global Item_AutoClicker_LastLevel
+    global Item_ExperienceStore_LastLevel
+
+    # -- The Root Folder -- #
+    RootFolder = "/ItemData/sprite/"
+
+    return RootFolder + str(ItemID) + "_level_" + str(GetItemLevel_ByID(ItemID))
+
+
+
 # -- Item Level -- #
 def SaveItemsLevel():
     global Item_AutoClicker_LastLevel
@@ -48,6 +60,7 @@ def SaveItemsLevel():
     reg.WriteAppData("savegame/item_level/0_level", Item_AutoClicker_LastLevel)
     reg.WriteAppData("savegame/item_level/-1_level", Item_ExperienceStore_LastLevel)
 
+# -- Get Item Level -- #
 def GetItemLevel_ByID(ItemID):
     global Item_AutoClicker_LastLevel
     global Item_ExperienceStore_LastLevel
@@ -92,6 +105,7 @@ def GetItemCount_ByID(ItemID):
     if ItemID == 0:
         return Item_AutoClicker_Count
 
+# -- Increase Item Level -- #
 def IncreaseItemLevel_ByID(ItemID):
     global Item_ExperienceStore_LastLevel
     global Item_AutoClicker_LastLevel
@@ -101,6 +115,7 @@ def IncreaseItemLevel_ByID(ItemID):
     if ItemID == 0:
         Item_AutoClicker_LastLevel += 1
 
+# -- Increase Item Count -- #
 def IncreaseItemCount_ByID(ItemID):
     global Item_ExperienceStore_Count
     global Item_AutoClicker_Count
@@ -214,11 +229,11 @@ class Item_AutoClicker:
 
     def Update(self):
         if self.ItemRoll == 1:
-            if gameMain.save.CurrentDate_Secound == 0:
+            if gameMain.save.CurrentDate_Second == 0:
                 self.ItemRoll = 0
 
         if self.ItemRoll == 0:
-            if gameMain.save.CurrentDate_Secound >= int(self.SecoundTimeAction):
+            if gameMain.save.CurrentDate_Second >= int(self.SecoundTimeAction):
                 self.ItemIsActivated = True
                 self.DeltaTimeAction = self.InstanceID + 5
 
@@ -240,7 +255,7 @@ class Item_AutoClicker:
 
                 gameMain.ScreenGame.IncomingLog.AddMessageText("+" + str(self.ItemClickPerSecound), True, (100, 210, 100), self.ItemClickPerSecound)
                 if self.ExpMiningTotal > 0:
-                    gameMain.ScreenGame.save.CUrrent_Experience += self.ExpMiningTotal
+                    gameMain.ScreenGame.save.Current_Experience += self.ExpMiningTotal
                     gameMain.ScreenGame.IncomingLog.AddMessageText("€+" + str(self.ItemClickPerSecound), True, (100, 110, 100), self.ItemClickPerSecound)
 
 
@@ -261,11 +276,11 @@ class Item_ExperienceStore:
 
     def Update(self):
         if self.ItemRoll == 1:
-            if gameMain.save.CurrentDate_Secound == 0:
+            if gameMain.save.CurrentDate_Second == 0:
                 self.ItemRoll = 0
 
         if self.ItemRoll == 0:
-            if gameMain.save.CurrentDate_Secound >= int(self.SecoundTimeAction):
+            if gameMain.save.CurrentDate_Second >= int(self.SecoundTimeAction):
                 self.ItemIsActivated = True
                 self.DeltaTimeAction = self.InstanceID + 5
 
@@ -279,5 +294,5 @@ class Item_ExperienceStore:
                 self.ItemRoll += 1
 
                 gameMain.ScreenGame.IncomingLog.AddMessageText("€+" + str(self.ItemExpPerSecound), False, (55, 45, 60))
-                gameMain.save.CUrrent_Experience += self.ItemExpPerSecound
+                gameMain.save.Current_Experience += self.ItemExpPerSecound
 

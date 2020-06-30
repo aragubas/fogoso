@@ -52,14 +52,13 @@ def Initialize():
     WindowObject.Minimizable = False
     BuyButton = gameObjs.Button(pygame.Rect(20, 20, 50, 50), reg.ReadKey("/strings/window/store/buy_button"), 14)
     BuyButton.CustomColisionRectangle = True
-    DrawnSurface = WindowObject.WindowSurface
+    DrawnSurface = pygame.Surface((WindowObject.WindowSurface_Rect[2], WindowObject.WindowSurface_Rect[3]), pygame.SRCALPHA)
     ListItems = gameObjs.VerticalListWithDescription(pygame.Rect(0, 0, 350, 250))
 
-    print("StoreWindowInitialize : Add Store Items")
     for x in range(-1, reg.ReadKey_int("/ItemData/store/all") + 1):
         CurrentItemRoot = "/ItemData/store/" + str(x) + "_"
-        print("AddStoreItems : CurrentItem[" + CurrentItemRoot + "]")
-        ListItems.AddItem(reg.ReadKey(CurrentItemRoot + "name"), reg.ReadKey(CurrentItemRoot + "description"), reg.ReadKey(CurrentItemRoot + "sprite"))
+        ItemSprite = gameItems.GetItemSprite_ByID(x)
+        ListItems.AddItem(reg.ReadKey(CurrentItemRoot + "name"), reg.ReadKey(CurrentItemRoot + "description"), reg.ReadKey(ItemSprite))
 
 def Render(DISPLAY):
     global WindowObject
@@ -72,11 +71,11 @@ def Render(DISPLAY):
     global SelectedItemID
     global StoreLocked
     global SelectedItemPrice
-    # -- Update the Surface -- #
-    DrawnSurface = WindowObject.WindowSurface
 
     if not StoreLocked:
-        DrawnSurface.fill((0,0,0,0))
+        # -- Update the Surface -- #
+        DrawnSurface = pygame.Surface((WindowObject.WindowSurface_Rect[2], WindowObject.WindowSurface_Rect[3]), pygame.SRCALPHA)
+
         # -- Update Controls -- #
         UpdateControls()
 
@@ -93,15 +92,25 @@ def Render(DISPLAY):
             # -- Down Panel Background -- #
             sprite.Shape_Rectangle(DrawnSurface, (0, 0, 0, 100), (0, DrawnSurface.get_height() - DownBar_BuyPanelYOffset, DrawnSurface.get_width(), DownBar_BuyPanelYOffset))
             sprite.Shape_Rectangle(DrawnSurface, (16, 166, 152), (0, DrawnSurface.get_height() - DownBar_BuyPanelYOffset - 1, DrawnSurface.get_width(), 1))
+
             # -- Draw the Buy Button -- #
             BuyButton.Render(DrawnSurface)
+
             # -- Draw the Item Title -- #
             sprite.FontRender(DrawnSurface, "/PressStart2P.ttf", 15, ListItems.LastItemClicked, (250, 250, 250), 10, DrawnSurface.get_height() - DownBar_BuyPanelYOffset + 5, reg.ReadKey_bool("/OPTIONS/font_aa"))
+
             # -- Draw the Item Price -- #
-            sprite.FontRender(DrawnSurface, "/PressStart2P.ttf", 8, "$" + str(utils.FormatNumber(SelectedItemPrice)), (250, 250, 250), 10, DrawnSurface.get_height() - DownBar_BuyPanelYOffset + 20, reg.ReadKey_bool("/OPTIONS/font_aa"))
+            PriceTextOpacity = 255
+            if save.Current_Money < SelectedItemPrice:
+                PriceTextOpacity = 100 - abs(save.Current_Money - SelectedItemPrice)
+
+                if PriceTextOpacity <= 100:
+                    PriceTextOpacity = 100
+
+            sprite.FontRender(DrawnSurface, "/PressStart2P.ttf", 8, "$" + str(utils.FormatNumber(SelectedItemPrice)), (PriceTextOpacity, PriceTextOpacity, PriceTextOpacity), 10, DrawnSurface.get_height() - DownBar_BuyPanelYOffset + 20, reg.ReadKey_bool("/OPTIONS/font_aa"), Opacity=PriceTextOpacity)
 
     WindowObject.Render(DISPLAY)
-    DISPLAY.blit(DrawnSurface, WindowObject.WindowSurface_Dest)
+    DISPLAY.blit(DrawnSurface, (WindowObject.WindowSurface_Rect[0], WindowObject.WindowSurface_Rect[1]))
 
 
 def UpdateControls():

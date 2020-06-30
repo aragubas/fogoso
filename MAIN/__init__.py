@@ -274,7 +274,6 @@ def SetWindowParameters():
     DefaultDisplay = pygame.Surface((reg.ReadKey_int("/props/default_resW"), reg.ReadKey_int("/props/default_resH")))
 
     Messages.append("SET_FPS:" + str(Engine_MaxFPS))
-    Messages.append("RESIZIABLE_WINDOW:True")
     Messages.append("SET_RESOLUTION:{0}:{1}".format(str(reg.ReadKey_int("/props/default_resW")), str(reg.ReadKey_int("/props/default_resH"))))
 
     pygame.display.set_caption("Fogoso : Ready!")

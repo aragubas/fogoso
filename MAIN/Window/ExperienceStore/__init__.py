@@ -50,7 +50,7 @@ def Initialize():
     WindowObject.Minimizable = False
     BuyButton = gameObjs.Button(pygame.Rect(20, 20, 50, 50), reg.ReadKey("/strings/window/expecience_store/buy_button"), 14)
     BuyButton.CustomColisionRectangle = True
-    DrawnSurface = WindowObject.WindowSurface
+    DrawnSurface = pygame.Surface((WindowObject.WindowSurface_Rect[2], WindowObject.WindowSurface_Rect[3]), pygame.SRCALPHA)
     ReloadItemsList()
 
 def Render(DISPLAY):
@@ -66,8 +66,8 @@ def Render(DISPLAY):
     global SelectedItemLevel
     global StoreLocked
     # -- Update the Surface -- #
-    DrawnSurface = WindowObject.WindowSurface
-    DrawnSurface.fill((0,0,0,0))
+    DrawnSurface = pygame.Surface((WindowObject.WindowSurface_Rect[2], WindowObject.WindowSurface_Rect[3]), pygame.SRCALPHA)
+
     if not StoreLocked:
         # -- Update Controls -- #
         UpdateControls()
@@ -90,21 +90,32 @@ def Render(DISPLAY):
             # -- Down Panel Background -- #
             sprite.Shape_Rectangle(DrawnSurface, (0, 0, 0, 100), (0, DrawnSurface.get_height() - DownBar_BuyPanelYOffset, DrawnSurface.get_width(), DownBar_BuyPanelYOffset))
             sprite.Shape_Rectangle(DrawnSurface, (16, 166, 152), (0, DrawnSurface.get_height() - DownBar_BuyPanelYOffset - 1, DrawnSurface.get_width(), 1))
+
             # -- Draw the Buy Button -- #
             BuyButton.Render(DrawnSurface)
+
             # -- Draw the Item Title -- #
             sprite.FontRender(DrawnSurface, "/PressStart2P.ttf", 15, ListItems.LastItemClicked, (250, 250, 250), 10, DrawnSurface.get_height() - DownBar_BuyPanelYOffset + 5, reg.ReadKey_bool("/OPTIONS/font_aa"))
-            # -- Draw the Item Price -- #
-            sprite.FontRender(DrawnSurface, "/PressStart2P.ttf", 8, "€xp" + str(utils.FormatNumber(SelectedItemPrice)), (250, 250, 250), 10, DrawnSurface.get_height() - DownBar_BuyPanelYOffset + 20, reg.ReadKey_bool("/OPTIONS/font_aa"))
 
-    WindowObject.Render(DISPLAY)
-    DISPLAY.blit(DrawnSurface, WindowObject.WindowSurface_Dest)
+            # -- Draw the Item Price -- #
+            PriceTextOpacity = 255
+            if save.Current_Experience < SelectedItemPrice:
+                PriceTextOpacity = 100 - abs(save.Current_Experience - SelectedItemPrice)
+
+                if PriceTextOpacity <= 100:
+                    PriceTextOpacity = 100
+
+            sprite.FontRender(DrawnSurface, "/PressStart2P.ttf", 8, "€xp" + str(utils.FormatNumber(SelectedItemPrice)), (PriceTextOpacity, PriceTextOpacity, PriceTextOpacity), 10, DrawnSurface.get_height() - DownBar_BuyPanelYOffset + 20, reg.ReadKey_bool("/OPTIONS/font_aa"), Opacity=PriceTextOpacity)
+
+    WindowObject.Render(DISPLAY) # -- Render Window Border
+    DISPLAY.blit(DrawnSurface, (WindowObject.WindowSurface_Rect[0], WindowObject.WindowSurface_Rect[1]))  # -- Render Window Objects
 
 
 def UpdateControls():
     global DownBar_BuyPanelYOffset
     global DownBar_BuyPanelAnimEnabled
     global DownBar_BuyPanelYOffsetAdder
+
     # -- Set the Buy Button Location -- #
     BuyButton.Set_X(WindowObject.WindowRectangle[2] - BuyButton.Rectangle[2] - 5)
     BuyButton.Set_Y(WindowObject.WindowRectangle[3] - BuyButton.Rectangle[3] - DownBar_BuyPanelYOffset + 5)
@@ -114,7 +125,7 @@ def UpdateControls():
 
     if BuyButton.ButtonState == "UP":
         BuyButton.ButtonState = "INACTIVE"
-        if save.CUrrent_Experience >= GetItemPrice_ByID(SelectedItemID):
+        if save.Current_Experience >= GetItemPrice_ByID(SelectedItemID):
             BuyItem_ByID(SelectedItemID)
 
     # -- Set Items List Size -- #
@@ -156,7 +167,7 @@ def BuyItem_ByID(ItemID):
     if Price < 0.0:
         IncomingLog.AddMessageText(reg.ReadKey("/strings/window/expecience_store/item_not_upgradable"), False, (250, 140, 140))
     else:
-        save.CUrrent_Experience -= Price
+        save.Current_Experience -= Price
         IncomingLog.AddMessageText(reg.ReadKey("/strings/window/expecience_store/item_upgrade"), False, (140, 240, 140))
 
         # -- Write item level Information -- #
@@ -177,7 +188,7 @@ def ReloadItemsList():
         # -- Reg Keys Locations -- #
         CurrentItemRoot = "/ItemData/upgrade/" + str(x) + "_"
         CurrentItemLevel = gameItems.GetItemLevel_ByID(x) + 1
-        CurrentItemSprite = CurrentItemRoot + "sprite_" + str(CurrentItemLevel)
+        CurrentItemSprite = gameItems.GetItemSprite_ByID(x)
         CurrentItemDescription = CurrentItemRoot + "description_" + str(CurrentItemLevel)
         CurrentItemName = CurrentItemRoot + "name_" + str(CurrentItemLevel)
 

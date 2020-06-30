@@ -24,46 +24,44 @@ from ENGINE import UTILS as utils
 from random import randint
 import os
 
-print("Fogoso Variables Management, version 1.4")
+print("Fogoso Variables Management, version 1.5")
 
 # -- Money -- #
 Current_Money = 0.0
 Current_MoneyValuePerClick = 0.2
 
 # -- Experience -- #
-CUrrent_Experience = 250
+Current_Experience = 250
 Current_TotalClicks = 0
 Current_TotalClicksNext = 0
 Current_TotalClicksForEach = 0
 Current_ExperiencePerEach = 20
 
 # -- Formated Money Strings -- #
-Current_MoneyPerSecound = 0.0
+Current_MoneyPerSecond = 0.0
 Current_MoneyFormated = "UNDEFINED"
-Current_MoneyPerSecoundFormatted = "UNDEFINED"
-CUrrent_ExperienceFormated = "0"
+Current_MoneyPerSecondFormatted = "UNDEFINED"
+Current_ExperienceFormated = "0"
 Current_MoneyPerClickBest = 0.0
 
 # -- Money Per Secound -- #
-MoneyPerSecound_Delta = 0
-MoneyPerSecound_Last = 0.0
+MoneyPerSecond_Delta = 0
+MoneyPerSecond_Last = 0.0
 
 # -- Current Date -- #
 CurrentDate_Day = 0
 CurrentDate_Month = 0
 CurrentDate_Year = 0
 CurrentDate_Minute = 0
-CurrentDate_Secound = 0
-CurrentDate_Microsecounds = 0
+CurrentDate_Second = 0
+CurrentDate_Microseconds = 0
 
 # -- Date Limiters -- #
 CurrentDate_DayLimiter = 0
 CurrentDate_MonthLimiter = 0
 CurrentDate_MinuteLimiter = 0
-CurrentDate_SecoundLimiter = 0
+CurrentDate_SecondLimiter = 0
 CurrentDate_YearLimiter = 0
-
-
 
 # -- Load Saved Data -- #
 def LoadSaveData():
@@ -71,25 +69,25 @@ def LoadSaveData():
     global CurrentDate_Month
     global CurrentDate_Year
     global CurrentDate_Minute
-    global CurrentDate_Secound
-    global CurrentDate_Microsecounds
+    global CurrentDate_Second
+    global CurrentDate_Microseconds
     global Current_TotalClicks
     global Current_TotalClicksNext
     global Current_TotalClicksForEach
     global Current_ExperiencePerEach
-    global CUrrent_Experience
+    global Current_Experience
     global Current_Money
     global Current_MoneyValuePerClick
     global CurrentDate_DayLimiter
     global CurrentDate_MonthLimiter
     global CurrentDate_MinuteLimiter
-    global CurrentDate_SecoundLimiter
+    global CurrentDate_SecondLimiter
     global CurrentDate_YearLimiter
 
     # -- Load Money and Click Variables -- #
     Current_Money = reg.ReadAppData_WithTry("savegame/money", float, 0.0)
     Current_MoneyValuePerClick = reg.ReadAppData_WithTry("savegame/money_per_click", float, 0.05)
-    CUrrent_Experience = reg.ReadAppData_WithTry("savegame/experience", int, 0)
+    Current_Experience = reg.ReadAppData_WithTry("savegame/experience", int, 0)
     Current_TotalClicks = reg.ReadAppData_WithTry("savegame/total_clicks", int, 0)
     Current_TotalClicksForEach = reg.ReadAppData_WithTry("savegame/total_clicks_for_each", int, 35)
     Current_ExperiencePerEach = reg.ReadAppData_WithTry("savegame/total_experience_per_each", int, 15)
@@ -101,17 +99,16 @@ def LoadSaveData():
     CurrentDate_Year = reg.ReadAppData_WithTry("savegame/date/year", int, 0)
     CurrentDate_Month = reg.ReadAppData_WithTry("savegame/date/month", int, 0)
     CurrentDate_Day = reg.ReadAppData_WithTry("savegame/date/day", int, 0)
-    CurrentDate_Secound = reg.ReadAppData_WithTry("savegame/date/secound", int, 0)
+    CurrentDate_Second = reg.ReadAppData_WithTry("savegame/date/second", int, 0)
     CurrentDate_Minute = reg.ReadAppData_WithTry("savegame/date/minute", int, 0)
-    CurrentDate_Microsecounds = reg.ReadAppData_WithTry("savegame/date/microsecound", int, 0)
+    CurrentDate_Microseconds = reg.ReadAppData_WithTry("savegame/date/microsecond", int, 0)
 
     # -- Load the Date Limiters -- #
     CurrentDate_MinuteLimiter = reg.ReadAppData_WithTry("savegame/date/limiter/minute", int, 60)
-    CurrentDate_SecoundLimiter = reg.ReadAppData_WithTry("savegame/date/limiter/secound", int, 50)
+    CurrentDate_SecondLimiter = reg.ReadAppData_WithTry("savegame/date/limiter/second", int, 50)
     CurrentDate_DayLimiter = reg.ReadAppData_WithTry("savegame/date/limiter/day", int, 5)
     CurrentDate_MonthLimiter = reg.ReadAppData_WithTry("savegame/date/limiter/month", int, 7)
     CurrentDate_YearLimiter = reg.ReadAppData_WithTry("savegame/date/limiter/year", int, 5)
-
 
     # -- Load Last Maintenance -- #
     maintenance.DayTrigger = reg.ReadAppData_WithTry("savegame/maintenance_day_trigger", int, 1)
@@ -125,24 +122,24 @@ def SaveData():
     global CurrentDate_Month
     global CurrentDate_Year
     global CurrentDate_Minute
-    global CurrentDate_Secound
-    global CurrentDate_Microsecounds
+    global CurrentDate_Second
+    global CurrentDate_Microseconds
     global Current_TotalClicks
     global Current_TotalClicksNext
     global Current_TotalClicksForEach
     global Current_ExperiencePerEach
-    global CUrrent_Experience
+    global Current_Experience
     global Current_Money
     global Current_MoneyValuePerClick
     global CurrentDate_DayLimiter
     global CurrentDate_MonthLimiter
     global CurrentDate_MinuteLimiter
-    global CurrentDate_SecoundLimiter
+    global CurrentDate_SecondLimiter
     global CurrentDate_YearLimiter
 
     # -- Money and Click Vars -- #
     reg.WriteAppData("savegame/money", Current_Money)
-    reg.WriteAppData("savegame/experience", CUrrent_Experience)
+    reg.WriteAppData("savegame/experience", Current_Experience)
     reg.WriteAppData("savegame/money_per_click", Current_MoneyValuePerClick)
     reg.WriteAppData("savegame/total_clicks", Current_TotalClicks)
     reg.WriteAppData("savegame/total_clicks_for_each", Current_TotalClicksForEach)
@@ -158,16 +155,15 @@ def SaveData():
     reg.WriteAppData("savegame/date/month", CurrentDate_Month)
     reg.WriteAppData("savegame/date/year", CurrentDate_Year)
     reg.WriteAppData("savegame/date/minute", CurrentDate_Minute)
-    reg.WriteAppData("savegame/date/secound", CurrentDate_Secound)
-    reg.WriteAppData("savegame/date/microsecounds", CurrentDate_Microsecounds)
+    reg.WriteAppData("savegame/date/second", CurrentDate_Second)
+    reg.WriteAppData("savegame/date/microseconds", CurrentDate_Microseconds)
 
     # -- Save Date Limiter -- #
     reg.WriteAppData("savegame/date/limiter/day", CurrentDate_DayLimiter)
     reg.WriteAppData("savegame/date/limiter/month", CurrentDate_MonthLimiter)
     reg.WriteAppData("savegame/date/limiter/year", CurrentDate_YearLimiter)
     reg.WriteAppData("savegame/date/limiter/minute", CurrentDate_MinuteLimiter)
-    reg.WriteAppData("savegame/date/limiter/secound", CurrentDate_SecoundLimiter)
-
+    reg.WriteAppData("savegame/date/limiter/second", CurrentDate_SecondLimiter)
 
     # -- Save Items Data -- #
     gameItems.SaveItems()
@@ -177,31 +173,31 @@ def Unload():
     global CurrentDate_Month
     global CurrentDate_Year
     global CurrentDate_Minute
-    global CurrentDate_Secound
-    global CurrentDate_Microsecounds
+    global CurrentDate_Second
+    global CurrentDate_Microseconds
     global Current_TotalClicks
     global Current_TotalClicksNext
     global Current_TotalClicksForEach
     global Current_ExperiencePerEach
-    global CUrrent_Experience
+    global Current_Experience
     global Current_Money
     global Current_MoneyValuePerClick
     global CurrentDate_DayLimiter
     global CurrentDate_MonthLimiter
     global CurrentDate_MinuteLimiter
-    global CurrentDate_SecoundLimiter
+    global CurrentDate_SecondLimiter
     global CurrentDate_YearLimiter
 
     # -- Save the Game -- #
     SaveData()
+
     # -- Unload Items Data -- #
     gameItems.UnloadItems()
 
-    # -- Unload Vars -- #
     # -- Load Money and Click Variables -- #
     Current_Money = None
     Current_MoneyValuePerClick = None
-    CUrrent_Experience = None
+    Current_Experience = None
     Current_TotalClicks = None
     Current_TotalClicksForEach = None
     Current_ExperiencePerEach = None
@@ -213,95 +209,90 @@ def Unload():
     CurrentDate_Year = None
     CurrentDate_Month = None
     CurrentDate_Day = None
-    CurrentDate_Secound = None
+    CurrentDate_Second = None
     CurrentDate_Minute = None
-    CurrentDate_Microsecounds = None
+    CurrentDate_Microseconds = None
 
     # -- Load the Date Limiters -- #
     CurrentDate_MinuteLimiter = None
-    CurrentDate_SecoundLimiter = None
+    CurrentDate_SecondLimiter = None
     CurrentDate_DayLimiter = None
     CurrentDate_MonthLimiter = None
     CurrentDate_YearLimiter = None
-
 
     # -- Load Last Maintenance -- #
     maintenance.DayTrigger = None
     maintenance.PerDayValue = None
     maintenance.BaseMaintenance = None
 
-
-
 def UpdateClock():
     global CurrentDate_Day
     global CurrentDate_Month
     global CurrentDate_Year
     global CurrentDate_Minute
-    global CurrentDate_Secound
-    global CurrentDate_Microsecounds
+    global CurrentDate_Second
+    global CurrentDate_Microseconds
     global CurrentDate_DayLimiter
     global CurrentDate_MonthLimiter
     global CurrentDate_MinuteLimiter
-    global CurrentDate_SecoundLimiter
+    global CurrentDate_SecondLimiter
     global CurrentDate_YearLimiter
 
-    CurrentDate_Microsecounds += 1
+    CurrentDate_Microseconds += 1
 
-    if CurrentDate_Microsecounds >= CurrentDate_SecoundLimiter: # -- 1 Secound Passed
-        CurrentDate_Microsecounds = 0
-        CurrentDate_Secound += 1
+    if CurrentDate_Microseconds >= CurrentDate_SecondLimiter:  # -- 1 Second Passed
+        CurrentDate_Microseconds = 0
+        CurrentDate_Second += 1
 
-    if CurrentDate_Secound >= CurrentDate_MinuteLimiter: # -- 1 Minute Passed
-        CurrentDate_Secound = 0
+    if CurrentDate_Second >= CurrentDate_MinuteLimiter:  # -- 1 Minute Passed
+        CurrentDate_Second = 0
         CurrentDate_Minute += 1
 
-    if CurrentDate_Minute >= CurrentDate_DayLimiter: # -- 1 Day Passed
+    if CurrentDate_Minute >= CurrentDate_DayLimiter:  # -- 1 Day Passed
         CurrentDate_Minute = 0
         CurrentDate_Day += 1
 
-    if CurrentDate_Day >= CurrentDate_MonthLimiter: # -- 1 Month Passed
+    if CurrentDate_Day >= CurrentDate_MonthLimiter:  # -- 1 Month Passed
         CurrentDate_Day = 0
         CurrentDate_Month += 1
 
-    if CurrentDate_Month >= CurrentDate_YearLimiter: #-- 1 Year Passed
+    if CurrentDate_Month >= CurrentDate_YearLimiter:  # -- 1 Year Passed
         CurrentDate_Month = 0
         CurrentDate_Year += 1
-
 
 def Update():
     global Current_Money
     global Current_MoneyValuePerClick
-    global Current_MoneyPerSecound
+    global Current_MoneyPerSecond
     global Current_MoneyFormated
-    global Current_MoneyPerSecoundFormatted
-    global MoneyPerSecound_Delta
-    global MoneyPerSecound_Last
-    global CUrrent_ExperienceFormated
+    global Current_MoneyPerSecondFormatted
+    global MoneyPerSecond_Delta
+    global MoneyPerSecond_Last
+    global Current_ExperienceFormated
     global Current_MoneyPerClickBest
+
+    # -- Update the Clock -- #
+    UpdateClock()
 
     # -- Updated Formated Strings -- #
     if reg.ReadKey_bool("/OPTIONS/format_numbers"):
         Current_MoneyFormated = utils.FormatNumber(Current_Money, 2)
-        Current_MoneyPerSecoundFormatted = utils.FormatNumber(Current_MoneyPerSecound, 2)
-        CUrrent_ExperienceFormated = utils.FormatNumber(CUrrent_Experience, 2)
+        Current_MoneyPerSecondFormatted = utils.FormatNumber(Current_MoneyPerSecond, 2)
+        Current_ExperienceFormated = utils.FormatNumber(Current_Experience, 2)
     else:
         Current_MoneyFormated = str(Current_Money)
-        Current_MoneyPerSecoundFormatted = str(Current_MoneyPerSecound)
-        CUrrent_ExperienceFormated = str(CUrrent_Experience)
+        Current_MoneyPerSecondFormatted = str(Current_MoneyPerSecond)
+        Current_ExperienceFormated = str(Current_Experience)
 
-    # -- Update Money Per Secound -- #
-    MoneyPerSecound_Delta += 1
-    if MoneyPerSecound_Delta == 1000:
-        Current_MoneyPerSecound = Current_Money - MoneyPerSecound_Last
-        MoneyPerSecound_Last = Current_Money
-        MoneyPerSecound_Delta = 0
+    # -- Update Money Per Second -- #
+    MoneyPerSecond_Delta += 1
+    if MoneyPerSecond_Delta == 1000:
+        Current_MoneyPerSecond = Current_Money - MoneyPerSecond_Last
+        MoneyPerSecond_Last = Current_Money
+        MoneyPerSecond_Delta = 0
 
         if Current_MoneyValuePerClick >= Current_MoneyPerClickBest:
             Current_MoneyPerClickBest = Current_MoneyValuePerClick
 
-
     # -- Update All Loaded Items -- #
     gameItems.UpdateItems()
-
-    # -- Update the Clock -- #
-    UpdateClock()

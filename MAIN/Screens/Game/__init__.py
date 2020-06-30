@@ -109,12 +109,13 @@ def UpdateSavingScreen(DISPLAY):
     global SavingScreen_DISPLAYCopied
     global SavingSurfaceBackground
     global SavingScreenCopyOfScreen
+    global HUD_Surface
 
+    # -- Run the Animation -- #
     if BackgroundAnim_Enabled:
         if BackgroundAnim_Type == 0:
             BackgroundAnim_Numb += 0.5
             if BackgroundAnim_Numb >= 30.5:
-
                 BackgroundAnim_Enabled = False
                 BackgroundAnim_Type = 1
                 BackgroundAnim_Numb = 30.5
@@ -133,27 +134,21 @@ def UpdateSavingScreen(DISPLAY):
 
     # -- Copy the Screen -- #
     if not SavingScreen_DISPLAYCopied:
-        SavingScreen_DISPLAYCopied = True
         SavingScreenCopyOfScreen = HUD_Surface.copy()
+        SavingScreen_DISPLAYCopied = True
 
-    SavingSurfaceBackground = pygame.Surface((DISPLAY.get_width(), DISPLAY.get_height()))
-    SavingSurfaceBackground.blit(sprite.Surface_Blur(SavingScreenCopyOfScreen, BackgroundAnim_Numb), (0,0))
-    DISPLAY.blit(SavingSurfaceBackground, (0, 0))
-
-    TextsSurface = pygame.Surface((DISPLAY.get_width(), DISPLAY.get_height()), pygame.SRCALPHA)
-    TextsSurface.fill((0,0,0, 0))
-    TextsSurface.set_alpha(BackgroundAnim_Numb * 8.5)
+    # -- Draw the Blurred Background -- #
+    DISPLAY.blit(sprite.Surface_Blur(SavingScreenCopyOfScreen, BackgroundAnim_Numb * 3.5), (0,0))
 
     SavingText = reg.ReadKey("/strings/game/save_screen/title")
     SavingStatusText = reg.ReadKey("/strings/game/save_screen/message")
+    TextsOpacity = BackgroundAnim_Numb * 8.5
 
     TextSavingX = DISPLAY.get_width() / 2 - sprite.GetFont_width("/PressStart2P.ttf", 50, SavingText) / 2
     TextSavingY = DISPLAY.get_height() / 2 - sprite.GetFont_height("/PressStart2P.ttf", 50, SavingText) / 2 - 100
 
-    sprite.FontRender(TextsSurface, "/PressStart2P.ttf", 50, SavingText, (250, 250, 255), TextSavingX, TextSavingY, reg.ReadKey_bool("/OPTIONS/font_aa"))
-    sprite.FontRender(TextsSurface, "/PressStart2P.ttf", 35, SavingStatusText, (250, 250, 255), DISPLAY.get_width() / 2 - sprite.GetFont_width("/PressStart2P.ttf", 35, SavingStatusText) / 2, TextSavingY + 100, reg.ReadKey_bool("/OPTIONS/font_aa"))
-
-    DISPLAY.blit(TextsSurface, (0,0))
+    sprite.FontRender(DISPLAY, "/PressStart2P.ttf", 50, SavingText, (250, 250, 255), TextSavingX, TextSavingY, reg.ReadKey_bool("/OPTIONS/font_aa"), Opacity=TextsOpacity)
+    sprite.FontRender(DISPLAY, "/PressStart2P.ttf", 35, SavingStatusText, (250, 250, 255), DISPLAY.get_width() / 2 - sprite.GetFont_width("/PressStart2P.ttf", 35, SavingStatusText) / 2, TextSavingY + 100, reg.ReadKey_bool("/OPTIONS/font_aa"), Opacity=TextsOpacity)
 
 def Update():
     global GameOptionsButton
@@ -268,8 +263,8 @@ def UpdateExperienceBlink():
     global LastExperience
 
     # -- Check if Experience has changed. -- #
-    if not save.CUrrent_Experience == LastExperience:
-        LastExperience = save.CUrrent_Experience
+    if not save.Current_Experience == LastExperience:
+        LastExperience = save.Current_Experience
         BlinkExperienceEnabled = True
 
     # -- Do Animation -- #
@@ -325,9 +320,9 @@ def GameDraw(DISPLAY):
             MoneyColor = (120, 220, 120)
         elif save.Current_Money <= 0:
             MoneyColor = (220, 10, 10)
-        if save.Current_MoneyPerSecound > 0.1:
+        if save.Current_MoneyPerSecond > 0.1:
             PerSecoundColor = (50, 200, 50)
-        elif save.Current_MoneyPerSecound <= 0:
+        elif save.Current_MoneyPerSecond <= 0:
             PerSecoundColor = (120, 10, 10)
 
         # -- Render Current Money, at Top -- #
@@ -336,18 +331,18 @@ def GameDraw(DISPLAY):
         sprite.FontRender(HUD_Surface, "/PressStart2P.ttf", 18, MoneyText, MoneyColor, 10, 20)
 
         # -- Render Money per Secound -- #
-        MoneyPerSecoundText = reg.ReadKey("/strings/game/money_per_secound") + save.Current_MoneyPerSecoundFormatted
+        MoneyPerSecoundText = reg.ReadKey("/strings/game/money_per_secound") + save.Current_MoneyPerSecondFormatted
         sprite.FontRender(HUD_Surface, "/PressStart2P.ttf", 18, MoneyPerSecoundText, (0, 0, 0), 12, 52)
         sprite.FontRender(HUD_Surface, "/PressStart2P.ttf", 18, MoneyPerSecoundText, PerSecoundColor, 10, 50)
 
         # -- Render Experience -- #
-        ExperienceText = reg.ReadKey("/strings/game/experience") + str(save.CUrrent_ExperienceFormated) + "/" + str(save.Current_TotalClicks - save.Current_TotalClicksNext) + "=" + str(save.Current_ExperiencePerEach)
+        ExperienceText = reg.ReadKey("/strings/game/experience") + str(save.Current_ExperienceFormated) + "/" + str(save.Current_TotalClicks - save.Current_TotalClicksNext) + "=" + str(save.Current_ExperiencePerEach)
         sprite.FontRender(HUD_Surface, "/PressStart2P.ttf", 18, ExperienceText, (BlinkExperienceValue, BlinkExperienceValue, BlinkExperienceValue), 12, 82)
         sprite.FontRender(HUD_Surface, "/PressStart2P.ttf", 18, ExperienceText, (140 + BlinkExperienceValue, 130 + BlinkExperienceValue, 120 + BlinkExperienceValue), 10, 80)
 
         # -- Render the Clock -- #
         # -- Time -- #
-        SecoundsText = reg.ReadKey("/strings/game/clock").format(str(save.CurrentDate_Minute), str(save.CurrentDate_Secound), str(save.CurrentDate_DayLimiter), str(save.CurrentDate_MinuteLimiter))
+        SecoundsText = reg.ReadKey("/strings/game/clock").format(str(save.CurrentDate_Minute), str(save.CurrentDate_Second), str(save.CurrentDate_DayLimiter), str(save.CurrentDate_MinuteLimiter))
         sprite.FontRender(HUD_Surface, "/PressStart2P.ttf", 10, SecoundsText, (0, 0, 0), HUD_Surface.get_width() / 2 - sprite.GetFont_width("/PressStart2P.ttf", 10, SecoundsText) / 2 + 2, 7, reg.ReadKey_bool("/OPTIONS/font_aa"))
         sprite.FontRender(HUD_Surface, "/PressStart2P.ttf", 10, SecoundsText, (230, 230, 230), HUD_Surface.get_width() / 2 - sprite.GetFont_width("/PressStart2P.ttf", 10, SecoundsText) / 2, 5, reg.ReadKey_bool("/OPTIONS/font_aa"))
 
@@ -386,6 +381,7 @@ def Initialize(DISPLAY):
     global OpenInfosWindowButton
     global OpenExperienceWindowButton
     global HUD_Surface
+
     # -- Initialize Buttons -- #
     GrindButton = gameObjs.Button(pygame.rect.Rect(15, 115, 130, 150), "Loremk ipsum dolor sit amet...", 18)
     GrindButton.WhiteButton = True
@@ -464,7 +460,7 @@ def GrindClick():
     # -- €xp Mining -- #
     if save.Current_TotalClicks == save.Current_TotalClicksNext:
         save.Current_TotalClicksNext = save.Current_TotalClicks + save.Current_TotalClicksForEach
-        save.CUrrent_Experience += save.Current_ExperiencePerEach
+        save.Current_Experience += save.Current_ExperiencePerEach
         IncomingLog.AddMessageText("€+" + str(save.Current_ExperiencePerEach), False, (150,150,150))
 
     IncomingLog.AddMessageText("+" + str(save.Current_MoneyValuePerClick), True, (20, 150, 25), save.Current_MoneyValuePerClick)

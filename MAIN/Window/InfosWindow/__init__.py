@@ -49,7 +49,7 @@ def Initialize():
     NextButton.CustomColisionRectangle = True
     PreviousButton.CustomColisionRectangle = True
     WindowObject.Minimizable = False
-    DrawnSurface = WindowObject.WindowSurface
+    DrawnSurface = pygame.Surface((WindowObject.WindowSurface_Rect[2], WindowObject.WindowSurface_Rect[3]), pygame.SRCALPHA)
 
 
 CurrentCategory = 0 # 0 - Maintenance Info
@@ -71,8 +71,8 @@ def Render(DISPLAY):
     global TransitionBGSurf
     global TransitionAdder
     # -- Update the Surface -- #
-    DrawnSurface = WindowObject.WindowSurface
-    DrawnSurface.fill((0,0,0,0))
+    DrawnSurface = pygame.Surface((WindowObject.WindowSurface_Rect[2], WindowObject.WindowSurface_Rect[3]), pygame.SRCALPHA)
+
     if TransitionEnabled and reg.ReadKey_bool("/OPTIONS/Windows_transitions"):
         # -- Render the Transition Surface -- #
         TransitionBGSurf = pygame.Surface((DrawnSurface.get_width(),DrawnSurface.get_height()), pygame.SRCALPHA)        
@@ -109,7 +109,7 @@ def Render(DISPLAY):
     #sprite.RenderFont(DrawnSurface, "/PressStart2P.ttf", 10, reg.ReadKey("/strings/window/infos/txt_previuos_best") + str("{:5.2f}".format(reg.ReadKey_float("/Save/money_per_click_last_best"))), (140, 240, 140), 5, 95)
 
     WindowObject.Render(DISPLAY)
-    DISPLAY.blit(DrawnSurface, WindowObject.WindowSurface_Dest)
+    DISPLAY.blit(DrawnSurface, (WindowObject.WindowSurface_Rect[0], WindowObject.WindowSurface_Rect[1]))
     DrawnSurfaceGlob = DrawnSurface
 
 # -- Maintenance Category -- #
