@@ -120,20 +120,22 @@ def EverdayMessage(DISPLAY):
 
     if not EverdayMessageWindow.WindowMinimized:
         # -- Clear Surface -- #
-        EverdayMessageWindow.WindowSurface.fill((0, 0, 0, 0))
+        WindowSurface = pygame.Surface((EverdayMessageWindow.WindowSurface_Rect[2], EverdayMessageWindow.WindowSurface_Rect[3]), pygame.SRCALPHA)
 
         # -- Render Title Background -- #
-        sprite.Shape_Rectangle(EverdayMessageWindow.WindowSurface, (56, 65, 74), (0, 0, EverdayMessageWindow.WindowSurface.get_width(), 30))
+        sprite.Shape_Rectangle(WindowSurface, (56, 65, 74), (0, 0, WindowSurface.get_width(), 30))
+
         # -- Render the Title -- #
-        sprite.FontRender(EverdayMessageWindow.WindowSurface, "/PressStart2P.ttf", 18, EverdayMessage_TextTitle, (255, 255, 255), 5, 7, reg.ReadKey_bool("/OPTIONS/font_aa"))
+        sprite.FontRender(WindowSurface, "/PressStart2P.ttf", 18, EverdayMessage_TextTitle, (255, 255, 255), 5, 7, reg.ReadKey_bool("/OPTIONS/font_aa"))
+
         # -- Render the Text -- #
-        sprite.FontRender(EverdayMessageWindow.WindowSurface, "/PressStart2P.ttf", 10, EverdayMessage_Text, (255, 255, 255), 5, 37, reg.ReadKey_bool("/OPTIONS/font_aa"))
+        sprite.FontRender(WindowSurface, "/PressStart2P.ttf", 10, EverdayMessage_Text, (255, 255, 255), 5, 37, reg.ReadKey_bool("/OPTIONS/font_aa"))
 
         # -- Render Next Button -- ##
-        EverdayMessage_GenerateNewMessageButton.Render(EverdayMessageWindow.WindowSurface)
+        EverdayMessage_GenerateNewMessageButton.Render(WindowSurface)
 
         # -- Blit Window to Screen -- #
-        DISPLAY.blit(EverdayMessageWindow.WindowSurface, EverdayMessageWindow.WindowSurface_Dest)
+        DISPLAY.blit(WindowSurface, (EverdayMessageWindow.WindowSurface_Rect[0], EverdayMessageWindow.WindowSurface_Rect[1]))
 
 
 MenuDelay = 0

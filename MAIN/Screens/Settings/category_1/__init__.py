@@ -28,6 +28,7 @@ OptionsScreen_UI_Blur_Contrast = gameObjs.UpDownButton
 OptionsScreen_UI_PixalizateInstedOfBlur = gameObjs.UpDownButton
 OptionsScreen_Windows_Transitions = gameObjs.UpDownButton
 OptionsScreen_Window_Indicator = gameObjs.UpDownButton
+OptionsScreen_Scanline_Effect = gameObjs.UpDownButton
 
 
 ElementsX = 0
@@ -40,6 +41,7 @@ def Initialize():
     global OptionsScreen_UI_PixalizateInstedOfBlur
     global OptionsScreen_Windows_Transitions
     global OptionsScreen_Window_Indicator
+    global OptionsScreen_Scanline_Effect
 
     OptionsScreen_UI_Blur_Enabled = gameObjs.UpDownButton(0,0,14)
     OptionsScreen_UI_Blur_Ammount = gameObjs.UpDownButton(0,0,14)
@@ -47,6 +49,7 @@ def Initialize():
     OptionsScreen_UI_PixalizateInstedOfBlur = gameObjs.UpDownButton(0,0,14)
     OptionsScreen_Windows_Transitions = gameObjs.UpDownButton(0,0,14)
     OptionsScreen_Window_Indicator = gameObjs.UpDownButton(0,0,14)
+    OptionsScreen_Scanline_Effect = gameObjs.UpDownButton(0,0,14)
 
 def Update():
     global OptionsScreen_UI_Blur_Enabled
@@ -55,6 +58,7 @@ def Update():
     global OptionsScreen_UI_PixalizateInstedOfBlur
     global OptionsScreen_Windows_Transitions
     global OptionsScreen_Window_Indicator
+    global OptionsScreen_Scanline_Effect
     global ElementsY
     global ElementsX
 
@@ -65,6 +69,7 @@ def Update():
     OptionsScreen_UI_PixalizateInstedOfBlur.Set_X(ElementsX + 20)
     OptionsScreen_Windows_Transitions.Set_X(ElementsX + 20)
     OptionsScreen_Window_Indicator.Set_X(ElementsX + 20)
+    OptionsScreen_Scanline_Effect.Set_X(ElementsX + 20)
     # -- Set Positions Y -- #
     OptionsScreen_UI_Blur_Enabled.Set_Y(ElementsY + 50)
     OptionsScreen_UI_Blur_Ammount.Set_Y(ElementsY + 75)
@@ -72,6 +77,7 @@ def Update():
     OptionsScreen_UI_PixalizateInstedOfBlur.Set_Y(ElementsY + 125)
     OptionsScreen_Windows_Transitions.Set_Y(ElementsY + 150)
     OptionsScreen_Window_Indicator.Set_Y(ElementsY + 175)
+    OptionsScreen_Scanline_Effect.Set_Y(ElementsY + 200)
 
     # -- UI Blur Enabled -- #
     if OptionsScreen_UI_Blur_Enabled.ButtonState == "UP" or OptionsScreen_UI_Blur_Enabled.ButtonState == "DOWN":
@@ -137,6 +143,15 @@ def Update():
         if not CurrentVal:
             reg.WriteKey("/OPTIONS/UI_WindowIndicator", "True")
 
+    # -- Scanline Effect -- #
+    if OptionsScreen_Scanline_Effect.ButtonState == "UP" or OptionsScreen_Scanline_Effect.ButtonState == "DOWN":
+        CurrentVal = reg.ReadKey_bool("/OPTIONS/scanline_effect")
+        if CurrentVal:
+            reg.WriteKey("/OPTIONS/scanline_effect", "False")
+        if not CurrentVal:
+            reg.WriteKey("/OPTIONS/scanline_effect", "True")
+
+
 
 def EventUpdate(event):
     global OptionsScreen_UI_Blur_Enabled
@@ -145,6 +160,7 @@ def EventUpdate(event):
     global OptionsScreen_UI_PixalizateInstedOfBlur
     global OptionsScreen_Windows_Transitions
     global OptionsScreen_Window_Indicator
+    global OptionsScreen_Scanline_Effect
 
     OptionsScreen_UI_Blur_Enabled.Update(event)
     OptionsScreen_UI_Blur_Ammount.Update(event)
@@ -152,6 +168,7 @@ def EventUpdate(event):
     OptionsScreen_UI_PixalizateInstedOfBlur.Update(event)
     OptionsScreen_Windows_Transitions.Update(event)
     OptionsScreen_Window_Indicator.Update(event)
+    OptionsScreen_Scanline_Effect.Update(event)
 
 def Render(DISPLAY):
     global OptionsScreen_UI_Blur_Enabled
@@ -160,6 +177,7 @@ def Render(DISPLAY):
     global OptionsScreen_UI_PixalizateInstedOfBlur
     global OptionsScreen_Windows_Transitions
     global OptionsScreen_Window_Indicator
+    global OptionsScreen_Scanline_Effect
 
     OptionsScreen_UI_Blur_Enabled.Render(DISPLAY)
     OptionsScreen_UI_Blur_Ammount.Render(DISPLAY)
@@ -167,6 +185,7 @@ def Render(DISPLAY):
     OptionsScreen_UI_PixalizateInstedOfBlur.Render(DISPLAY)
     OptionsScreen_Windows_Transitions.Render(DISPLAY)
     OptionsScreen_Window_Indicator.Render(DISPLAY)
+    OptionsScreen_Scanline_Effect.Render(DISPLAY)
 
     # -- UI Blur -- #
     sprite.FontRender(DISPLAY, "/PressStart2P.ttf", 14, "UI Blur:" + str(reg.ReadKey_bool("/OPTIONS/UI_blur_enabled")), (240, 240, 240), ElementsX + 95, ElementsY + 52, reg.ReadKey_bool("/OPTIONS/font_aa"))
@@ -186,3 +205,5 @@ def Render(DISPLAY):
     # -- Windows Indicator -- #
     sprite.FontRender(DISPLAY, "/PressStart2P.ttf", 14, "Windows Indicator:" + str(reg.ReadKey_bool("/OPTIONS/UI_WindowIndicator")), (240, 240, 240), ElementsX + 95, ElementsY + 177, reg.ReadKey_bool("/OPTIONS/font_aa"))
 
+    # -- Scanline Effect -- #
+    sprite.FontRender(DISPLAY, "/PressStart2P.ttf", 14, "Scanline Effect:" + str(reg.ReadKey_bool("/OPTIONS/scanline_effect")), (240, 240, 240), ElementsX + 95, ElementsY + 202, reg.ReadKey_bool("/OPTIONS/font_aa"))

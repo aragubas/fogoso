@@ -39,13 +39,12 @@ TextGrind_TextColor = list()
 TextGrind_Value = list()
 ResultSurface = pygame.Surface
 ReceiveLog_CloseButton = gameObjs.Button
-ObjsDeletionTime = 0
+IncomingLogPos = (0, 0)
 
 def Initialize():
     global ReceiveLog_CloseButton
     global ResultSurface
     ResultSurface = pygame.Surface((350, 350), pygame.SRCALPHA)
-
     ReceiveLog_CloseButton = gameObjs.Button(pygame.rect.Rect(320, 0, 0, 0), reg.ReadKey("/strings/button/game/down_arrow"),16)
 
 
@@ -83,8 +82,8 @@ def Update():
             ReceiveLog_Y_OffsetAdder += 1
             ReceiveLog_Y_Offset += ReceiveLog_Y_OffsetAdder
 
-            if ReceiveLog_Y_Offset >= 310:
-                ReceiveLog_Y_Offset = 310
+            if ReceiveLog_Y_Offset >= 270:
+                ReceiveLog_Y_Offset = 270
                 ReceiveLog_Y_OffsetAdder = 0
                 ReceiveLog_Y_AnimType = 1
                 ReceiveLog_Y_AnimEnabled = False
@@ -162,11 +161,14 @@ def Draw(DISPLAY):
     global ResultSurface
     global TextGrind_Text
 
+    # -- Set Position -- #
+    IncomingLogPos = (DISPLAY.get_width() - 355, ReceiveLog_Y_Offset + DISPLAY.get_height() - 355)
+
     # -- Update the Surface -- #
     ResultSurface = pygame.Surface((350, 350), pygame.SRCALPHA)
 
     # -- Render the Background -- #
-    gameObjs.Draw_Panel(DISPLAY, (DISPLAY.get_width() - 355, ReceiveLog_Y_Offset + DISPLAY.get_height() - 355, ResultSurface.get_width(), ResultSurface.get_height()))
+    gameObjs.Draw_Panel(DISPLAY, (IncomingLogPos[0], IncomingLogPos[1], ResultSurface.get_width(), ResultSurface.get_height()))
 
     # -- Draw the Texts -- #
     for x, TextGrind_TxT in enumerate(TextGrind_Text):
@@ -174,11 +176,16 @@ def Draw(DISPLAY):
         ObjOpacity = TextGrind_Y[x] * 2
         sprite.FontRender(ResultSurface, "/PressStart2P.ttf", 18, TextGrind_TxT, TextGrind_TextColor[x], TextGrind_X[x], TextGrind_Y[x], Opacity=ObjOpacity, antialias=reg.ReadKey_bool("/OPTIONS/font_aa"))
 
+    if reg.ReadKey_bool("/OPTIONS/scanline_effect"):
+        for y in range(0, 175):
+            sprite.Shape_Rectangle(ResultSurface, (0, 0, 0), (0, 4 + y * 2, ResultSurface.get_width(), 1))
+
+
     # -- Render the Container Title -- #
-    sprite.Shape_Rectangle(ResultSurface, (13, 10, 13), (2, 2, 350 - 4, 24 - 4))
+    sprite.Shape_Rectangle(ResultSurface, (0, 12, 30), (0, 0, 350, 24), 2)
     sprite.FontRender(ResultSurface, "/PressStart2P.ttf", 18, reg.ReadKey("/strings/game/receiving_log"), (250, 250, 255), 3, 3)
 
     # -- Blit everthing to screen -- #
-    DISPLAY.blit(ResultSurface, (DISPLAY.get_width() - 355, ReceiveLog_Y_Offset + DISPLAY.get_height() - 355))
+    DISPLAY.blit(ResultSurface, IncomingLogPos)
 
     ReceiveLog_CloseButton.Render(DISPLAY)

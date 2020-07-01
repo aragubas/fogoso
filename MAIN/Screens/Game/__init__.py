@@ -30,6 +30,7 @@ from Fogoso.MAIN.Screens.Game import IncomingLog
 from Fogoso.MAIN.Screens.Game import Maintenance as maintenance
 from Fogoso.MAIN import GameItems as gameItems
 from Fogoso.MAIN import ScreenTransition as transition
+from Fogoso.MAIN.Screens.Game import GameClock as gameClock
 import pygame
 
 # -- Objects Definition -- #
@@ -42,7 +43,7 @@ OpenInfosWindowButton = gameObjs.Button
 OpenExperienceWindowButton = gameObjs.Button
 
 # -- Game Items View -- #
-ItemsView = gameObjs.HorizontalItemsView
+ItemsView = gameObjs.GameItemsView
 
 # -- Store Window -- #
 StoreWindow_Enabled = False
@@ -251,7 +252,9 @@ def Update():
             OpenExperienceWindowButton.Set_X(OpenInfosWindowButton.Rectangle[0] + OpenInfosWindowButton.Rectangle[2] + 5)
             OpenExperienceWindowButton.Set_Y(OpenInfosWindowButton.Rectangle[1])
 
+        # -- Update Objects -- #
         IncomingLog.Update()
+        gameClock.Update()
 
 
 BlinkExperienceEnabled = False
@@ -341,15 +344,7 @@ def GameDraw(DISPLAY):
         sprite.FontRender(HUD_Surface, "/PressStart2P.ttf", 18, ExperienceText, (140 + BlinkExperienceValue, 130 + BlinkExperienceValue, 120 + BlinkExperienceValue), 10, 80)
 
         # -- Render the Clock -- #
-        # -- Time -- #
-        SecoundsText = reg.ReadKey("/strings/game/clock").format(str(save.CurrentDate_Minute), str(save.CurrentDate_Second), str(save.CurrentDate_DayLimiter), str(save.CurrentDate_MinuteLimiter))
-        sprite.FontRender(HUD_Surface, "/PressStart2P.ttf", 10, SecoundsText, (0, 0, 0), HUD_Surface.get_width() / 2 - sprite.GetFont_width("/PressStart2P.ttf", 10, SecoundsText) / 2 + 2, 7, reg.ReadKey_bool("/OPTIONS/font_aa"))
-        sprite.FontRender(HUD_Surface, "/PressStart2P.ttf", 10, SecoundsText, (230, 230, 230), HUD_Surface.get_width() / 2 - sprite.GetFont_width("/PressStart2P.ttf", 10, SecoundsText) / 2, 5, reg.ReadKey_bool("/OPTIONS/font_aa"))
-
-        # -- Day -- #
-        DateText = reg.ReadKey("/strings/game/calendar").format(str(save.CurrentDate_Day), str(save.CurrentDate_Month), str(save.CurrentDate_Year), str(save.CurrentDate_MonthLimiter), str(save.CurrentDate_YearLimiter))
-        sprite.FontRender(HUD_Surface, "/PressStart2P.ttf", 10, DateText, (0, 0, 0), HUD_Surface.get_width() / 2 - sprite.GetFont_width("/PressStart2P.ttf", 10, DateText) / 2 + 2, sprite.GetFont_height("/PressStart2P.ttf", 10, SecoundsText) + 12, reg.ReadKey_bool("/OPTIONS/font_aa"))
-        sprite.FontRender(HUD_Surface, "/PressStart2P.ttf", 10, DateText, (230, 230, 230), HUD_Surface.get_width() / 2 - sprite.GetFont_width("/PressStart2P.ttf", 10, DateText) / 2, sprite.GetFont_height("/PressStart2P.ttf", 10, SecoundsText) + 10, reg.ReadKey_bool("/OPTIONS/font_aa"))
+        gameClock.Draw(HUD_Surface)
 
         # -- Draw the Store Window -- #
         if StoreWindow_Enabled:
@@ -369,6 +364,7 @@ def GameDraw(DISPLAY):
         if not HUD_Surface.get_width() == DISPLAY.get_width() or not HUD_Surface.get_height() == DISPLAY.get_height():
             print("GameRenderMain : HUD_Surface has been updated.")
             HUD_Surface = pygame.Surface((DISPLAY.get_width(), DISPLAY.get_height()), pygame.SRCALPHA)
+
 
 def Initialize(DISPLAY):
     # -- Set Buttons -- #
@@ -391,7 +387,7 @@ def Initialize(DISPLAY):
     OpenStoreButton = gameObjs.Button(pygame.Rect(5,DISPLAY.get_height() - 25,0,0),reg.ReadKey("/strings/button/game/store"),14)
     OpenInfosWindowButton = gameObjs.Button(pygame.Rect(0, 0, 0, 0), reg.ReadKey("/strings/button/game/infos"), 14)
     OpenExperienceWindowButton = gameObjs.Button(pygame.Rect(0,0,0,0), reg.ReadKey("/strings/button/game/experience_store"), 14)
-    ItemsView = gameObjs.HorizontalItemsView(pygame.Rect(5, 500, 430, 100))
+    ItemsView = gameObjs.GameItemsView(pygame.Rect(5, 500, 430, 100))
 
     IncomingLog.Initialize()
 

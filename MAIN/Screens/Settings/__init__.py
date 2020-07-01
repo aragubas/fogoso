@@ -38,7 +38,7 @@ OptionsScreen_CloseButton = gameObjs.Button
 OptionsScreen_UpDownCategory = gameObjs.UpDownButton
 
 # -- Category -- #
-Current_Category = 2
+Current_Category = 1
 
 # -- Elements -- #
 ElementsX = 0
