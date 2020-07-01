@@ -86,7 +86,7 @@ def LoadSaveData():
 
     # -- Load Money and Click Variables -- #
     Current_Money = reg.ReadAppData_WithTry("savegame/money", float, 0.0)
-    Current_MoneyValuePerClick = reg.ReadAppData_WithTry("savegame/money_per_click", float, 0.05)
+    Current_MoneyValuePerClick = reg.ReadAppData_WithTry("savegame/money_per_click", float, 0.50)
     Current_Experience = reg.ReadAppData_WithTry("savegame/experience", int, 0)
     Current_TotalClicks = reg.ReadAppData_WithTry("savegame/total_clicks", int, 0)
     Current_TotalClicksForEach = reg.ReadAppData_WithTry("savegame/total_clicks_for_each", int, 35)

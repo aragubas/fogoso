@@ -174,6 +174,7 @@ def RestartAnimation():
     LastClickedItem = "null"
 
 def BuyItem_ByID(ItemID):
+    ItemID = int(ItemID)
     ItemPrice = gameItems.GetItemPrice_ByID(ItemID)
     ItemLevel = gameItems.GetItemLevel_ByID(ItemID)
 

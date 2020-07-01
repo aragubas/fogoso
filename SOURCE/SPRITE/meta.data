@@ -23,5 +23,10 @@
 /map/0/2.png:False
 /map/0/3.png:False
 
-# -- Items Sprites -- #
-/Item/0.png:True
+# -- Items ID 0 -- #
+/Item/0/0.png:True
+/Item/0/1.png:True
+/Item/0/2.png:True
+/Item/0/3.png:True
+/Item/0/4.png:True
+

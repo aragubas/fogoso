@@ -333,7 +333,7 @@ def GameDraw(DISPLAY):
         sprite.FontRender(HUD_Surface, "/PressStart2P.ttf", 18, reg.ReadKey("/strings/game/money") + save.Current_MoneyFormated, (0, 0, 0), 12, 22)
         sprite.FontRender(HUD_Surface, "/PressStart2P.ttf", 18, MoneyText, MoneyColor, 10, 20)
 
-        # -- Render Money per Secound -- #
+        # -- Render Money per Second -- #
         MoneyPerSecoundText = reg.ReadKey("/strings/game/money_per_secound") + save.Current_MoneyPerSecondFormatted
         sprite.FontRender(HUD_Surface, "/PressStart2P.ttf", 18, MoneyPerSecoundText, (0, 0, 0), 12, 52)
         sprite.FontRender(HUD_Surface, "/PressStart2P.ttf", 18, MoneyPerSecoundText, PerSecoundColor, 10, 50)

@@ -42,9 +42,6 @@ def LoadItemsLevels():
 
 # -- Get Item Sprite Name -- #
 def GetItemSprite_ByID(ItemID):
-    global Item_AutoClicker_LastLevel
-    global Item_ExperienceStore_LastLevel
-
     # -- The Root Folder -- #
     RootFolder = "/ItemData/sprite/"
 
@@ -70,6 +67,7 @@ def GetItemLevel_ByID(ItemID):
     elif ItemID == 0:
         return Item_AutoClicker_LastLevel
     else:
+        print("Fogoso.GameItems.GetItemsLevelByID : ItemID[{0}] is invalid.".format(str(ItemID)))
         return None
 
 # -- Item Price -- #
@@ -159,14 +157,14 @@ def LoadItems():
     for i, x in enumerate(SavedItemsData):
         print("LoadItems ; Loading ItemID: " + x)
 
-        # -- Add item to the Items View -- #
-        gameMain.ScreenGame.ItemsView.AddItem(x)
-
         # -- Increase item Count -- #
         IncreaseItemCount_ByID(int(x))
 
         # -- Add Game item -- #
         CreateItemObject(int(x))
+
+        # -- Add item to the Items View -- #
+        gameMain.ScreenGame.ItemsView.AddItem(int(x))
 
     ItemsInitialized = True
     print("LoadItems ; AllItemsLoaded: " + str(AllKeys))

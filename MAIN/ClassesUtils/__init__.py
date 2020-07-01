@@ -554,8 +554,8 @@ class VerticalListWithDescription:
 class GameItemsView:
     def __init__(self, Rectangle):
         self.Rectangle = Rectangle
-        self.ItemsName = list()
-        self.ItemSprite = list()
+        self.ItemsID = list()
+
         self.ScrollX = 10
         self.ListSurface = pygame.Surface
         self.ButtonLeftRectangle = pygame.Rect(0, 0, 32, 32)
@@ -567,14 +567,13 @@ class GameItemsView:
         # -- Recreate Surface -- #
         self.ListSurface = pygame.Surface((self.Rectangle[2], self.Rectangle[3]), pygame.SRCALPHA)
 
-
         sprite.Shape_Rectangle(DISPLAY, (0, 12, 30), (self.Rectangle[0], self.Rectangle[1] - 16, self.Rectangle[2], 16), 0, 0, 2, 2)
         sprite.FontRender(DISPLAY, "/PressStart2P.ttf", 10, reg.ReadKey("/strings/game/game_items_view"), (255, 255, 255), self.Rectangle[0] + self.Rectangle[2] / 2 - sprite.GetFont_width("/PressStart2P.ttf", 10, reg.ReadKey("/strings/game/game_items_view")) / 2, self.Rectangle[1] - 13)
 
         Draw_Panel(DISPLAY, self.Rectangle)
 
-        for i, itemNam in enumerate(self.ItemsName):
-            ItemName = reg.ReadKey("/ItemData/store/" + str(itemNam) + "_name")
+        for i, itemID in enumerate(self.ItemsID):
+            ItemName = reg.ReadKey("/ItemData/name/" + str(itemID))
             ItemWidth = 156
 
             ItemX = self.ScrollX + ItemWidth * i
@@ -587,16 +586,19 @@ class GameItemsView:
             sprite.FontRender(self.ListSurface, "/PressStart2P.ttf", 9, ItemName, (250, 250, 250), ItemRect[0] + ItemRect[2] / 2 - sprite.GetFont_width("/PressStart2P.ttf", 9, ItemName) / 2, ItemRect[1] + 2, reg.ReadKey_bool("/OPTIONS/font_aa"))
 
             # -- Render the Item Sprite -- #
-            sprite.ImageRender(self.ListSurface, reg.ReadKey("/ItemData/store/" + str(itemNam) + "_sprite"), ItemRect[0] + 3, ItemRect[1] + 10, 64, 64)
+            sprite.ImageRender(self.ListSurface, reg.ReadKey(gameItems.GetItemSprite_ByID(int(itemID))), ItemRect[0] + 3, ItemRect[1] + 10, 64, 64)
 
             # -- Render the Item Info -- #
-            LittleInfoText = "Count:\n{0}\nLevel:\n{1}".format(str(gameItems.GetItemCount_ByID(int(self.ItemsName[i]))), str(gameItems.GetItemLevel_ByID(int(self.ItemsName[i]))))
+            LittleInfoText = reg.ReadKey("/strings/game/items_info").format(str(gameItems.GetItemCount_ByID(self.ItemsID[i])), str(gameItems.GetItemLevel_ByID(self.ItemsID[i])))
 
             sprite.FontRender(self.ListSurface, "/PressStart2P.ttf", 10, LittleInfoText, (250, 250, 250), ItemRect[0] + 70, ItemRect[1] + 12, reg.ReadKey_bool("/OPTIONS/font_aa"))
 
+        # -- Render Scanline -- #
         if reg.ReadKey_bool("/OPTIONS/scanline_effect"):
-            for y in range(0, int(self.Rectangle[3] / 2)):
-                sprite.Shape_Rectangle(self.ListSurface, (0, 0, 0), (0, y * 3, self.ListSurface.get_width(), 1))
+            for y in range(0, int(self.Rectangle[3] / 5)):
+                sprite.Shape_Rectangle(self.ListSurface, (0, 0, 0), (0, y * 5, self.ListSurface.get_width(), 1))
+
+            sprite.Shape_Rectangle(self.ListSurface, (0, 0, 0), (0, 0, self.Rectangle[2], self.Rectangle[3]), 3, 5)
 
         DISPLAY.blit(self.ListSurface, (self.Rectangle[0], self.Rectangle[1]))
 
@@ -623,13 +625,13 @@ class GameItemsView:
     def Set_H(self, Value):
         self.Rectangle[3] = float(Value)
 
-    def AddItem(self, ItemName, ItemSprite="null"):
+    def AddItem(self, ItemID):
+        ItemID = int(ItemID)
         try:
-            Index = self.ItemsName.index(ItemName)
+            Index = self.ItemsID.index(ItemID)
             ItemAlreadyExists = True
         except:
             ItemAlreadyExists = False
 
         if not ItemAlreadyExists:
-            self.ItemsName.append(ItemName)
-            self.ItemSprite.append(ItemSprite)
+            self.ItemsID.append(int(ItemID))

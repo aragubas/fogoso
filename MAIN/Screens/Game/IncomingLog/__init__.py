@@ -180,9 +180,11 @@ def Draw(DISPLAY):
         for y in range(0, 175):
             sprite.Shape_Rectangle(ResultSurface, (0, 0, 0), (0, 4 + y * 2, ResultSurface.get_width(), 1))
 
+        sprite.Shape_Rectangle(ResultSurface, (0, 0, 0), (0, 24, ResultSurface.get_width(), ResultSurface.get_height() - 24), 5, 8)
+
 
     # -- Render the Container Title -- #
-    sprite.Shape_Rectangle(ResultSurface, (0, 12, 30), (0, 0, 350, 24), 2)
+    sprite.Shape_Rectangle(ResultSurface, (0, 12, 30), (0, 0, 350, 24))
     sprite.FontRender(ResultSurface, "/PressStart2P.ttf", 18, reg.ReadKey("/strings/game/receiving_log"), (250, 250, 255), 3, 3)
 
     # -- Blit everthing to screen -- #
