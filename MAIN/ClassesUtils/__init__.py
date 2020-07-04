@@ -596,7 +596,7 @@ class GameItemsView:
         # -- Render Scanline -- #
         if reg.ReadKey_bool("/OPTIONS/scanline_effect"):
             for y in range(0, int(self.Rectangle[3] / 5)):
-                sprite.Shape_Rectangle(self.ListSurface, (0, 0, 0), (0, y * 5, self.ListSurface.get_width(), 1))
+                sprite.Shape_Rectangle(self.ListSurface, (0, 0, 0), (2, y * 5, self.ListSurface.get_width() - 4, 1))
 
             sprite.Shape_Rectangle(self.ListSurface, (0, 0, 0), (0, 0, self.Rectangle[2], self.Rectangle[3]), 3, 5)
 

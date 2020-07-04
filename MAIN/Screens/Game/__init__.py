@@ -75,6 +75,11 @@ BackgroundAnim_Numb = 1.0
 # -- HUD -- #
 HUD_Surface = pygame.Surface
 
+# -- Saving Thing -- #
+GameLoadToggle = False
+SaveInitializedDelta = 0
+SaveInitializeMessageSent = False
+
 # -- Load/Save Functions -- #
 def LoadGame():
     global ItemsView
@@ -163,8 +168,26 @@ def Update():
     global SavingScreenEnabled
     global ExperienceStore_Enabled
     global InfosWindow_Enabled
+    global GameLoadToggle
+    global SaveInitializedDelta
+    global SaveInitializeMessageSent
 
     if IsControlsEnabled:
+        # -- Load Save -- #
+        if not GameLoadToggle:
+            if SaveInitializedDelta >= 5:
+                GameLoadToggle = True
+                SaveInitializeMessageSent = False
+                SaveInitializedDelta = 0
+
+                LoadGame()
+
+            else:
+                if not SaveInitializeMessageSent:
+                    gameMain.Messages.append("INITIALIZE_SAVE_FOLDER")
+                    SaveInitializeMessageSent = True
+                SaveInitializedDelta += 1
+
         # -- Update Save -- #
         save.Update()
 
@@ -390,10 +413,6 @@ def Initialize(DISPLAY):
     ItemsView = gameObjs.GameItemsView(pygame.Rect(5, 500, 430, 100))
 
     IncomingLog.Initialize()
-
-    # -- Load Saved Values -- #
-    LoadGame()
-    print("GameScreen : All objects initialized.")
 
     # -- Initialize Objects -- #
     storeWindow.Initialize()

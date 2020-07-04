@@ -27,6 +27,7 @@ from Fogoso.MAIN.Screens.Game import MapRender as ScreenMap
 from ENGINE import SPRITE as sprite
 from random import randint
 from Fogoso.MAIN import GameVariables as save
+from ENGINE import DEBUGGING as debug
 from Fogoso.MAIN import ScreenTransition as transition
 import pygame, sys, traceback
 
@@ -163,49 +164,49 @@ def SendErrorMessage(Message):
 def ScreensUpdate():
     if CurrentScreen == -1:
         ScreenIntro.Update()
-    if CurrentScreen == 0:
+    elif CurrentScreen == 0:
         ScreenMenu.Update()
-    if CurrentScreen == 1:
+    elif CurrentScreen == 1:
         ScreenGame.Update()
-    if CurrentScreen == 2:
+    elif CurrentScreen == 2:
         ScreenSettings.Update()
-    if CurrentScreen == 3:
+    elif CurrentScreen == 3:
         ScreenMap.Update()
 
 def ScreenDraw(DefaultDisplay):
     if CurrentScreen == -1:
         ScreenIntro.GameDraw(DefaultDisplay)
-    if CurrentScreen == 0:
+    elif CurrentScreen == 0:
         ScreenMenu.GameDraw(DefaultDisplay)
-    if CurrentScreen == 1:
+    elif CurrentScreen == 1:
         ScreenGame.GameDraw(DefaultDisplay)
-    if CurrentScreen == 2:
+    elif CurrentScreen == 2:
         ScreenSettings.GameDraw(DefaultDisplay)
-    if CurrentScreen == 3:
+    elif CurrentScreen == 3:
         ScreenMap.GameDraw(DefaultDisplay)
 
 def ScreenEventUpdate(event):
     if CurrentScreen == -1:
         ScreenIntro.EventUpdate(event)
-    if CurrentScreen == 0:
+    elif CurrentScreen == 0:
         ScreenMenu.EventUpdate(event)
-    if CurrentScreen == 1:
+    elif CurrentScreen == 1:
         ScreenGame.EventUpdate(event)
-    if CurrentScreen == 2:
+    elif CurrentScreen == 2:
         ScreenSettings.EventUpdate(event)
-    if CurrentScreen == 3:
+    elif CurrentScreen == 3:
         ScreenMap.EventUpdate(event)
 
 def ScreensInitialize(DISPLAY):
     if CurrentScreen == -1:
         ScreenIntro.Initialize(DISPLAY)
-    if CurrentScreen == 0:
+    elif CurrentScreen == 0:
         ScreenMenu.Initialize(DISPLAY)
-    if CurrentScreen == 1:
+    elif CurrentScreen == 1:
         ScreenGame.Initialize(DISPLAY)
-    if CurrentScreen == 2:
+    elif CurrentScreen == 2:
         ScreenSettings.Initialize()
-    if CurrentScreen == 3:
+    elif CurrentScreen == 3:
         ScreenMap.Initialize()
 
 def EventUpdate(event):  # -- Engine Required Function
@@ -218,6 +219,7 @@ def EventUpdate(event):  # -- Engine Required Function
     # -- Update Cursor Location -- #
     if event.type == pygame.MOUSEMOTION:
         Cursor_Position[0], Cursor_Position[1] = pygame.mouse.get_pos()
+
 
     if not reg.ReadKey_bool("/OPTIONS/debug_enabled"):
         try:

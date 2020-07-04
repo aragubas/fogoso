@@ -36,8 +36,8 @@ def LoadItemsLevels():
     global Item_AutoClicker_LastLevel
     global Item_ExperienceStore_LastLevel
 
-    Item_AutoClicker_LastLevel = reg.ReadAppData_WithTry("savegame/item_level/0_level", int, "0")
-    Item_ExperienceStore_LastLevel = reg.ReadAppData_WithTry("savegame/item_level/-1_level", int, "0")
+    Item_AutoClicker_LastLevel = reg.ReadAppData_WithTry("item_level/0_level", int, "0")
+    Item_ExperienceStore_LastLevel = reg.ReadAppData_WithTry("item_level/-1_level", int, "0")
 
 
 # -- Get Item Sprite Name -- #
@@ -54,8 +54,8 @@ def SaveItemsLevel():
     global Item_AutoClicker_LastLevel
     global Item_ExperienceStore_LastLevel
 
-    reg.WriteAppData("savegame/item_level/0_level", Item_AutoClicker_LastLevel)
-    reg.WriteAppData("savegame/item_level/-1_level", Item_ExperienceStore_LastLevel)
+    reg.WriteAppData("item_level/0_level", Item_AutoClicker_LastLevel)
+    reg.WriteAppData("item_level/-1_level", Item_ExperienceStore_LastLevel)
 
 # -- Get Item Level -- #
 def GetItemLevel_ByID(ItemID):
@@ -149,7 +149,7 @@ def LoadItems():
     global ItemsList
     global ItemsInitialized
     AllKeys = 0
-    SavedItemsData = reg.ReadAppData_WithTry("savegame/Items", str, "").splitlines()
+    SavedItemsData = reg.ReadAppData_WithTry("Items", str, "").splitlines()
 
     # -- Load Items Level -- #
     LoadItemsLevels()
@@ -182,7 +182,7 @@ def SaveItems():
         print("SaveItem : Item saved.")
 
     # -- Write Files -- #
-    reg.WriteAppData("savegame/Items", AllItemsData)
+    reg.WriteAppData("Items", AllItemsData)
 
     SaveItemsLevel()
 

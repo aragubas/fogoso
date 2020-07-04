@@ -85,35 +85,35 @@ def LoadSaveData():
     global CurrentDate_YearLimiter
 
     # -- Load Money and Click Variables -- #
-    Current_Money = reg.ReadAppData_WithTry("savegame/money", float, 0.0)
-    Current_MoneyValuePerClick = reg.ReadAppData_WithTry("savegame/money_per_click", float, 0.50)
-    Current_Experience = reg.ReadAppData_WithTry("savegame/experience", int, 0)
-    Current_TotalClicks = reg.ReadAppData_WithTry("savegame/total_clicks", int, 0)
-    Current_TotalClicksForEach = reg.ReadAppData_WithTry("savegame/total_clicks_for_each", int, 35)
-    Current_ExperiencePerEach = reg.ReadAppData_WithTry("savegame/total_experience_per_each", int, 15)
+    Current_Money = reg.ReadAppData_WithTry("money", float, 0.0)
+    Current_MoneyValuePerClick = reg.ReadAppData_WithTry("money_per_click", float, 0.50)
+    Current_Experience = reg.ReadAppData_WithTry("experience", int, 0)
+    Current_TotalClicks = reg.ReadAppData_WithTry("total_clicks", int, 0)
+    Current_TotalClicksForEach = reg.ReadAppData_WithTry("total_clicks_for_each", int, 35)
+    Current_ExperiencePerEach = reg.ReadAppData_WithTry("total_experience_per_each", int, 15)
 
     # -- Calculate the Total Clicks Next -- #
     Current_TotalClicksNext = Current_TotalClicks + Current_TotalClicksForEach
 
     # -- Load the Current Date -- #
-    CurrentDate_Year = reg.ReadAppData_WithTry("savegame/date/year", int, 0)
-    CurrentDate_Month = reg.ReadAppData_WithTry("savegame/date/month", int, 0)
-    CurrentDate_Day = reg.ReadAppData_WithTry("savegame/date/day", int, 0)
-    CurrentDate_Second = reg.ReadAppData_WithTry("savegame/date/second", int, 0)
-    CurrentDate_Minute = reg.ReadAppData_WithTry("savegame/date/minute", int, 0)
-    CurrentDate_Microseconds = reg.ReadAppData_WithTry("savegame/date/microsecond", int, 0)
+    CurrentDate_Year = reg.ReadAppData_WithTry("date/year", int, 0)
+    CurrentDate_Month = reg.ReadAppData_WithTry("date/month", int, 0)
+    CurrentDate_Day = reg.ReadAppData_WithTry("date/day", int, 0)
+    CurrentDate_Second = reg.ReadAppData_WithTry("date/second", int, 0)
+    CurrentDate_Minute = reg.ReadAppData_WithTry("date/minute", int, 0)
+    CurrentDate_Microseconds = reg.ReadAppData_WithTry("date/microsecond", int, 0)
 
     # -- Load the Date Limiters -- #
-    CurrentDate_MinuteLimiter = reg.ReadAppData_WithTry("savegame/date/limiter/minute", int, 60)
-    CurrentDate_SecondLimiter = reg.ReadAppData_WithTry("savegame/date/limiter/second", int, 50)
-    CurrentDate_DayLimiter = reg.ReadAppData_WithTry("savegame/date/limiter/day", int, 5)
-    CurrentDate_MonthLimiter = reg.ReadAppData_WithTry("savegame/date/limiter/month", int, 7)
-    CurrentDate_YearLimiter = reg.ReadAppData_WithTry("savegame/date/limiter/year", int, 5)
+    CurrentDate_MinuteLimiter = reg.ReadAppData_WithTry("date/limiter/minute", int, 60)
+    CurrentDate_SecondLimiter = reg.ReadAppData_WithTry("date/limiter/second", int, 50)
+    CurrentDate_DayLimiter = reg.ReadAppData_WithTry("date/limiter/day", int, 5)
+    CurrentDate_MonthLimiter = reg.ReadAppData_WithTry("date/limiter/month", int, 7)
+    CurrentDate_YearLimiter = reg.ReadAppData_WithTry("date/limiter/year", int, 5)
 
     # -- Load Last Maintenance -- #
-    maintenance.DayTrigger = reg.ReadAppData_WithTry("savegame/maintenance_day_trigger", int, 1)
-    maintenance.PerDayValue = reg.ReadAppData_WithTry("savegame/maintenance_per_day_value", int, 1)
-    maintenance.BaseMaintenance = reg.ReadAppData_WithTry("savegame/maintenance_base_price", float, 15.0)
+    maintenance.DayTrigger = reg.ReadAppData_WithTry("maintenance_day_trigger", int, 1)
+    maintenance.PerDayValue = reg.ReadAppData_WithTry("maintenance_per_day_value", int, 1)
+    maintenance.BaseMaintenance = reg.ReadAppData_WithTry("maintenance_base_price", float, 15.0)
 
     gameItems.LoadItems()
 
@@ -138,32 +138,32 @@ def SaveData():
     global CurrentDate_YearLimiter
 
     # -- Money and Click Vars -- #
-    reg.WriteAppData("savegame/money", Current_Money)
-    reg.WriteAppData("savegame/experience", Current_Experience)
-    reg.WriteAppData("savegame/money_per_click", Current_MoneyValuePerClick)
-    reg.WriteAppData("savegame/total_clicks", Current_TotalClicks)
-    reg.WriteAppData("savegame/total_clicks_for_each", Current_TotalClicksForEach)
-    reg.WriteAppData("savegame/total_experience_per_each", Current_ExperiencePerEach)
+    reg.WriteAppData("money", Current_Money)
+    reg.WriteAppData("experience", Current_Experience)
+    reg.WriteAppData("money_per_click", Current_MoneyValuePerClick)
+    reg.WriteAppData("total_clicks", Current_TotalClicks)
+    reg.WriteAppData("total_clicks_for_each", Current_TotalClicksForEach)
+    reg.WriteAppData("total_experience_per_each", Current_ExperiencePerEach)
 
     # -- Maintenance Variables -- #
-    reg.WriteAppData("savegame/maintenance_day_trigger", maintenance.DayTrigger)
-    reg.WriteAppData("savegame/maintenance_per_day_value", maintenance.PerDayValue)
-    reg.WriteAppData("savegame/maintenance_base_price", maintenance.BaseMaintenance)
+    reg.WriteAppData("maintenance_day_trigger", maintenance.DayTrigger)
+    reg.WriteAppData("maintenance_per_day_value", maintenance.PerDayValue)
+    reg.WriteAppData("maintenance_base_price", maintenance.BaseMaintenance)
 
     # -- Save Date -- #
-    reg.WriteAppData("savegame/date/day", CurrentDate_Day)
-    reg.WriteAppData("savegame/date/month", CurrentDate_Month)
-    reg.WriteAppData("savegame/date/year", CurrentDate_Year)
-    reg.WriteAppData("savegame/date/minute", CurrentDate_Minute)
-    reg.WriteAppData("savegame/date/second", CurrentDate_Second)
-    reg.WriteAppData("savegame/date/microseconds", CurrentDate_Microseconds)
+    reg.WriteAppData("date/day", CurrentDate_Day)
+    reg.WriteAppData("date/month", CurrentDate_Month)
+    reg.WriteAppData("date/year", CurrentDate_Year)
+    reg.WriteAppData("date/minute", CurrentDate_Minute)
+    reg.WriteAppData("date/second", CurrentDate_Second)
+    reg.WriteAppData("date/microseconds", CurrentDate_Microseconds)
 
     # -- Save Date Limiter -- #
-    reg.WriteAppData("savegame/date/limiter/day", CurrentDate_DayLimiter)
-    reg.WriteAppData("savegame/date/limiter/month", CurrentDate_MonthLimiter)
-    reg.WriteAppData("savegame/date/limiter/year", CurrentDate_YearLimiter)
-    reg.WriteAppData("savegame/date/limiter/minute", CurrentDate_MinuteLimiter)
-    reg.WriteAppData("savegame/date/limiter/second", CurrentDate_SecondLimiter)
+    reg.WriteAppData("date/limiter/day", CurrentDate_DayLimiter)
+    reg.WriteAppData("date/limiter/month", CurrentDate_MonthLimiter)
+    reg.WriteAppData("date/limiter/year", CurrentDate_YearLimiter)
+    reg.WriteAppData("date/limiter/minute", CurrentDate_MinuteLimiter)
+    reg.WriteAppData("date/limiter/second", CurrentDate_SecondLimiter)
 
     # -- Save Items Data -- #
     gameItems.SaveItems()
