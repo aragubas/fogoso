@@ -225,6 +225,11 @@ def Unload():
     maintenance.PerDayValue = None
     maintenance.BaseMaintenance = None
 
+    # -- Reset some Variables -- #
+    gameScr.GameLoadToggle = False
+    gameScr.SaveInitializedDelta = 0
+    gameScr.SaveInitializeMessageSent = False
+
 def UpdateClock():
     global CurrentDate_Day
     global CurrentDate_Month

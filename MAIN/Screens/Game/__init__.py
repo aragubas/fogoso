@@ -18,6 +18,7 @@
 # -- Imports -- #
 from ENGINE import REGISTRY as reg
 from ENGINE import SOUND as sound
+from ENGINE import TaiyouMain as taiyouMain
 from Fogoso.MAIN import ClassesUtils as gameObjs
 from Fogoso.MAIN.Screens import Settings as ScreenSettings
 from Fogoso import MAIN as gameMain
@@ -171,23 +172,24 @@ def Update():
     global GameLoadToggle
     global SaveInitializedDelta
     global SaveInitializeMessageSent
+    global GameLoadToggle
+
+    # -- Load Save -- #
+    if not GameLoadToggle:
+        if SaveInitializedDelta >= 2:
+            GameLoadToggle = True
+            SaveInitializeMessageSent = False
+            SaveInitializedDelta = 0
+
+            LoadGame()
+
+        else:
+            if not SaveInitializeMessageSent:
+                taiyouMain.ReceiveCommand("INITIALIZE_SAVE_FOLDER")
+                SaveInitializeMessageSent = True
+            SaveInitializedDelta += 1
 
     if IsControlsEnabled:
-        # -- Load Save -- #
-        if not GameLoadToggle:
-            if SaveInitializedDelta >= 5:
-                GameLoadToggle = True
-                SaveInitializeMessageSent = False
-                SaveInitializedDelta = 0
-
-                LoadGame()
-
-            else:
-                if not SaveInitializeMessageSent:
-                    gameMain.Messages.append("INITIALIZE_SAVE_FOLDER")
-                    SaveInitializeMessageSent = True
-                SaveInitializedDelta += 1
-
         # -- Update Save -- #
         save.Update()
 
@@ -312,6 +314,7 @@ def GameDraw(DISPLAY):
     global SavingScreenEnabled
     global BlinkExperienceValue
     global HUD_Surface
+    global GameLoadToggle
 
     if SavingScreenEnabled:
         UpdateSavingScreen(DISPLAY)
@@ -402,7 +405,7 @@ def Initialize(DISPLAY):
     global HUD_Surface
 
     # -- Initialize Buttons -- #
-    GrindButton = gameObjs.Button(pygame.rect.Rect(15, 115, 130, 150), "Loremk ipsum dolor sit amet...", 18)
+    GrindButton = gameObjs.Button(pygame.rect.Rect(15, 115, 130, 150), "Lorem", 18)
     GrindButton.WhiteButton = True
     GameOptionsButton = gameObjs.Button(pygame.rect.Rect(DISPLAY.get_width() - 120, 5, 0, 0), reg.ReadKey("/strings/button/game/options"), 12)
     SaveButton = gameObjs.Button(pygame.rect.Rect(DISPLAY.get_width() - 120, 20, 0, 0), reg.ReadKey("/strings/button/game/save"), 12)
@@ -437,6 +440,7 @@ def EventUpdate(event):
     global OpenInfosWindowButton
     global BlinkExperienceEnabled
     global HUD_Surface
+    global GameLoadToggle
 
     if IsControlsEnabled:
         GrindButton.Update(event)

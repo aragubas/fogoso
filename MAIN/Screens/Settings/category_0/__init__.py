@@ -21,6 +21,7 @@ from Fogoso import MAIN as gameMain
 from ENGINE import REGISTRY as reg
 from ENGINE import sprite as sprite
 from Fogoso.MAIN import ScreenTransition as transition
+from ENGINE import TaiyouMain as taiyouMain
 
 # -- Objects Definition -- #
 OptionsScreen_ChangeFps = gameObjs.UpDownButton
@@ -66,7 +67,7 @@ def Update():
         if gameMain.Engine_MaxFPS >= 75:
             gameMain.Engine_MaxFPS = 50
 
-        gameMain.Messages.append("SET_FPS:" + str(gameMain.Engine_MaxFPS))
+        taiyouMain.ReceiveCommand("SET_FPS:" + str(gameMain.Engine_MaxFPS))
         reg.WriteKey("/OPTIONS/maxFPS", str(gameMain.Engine_MaxFPS))
         print("MaxFPS is now set to[" + str(gameMain.Engine_MaxFPS) + "]")
 
@@ -77,7 +78,7 @@ def Update():
         if gameMain.Engine_MaxFPS <= 45:
             gameMain.Engine_MaxFPS = 70
 
-        gameMain.Messages.append("SET_FPS:" + str(gameMain.Engine_MaxFPS))
+        taiyouMain.ReceiveCommand("SET_FPS:" + str(gameMain.Engine_MaxFPS))
         reg.WriteKey("/OPTIONS/maxFPS", str(gameMain.Engine_MaxFPS))
         print("MaxFPS is now set to[" + str(gameMain.Engine_MaxFPS) + "]")
 

@@ -152,7 +152,7 @@ class Button:
                 if self.ColisionRectangle.collidepoint(mainScript.Cursor_Position):
                     self.ButtonState = "DOWN"
                     self.ButtonDowed = True
-                    sound.PlaySound(reg.ReadKey("/TaiyouSystem/SND/Click"))
+                    sound.PlaySound(reg.ReadKey("/TaiyouSystem/SND/Click", True))
             elif event.type == pygame.MOUSEBUTTONUP:
                 if self.ColisionRectangle.collidepoint(mainScript.Cursor_Position):
                     if self.ButtonDowed:

@@ -17,6 +17,7 @@
 
 # -- Imports -- #
 from ENGINE import REGISTRY as reg
+from ENGINE import TaiyouMain as taiyouMain
 from Fogoso.MAIN import ClassesUtils as gameObjs
 from Fogoso.MAIN.Screens import Game as ScreenGame
 from Fogoso.MAIN.Screens import MainMenu as ScreenMenu
@@ -32,13 +33,9 @@ from Fogoso.MAIN import ScreenTransition as transition
 import pygame, sys, traceback
 
 
-
-# -- Taiyou Game Engine Necessary Variables -- #
-Messages = list()
-
 # -- Cursor Variables -- #
 Cursor_Position = list((20, 20))
-Cursor_CurrentLevel = 0 #-- 0 = Arrow, 1 = Resize, 2 = Move, 3 = Hand, 4 = Ibeam, 5 = Pirate *x cursor*
+Cursor_CurrentLevel = 0  #-- 0 = Arrow, 1 = Resize, 2 = Move, 3 = Hand, 4 = Ibeam, 5 = Pirate *x cursor*
 CursorW = 0
 CursorH = 0
 
@@ -57,7 +54,7 @@ DefaultDisplay = pygame.Surface((0, 0))
 
 # -- Screens -- #
 CurrentScreen = 3
-ClearColor = (0,0,0)
+ClearColor = (0, 0, 0)
 
 # -- Error Message -- #
 ErrorMessageEnabled = False
@@ -83,7 +80,7 @@ def GameDraw(DISPLAY):  # -- Engine Required Function
 
     # -- Clear the Surface -- #
     DefaultDisplay = DISPLAY
-    DISPLAY.fill(ClearColor)
+#    DISPLAY.fill(ClearColor)
 
     if not reg.ReadKey_bool("/OPTIONS/debug_enabled"):
         try:
@@ -126,9 +123,8 @@ def GeneratedWindowTitle():
     if reg.ReadKey_bool("/OPTIONS/random_title"):
         NumberMax = reg.ReadKey_int("/strings/gme_wt/all")
         Current = randint(0, NumberMax)
-        print("GeneratedWindowTitle : ID=" + str(Current))
 
-        Messages.append("SET_TITLE;" + "Fogoso : " + reg.ReadKey("/strings/gme_wt/" + str(Current)))
+        taiyouMain.ReceiveCommand("SET_TITLE;{0}{1}".format("Fogoso : ", reg.ReadKey("/strings/gme_wt/" + str(Current))))
 
 def Update():  # -- Engine Required Function
     global CursorW
@@ -220,7 +216,6 @@ def EventUpdate(event):  # -- Engine Required Function
     if event.type == pygame.MOUSEMOTION:
         Cursor_Position[0], Cursor_Position[1] = pygame.mouse.get_pos()
 
-
     if not reg.ReadKey_bool("/OPTIONS/debug_enabled"):
         try:
             ScreenEventUpdate(event)
@@ -247,7 +242,7 @@ def LoadOptions():
     
 def Initialize(DISPLAY):  # -- Engine Required Function
     global CurrentScreen
-    print("Game Initialization")
+    print("Fogoso : Game Initialization Called")
 
     # -- Load Engine Options -- #
     LoadOptions()
@@ -262,8 +257,10 @@ def Initialize(DISPLAY):  # -- Engine Required Function
     if not reg.ReadKey_bool("/OPTIONS/debug_enabled"):
         try:
             ScreensInitialize(DISPLAY)
+
         except Exception as ex:
             WriteErrorLog(ex,"Initialize", True)
+
     else:
         ScreensInitialize(DISPLAY)
 
@@ -273,25 +270,12 @@ def Unload():  # -- Engine Required Function
 
 def SetWindowParameters():
     global DefaultDisplay
+    global Engine_MaxFPS
+
     DefaultDisplay = pygame.Surface((reg.ReadKey_int("/props/default_resW"), reg.ReadKey_int("/props/default_resH")))
 
-    Messages.append("SET_FPS:" + str(Engine_MaxFPS))
-    Messages.append("SET_RESOLUTION:{0}:{1}".format(str(reg.ReadKey_int("/props/default_resW")), str(reg.ReadKey_int("/props/default_resH"))))
-
-    pygame.display.set_caption("Fogoso : Ready!")
-    pygame.mouse.set_visible(False)
-
-    print("SetWindowParameters : FPS:{0}".format(str(Engine_MaxFPS)))
-
-# -- Send the messages on the Message Quee to the Game Engine -- #
-def ReadCurrentMessages():
-    try:
-        for x in Messages:
-            Messages.remove(x)
-            print("Game : MessageSent[" + x + "]")
-            return x
-    except:
-        return ""
+    taiyouMain.ReceiveCommand("SET_RESOLUTION:{0}:{1}".format(str(reg.ReadKey_int("/props/default_resW")), str(reg.ReadKey_int("/props/default_resH"))))
+    taiyouMain.ReceiveCommand("SET_FPS:" + str(Engine_MaxFPS))
 
 def WriteErrorLog(ex, func, ExitWhenFinished=False):
     global LastErrorText
