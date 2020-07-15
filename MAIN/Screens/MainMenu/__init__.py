@@ -61,7 +61,6 @@ def Initialize(DISPLAY):
     global EverdayMessageWindow
     global EverdayMessage_GenerateNewMessageButton
     global IntroSpriteButton
-    print("Menu Initialize")
     PlayButton = gameObjs.Button(pygame.Rect(50, 50, 0, 0), reg.ReadKey("/strings/main_menu/play_button"), 18)
     SettingsButton = gameObjs.Button(pygame.Rect(50 ,50 ,0 ,0), reg.ReadKey("/strings/main_menu/settings_button"), 18)
     EverdayMessageWindow = gameObjs.Window(pygame.Rect(350, 50, 550, 200), reg.ReadKey("/strings/main_menu/message_window/window_title"), True)
@@ -69,6 +68,7 @@ def Initialize(DISPLAY):
     EverdayMessage_GenerateNewMessageButton.CustomColisionRectangle = True
     gameMainObj.ClearColor = (1, 20, 30)
     IntroSpriteButton = gameObjs.SpriteButton(pygame.Rect(0,0,47, 45), ("/icon.png","/icon.png","/icon.png"))
+
     print("GameMenu : Initialize")
 
 def EventUpdate(event):

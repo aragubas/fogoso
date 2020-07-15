@@ -28,6 +28,7 @@ OptionsScreen_ChangeFps = gameObjs.UpDownButton
 OptionsScreen_FlashAnimationSpeed = gameObjs.UpDownButton
 OptionsScreen_FontAntiAlias = gameObjs.Button
 OptionsScreen_FlashAnimStyle = gameObjs.UpDownButton
+OptionsScreen_SpritesAntiAlias = gameObjs.Button
 
 ElementsX = 0
 ElementsY = 0
@@ -37,28 +38,33 @@ def Initialize():
     global OptionsScreen_FlashAnimationSpeed
     global OptionsScreen_FontAntiAlias
     global OptionsScreen_FlashAnimStyle
+    global OptionsScreen_SpritesAntiAlias
+
     OptionsScreen_ChangeFps = gameObjs.UpDownButton(20, 100, 14)
     OptionsScreen_FlashAnimationSpeed = gameObjs.UpDownButton(20, 160, 14)
     OptionsScreen_FontAntiAlias = gameObjs.Button(pygame.Rect(0, 0, 0, 0),reg.ReadKey("/strings/settings/toggle_button"), 14)
     OptionsScreen_FlashAnimStyle = gameObjs.UpDownButton(0, 0, 14)
+    OptionsScreen_SpritesAntiAlias = gameObjs.UpDownButton(0, 0, 14)
 
 def EventUpdate(event):
     global OptionsScreen_ChangeFps
     global OptionsScreen_FlashAnimationSpeed
     global OptionsScreen_FontAntiAlias
     global OptionsScreen_FlashAnimStyle
+    global OptionsScreen_SpritesAntiAlias
 
     OptionsScreen_ChangeFps.Update(event)
     OptionsScreen_FlashAnimationSpeed.Update(event)
     OptionsScreen_FontAntiAlias.Update(event)
     OptionsScreen_FlashAnimStyle.Update(event)
-
+    OptionsScreen_SpritesAntiAlias.Update(event)
 
 def Update():
     global OptionsScreen_ChangeFps
     global OptionsScreen_FlashAnimationSpeed
     global OptionsScreen_FontAntiAlias
     global OptionsScreen_FlashAnimStyle
+    global OptionsScreen_SpritesAntiAlias
 
     if OptionsScreen_ChangeFps.ButtonState == "UP":
         print("MaxFPS is [" + str(gameMain.Engine_MaxFPS) + "]")
@@ -126,6 +132,13 @@ def Update():
         reg.WriteKey("/OPTIONS/fade_flash_style", str(CurrentValue))
         transition.FadeEffectStyle = CurrentValue
 
+    if OptionsScreen_SpritesAntiAlias.ButtonState == "UP" or OptionsScreen_SpritesAntiAlias.ButtonState == "DOWN":
+        if reg.ReadKey_bool("/OPTIONS/sprite_aa"):
+            reg.WriteKey("/OPTIONS/sprite_aa", "False")
+        else:
+            reg.WriteKey("/OPTIONS/sprite_aa", "True")
+
+
     # -- Set Positions -- #
     OptionsScreen_ChangeFps.Set_X(ElementsX + 20)
     OptionsScreen_ChangeFps.Set_Y(ElementsY + 50)
@@ -139,6 +152,8 @@ def Update():
     OptionsScreen_FlashAnimStyle.Set_X(ElementsX + 20)
     OptionsScreen_FlashAnimStyle.Set_Y(ElementsY + 125)
 
+    OptionsScreen_SpritesAntiAlias.Set_X(ElementsX + 20)
+    OptionsScreen_SpritesAntiAlias.Set_Y(ElementsY + 150)
 
 def Render(DISPLAY):
     # -- Render Max FPS Option -- #
@@ -149,9 +164,7 @@ def Render(DISPLAY):
 
     # -- Render Flash Animation Speed -- #
     OptionsScreen_FlashAnimationSpeed.Render(DISPLAY)
-    sprite.FontRender(DISPLAY, "/PressStart2P.ttf", 14,
-                      reg.ReadKey("/strings/settings/flash_anim_speed") + str(transition.FadeEffectSpeed),
-                      (255, 255, 255), ElementsX + 95, ElementsY + 77, reg.ReadKey_bool("/OPTIONS/font_aa"))
+    sprite.FontRender(DISPLAY, "/PressStart2P.ttf", 14, reg.ReadKey("/strings/settings/flash_anim_speed") + str(transition.FadeEffectSpeed), (255, 255, 255), ElementsX + 95, ElementsY + 77, reg.ReadKey_bool("/OPTIONS/font_aa"))
 
     # -- Render FontAntiAlias -- #
     OptionsScreen_FontAntiAlias.Render(DISPLAY)
@@ -162,5 +175,8 @@ def Render(DISPLAY):
 
     # -- Render FlashAnimStyle -- #
     OptionsScreen_FlashAnimStyle.Render(DISPLAY)
-    sprite.FontRender(DISPLAY, "/PressStart2P.ttf", 14, reg.ReadKey("/strings/settings/flash_anim_style") + reg.ReadKey("/OPTIONS/desc/fade_flash/" + reg.ReadKey("/OPTIONS/fade_flash_style")), (255, 255, 255), ElementsX + 95, ElementsY + 127,
-                      reg.ReadKey_bool("/OPTIONS/font_aa"))
+    sprite.FontRender(DISPLAY, "/PressStart2P.ttf", 14, reg.ReadKey("/strings/settings/flash_anim_style") + reg.ReadKey("/OPTIONS/desc/fade_flash/" + reg.ReadKey("/OPTIONS/fade_flash_style")), (255, 255, 255), ElementsX + 95, ElementsY + 127, reg.ReadKey_bool("/OPTIONS/font_aa"))
+
+    # -- Render Sprite Anti-Alias Option -- #
+    OptionsScreen_SpritesAntiAlias.Render(DISPLAY)
+    sprite.FontRender(DISPLAY, "/PressStart2P.ttf", 14, reg.ReadKey("/strings/settings/sprite_aa") + str(reg.ReadKey_bool("/OPTIONS/sprite_aa")), (255, 255, 255), ElementsX + 95, ElementsY + 157, reg.ReadKey_bool("/OPTIONS/font_aa"))

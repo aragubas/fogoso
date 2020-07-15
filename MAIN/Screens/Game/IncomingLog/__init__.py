@@ -115,6 +115,7 @@ def Update():
             TextGrind_IsGrindText.pop(x)
             TextGrind_TextColor.pop(x)
             TextGrind_Value.pop(x)
+            break
         else:
             # -- Move the Text -- #
             if TextGrind_IsGrindText[x]:

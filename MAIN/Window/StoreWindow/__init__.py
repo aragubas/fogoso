@@ -48,17 +48,25 @@ def Initialize():
     global BuyButton
     global DrawnSurface
     global ListItems
-    WindowObject = gameObjs.Window(pygame.Rect(100,100,430,285), reg.ReadKey("/strings/window/store/window_title"),True)
+    WindowObject = gameObjs.Window(pygame.Rect(100,100,430,285), reg.ReadKey("/strings/window/store/window_title"), True)
     WindowObject.Minimizable = False
     BuyButton = gameObjs.Button(pygame.Rect(20, 20, 50, 50), reg.ReadKey("/strings/window/store/buy_button"), 14)
     BuyButton.CustomColisionRectangle = True
     DrawnSurface = pygame.Surface((WindowObject.WindowSurface_Rect[2], WindowObject.WindowSurface_Rect[3]), pygame.SRCALPHA)
     ListItems = gameObjs.VerticalListWithDescription(pygame.Rect(0, 0, 350, 250))
 
+    ReloadItemsList()
+
+def ReloadItemsList():
+    global ListItems
+
+    # -- Load Items -- #
     for x in range(-1, reg.ReadKey_int("/ItemData/store/all") + 1):
-        CurrentItemRoot = "/ItemData/store/" + str(x) + "_"
-        ItemSprite = gameItems.GetItemSprite_ByID(x)
-        ListItems.AddItem(reg.ReadKey(CurrentItemRoot + "name"), reg.ReadKey(CurrentItemRoot + "description"), reg.ReadKey(ItemSprite))
+        # -- Check if item is Visible -- #
+        if reg.ReadKey_bool("/ItemData/" + str(x) + "/is_visible"):
+            CurrentItemRoot = "/ItemData/store/" + str(x) + "_"
+            ItemSprite = gameItems.GetItemSprite_ByID(x)
+            ListItems.AddItem(reg.ReadKey(CurrentItemRoot + "name"), reg.ReadKey(CurrentItemRoot + "description"), reg.ReadKey(ItemSprite))
 
 def Render(DISPLAY):
     global WindowObject

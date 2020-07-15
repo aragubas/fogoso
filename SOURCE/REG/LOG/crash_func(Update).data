@@ -1,8 +1,12 @@
 Traceback (most recent call last):
-  File "/home/abacate/Projetos/Python/Taiyou Game Engine/Fogoso/MAIN/__init__.py", line 142, in Update
+  File "/home/abacate/Projetos/Python/Taiyou Game Engine/Fogoso/MAIN/__init__.py", line 138, in Update
     ScreensUpdate()
-  File "/home/abacate/Projetos/Python/Taiyou Game Engine/Fogoso/MAIN/__init__.py", line 167, in ScreensUpdate
-    ScreenMenu.Update()
-  File "/home/abacate/Projetos/Python/Taiyou Game Engine/Fogoso/MAIN/Screens/MainMenu/__init__.py", line 182, in Update
-    if PlayButton.ButtonState == "UP":
-AttributeError: type object 'Button' has no attribute 'ButtonState'
+  File "/home/abacate/Projetos/Python/Taiyou Game Engine/Fogoso/MAIN/__init__.py", line 165, in ScreensUpdate
+    ScreenGame.Update()
+  File "/home/abacate/Projetos/Python/Taiyou Game Engine/Fogoso/MAIN/Screens/Game/__init__.py", line 194, in Update
+    save.Update()
+  File "/home/abacate/Projetos/Python/Taiyou Game Engine/Fogoso/MAIN/GameVariables/__init__.py", line 280, in Update
+    UpdateClock()
+  File "/home/abacate/Projetos/Python/Taiyou Game Engine/Fogoso/MAIN/GameVariables/__init__.py", line 246, in UpdateClock
+    CurrentDate_Microseconds += 1
+TypeError: unsupported operand type(s) for +=: 'NoneType' and 'int'

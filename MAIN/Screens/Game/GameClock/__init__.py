@@ -17,6 +17,7 @@
 from ENGINE import REGISTRY as reg
 from ENGINE import SPRITE as sprite
 from Fogoso.MAIN import GameVariables as save
+from Fogoso.MAIN import ClassesUtils as gtk
 import pygame
 
 # -- Variables -- #
@@ -39,19 +40,19 @@ def Draw(HUD_Surface):
     CommonSurface = HUD_Surface
 
     # -- Render Background -- #
-    sprite.Shape_Rectangle(ClockBox, (1, 20, 13), (0, 0, ClockBoxPos[2] - 2, ClockBoxPos[3] - 2))
+    gtk.Draw_Panel(ClockBox, (0, 0, ClockBoxPos[2] - 2, ClockBoxPos[3] - 2), True)
+
+    # -- Locations -- #
+    TimeTextY = 7
+    DayTextY = 22
 
     # -- Time -- #
-    sprite.FontRender(ClockBox, "/PressStart2P.ttf", 10, SecondsText, (0, 0, 0), ClockBox.get_width() / 2 - sprite.GetFont_width("/PressStart2P.ttf", 10, SecondsText) / 2 + 2, 7, reg.ReadKey_bool("/OPTIONS/font_aa"))
-    sprite.FontRender(ClockBox, "/PressStart2P.ttf", 10, SecondsText, (230, 230, 230), ClockBox.get_width() / 2 - sprite.GetFont_width("/PressStart2P.ttf", 10, SecondsText) / 2, 5, reg.ReadKey_bool("/OPTIONS/font_aa"))
+    sprite.FontRender(ClockBox, "/PressStart2P.ttf", 10, SecondsText, (0, 0, 0), ClockBox.get_width() / 2 - sprite.GetFont_width("/PressStart2P.ttf", 10, SecondsText) / 2 + 2, TimeTextY - 2, reg.ReadKey_bool("/OPTIONS/font_aa"))
+    sprite.FontRender(ClockBox, "/PressStart2P.ttf", 10, SecondsText, (230, 230, 230), ClockBox.get_width() / 2 - sprite.GetFont_width("/PressStart2P.ttf", 10, SecondsText) / 2, TimeTextY, reg.ReadKey_bool("/OPTIONS/font_aa"))
 
     # -- Day -- #
-    sprite.FontRender(ClockBox, "/PressStart2P.ttf", 10, DateText, (0, 0, 0), ClockBox.get_width() / 2 - sprite.GetFont_width("/PressStart2P.ttf", 10, DateText) / 2 + 2, sprite.GetFont_height("/PressStart2P.ttf", 10, SecondsText) + 12, reg.ReadKey_bool("/OPTIONS/font_aa"))
-    sprite.FontRender(ClockBox, "/PressStart2P.ttf", 10, DateText, (230, 230, 230), ClockBox.get_width() / 2 - sprite.GetFont_width("/PressStart2P.ttf", 10, DateText) / 2, sprite.GetFont_height("/PressStart2P.ttf", 10, SecondsText) + 10, reg.ReadKey_bool("/OPTIONS/font_aa"))
-
-    if reg.ReadKey_bool("/OPTIONS/scanline_effect"):
-        for y in range(0, 10):
-            sprite.Shape_Rectangle(ClockBox, (0, 0, 0), (0, y * 4, ClockBoxPos[2], 1))
+    sprite.FontRender(ClockBox, "/PressStart2P.ttf", 10, DateText, (0, 0, 0), ClockBox.get_width() / 2 - sprite.GetFont_width("/PressStart2P.ttf", 10, DateText) / 2 + 2, DayTextY - 2, reg.ReadKey_bool("/OPTIONS/font_aa"))
+    sprite.FontRender(ClockBox, "/PressStart2P.ttf", 10, DateText, (230, 230, 230), ClockBox.get_width() / 2 - sprite.GetFont_width("/PressStart2P.ttf", 10, DateText) / 2, DayTextY, reg.ReadKey_bool("/OPTIONS/font_aa"))
 
     sprite.Shape_Rectangle(ClockBox, (0, 0, 0), (0, 0, ClockBoxPos[2], ClockBoxPos[3]), 3, 5)
 

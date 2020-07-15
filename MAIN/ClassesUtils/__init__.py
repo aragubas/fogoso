@@ -148,16 +148,17 @@ class Button:
             self.ButtonSurface = pygame.Surface((self.Rectangle[2], self.Rectangle[3]))
 
         if self.IsButtonEnabled:
-            if event.type == pygame.MOUSEBUTTONDOWN:
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 if self.ColisionRectangle.collidepoint(mainScript.Cursor_Position):
                     self.ButtonState = "DOWN"
                     self.ButtonDowed = True
-                    sound.PlaySound(reg.ReadKey("/TaiyouSystem/SND/Click", True))
-            elif event.type == pygame.MOUSEBUTTONUP:
+
+            elif event.type == pygame.MOUSEBUTTONUP and event.button == 1:
                 if self.ColisionRectangle.collidepoint(mainScript.Cursor_Position):
                     if self.ButtonDowed:
                         self.ButtonState = "UP"
                         self.ButtonDowed = False
+
             if event.type == pygame.MOUSEMOTION:
                 if self.ColisionRectangle.collidepoint(mainScript.Cursor_Position):
                     self.CursorSettedToggle = True
@@ -369,7 +370,7 @@ class Window:
         # -- Draw the Resize Block -- #
         if self.Resiziable:
             sprite.ImageRender(DISPLAY, "/window/resize.png", self.ResizeRectangle[0], self.ResizeRectangle[1],
-                               self.ResizeRectangle[2], self.ResizeRectangle[3])
+                               self.ResizeRectangle[2], self.ResizeRectangle[3], reg.ReadKey_bool("/OPTIONS/sprite_aa"))
 
         # -- Render the Minimize Button -- #
         if self.Minimizable:
@@ -384,7 +385,7 @@ class Window:
     def EventUpdate(self, event):
         self.Cursor_Position = mainScript.Cursor_Position
 
-        if event.type == pygame.MOUSEBUTTONDOWN:
+        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
             if self.TitleBarRectangle.collidepoint(self.Cursor_Position):
                 self.Window_IsBeingGrabbed = True
                 mainScript.Cursor_CurrentLevel = 2
@@ -496,41 +497,49 @@ class VerticalListWithDescription:
             if not self.ItemSelected[i]:
                 # -- Render Item Name -- #
                 sprite.FontRender(self.ListSurface, "/PressStart2P.ttf", 12, itemNam, (250, 250, 250), ItemRect[0] + 45, ItemRect[1] + 5, reg.ReadKey_bool("/OPTIONS/font_aa"))
+
                 # -- Render Item Description -- #
                 sprite.FontRender(self.ListSurface, "/PressStart2P.ttf", 10, self.ItemsDescription[i], (250, 250, 250), ItemRect[0] + 45, ItemRect[1] + 30, reg.ReadKey_bool("/OPTIONS/font_aa"))
+
             else:
                 # -- Render Item Name -- #
                 sprite.FontRender(self.ListSurface, "/PressStart2P.ttf", 12, itemNam, (255, 255, 255), ItemRect[0] + 45, ItemRect[1] + 5, reg.ReadKey_bool("/OPTIONS/font_aa"))
+
                 # -- Render Item Description -- #
                 sprite.FontRender(self.ListSurface, "/PressStart2P.ttf", 10, self.ItemsDescription[i], (255, 255, 255), ItemRect[0] + 45, ItemRect[1] + 30, reg.ReadKey_bool("/OPTIONS/font_aa"))
 
             # -- Render the Item Sprite -- #
             if self.ItemSprite[i] != "null":
-                sprite.ImageRender(self.ListSurface, self.ItemSprite[i], ItemRect[0] + 4, ItemRect[1] + 4, 36, 32)
+                sprite.ImageRender(self.ListSurface, self.ItemSprite[i], ItemRect[0] + 4, ItemRect[1] + 4, 36, 32, reg.ReadKey_bool("/OPTIONS/sprite_aa"))
 
         # -- Blit All Work to Screen -- #
         DISPLAY.blit(self.ListSurface,(self.Rectangle[0], self.Rectangle[1]))
 
     def Update(self, event):
         self.Cursor_Position = mainScript.Cursor_Position
+        ColisionRect = pygame.Rect(self.ColisionXOffset + self.Rectangle[0], self.ColisionYOffset + self.Rectangle[1], self.Rectangle[2], self.Rectangle[3])
 
-        if event.type == pygame.KEYUP:
-            if event.key == pygame.K_q:
-                self.ScrollY += 5
-            if event.key == pygame.K_e:
-                self.ScrollY -= 5
+        if ColisionRect.collidepoint(self.Cursor_Position):
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 5:
+                    self.ScrollY += 5
+                    return
 
-        # -- Select the Clicked Item -- #
-        for i, itemNam in enumerate(self.ItemsName):
-            ItemRect = pygame.Rect(self.ColisionXOffset + self.Rectangle[0], self.ColisionYOffset + self.ScrollY + self.Rectangle[1] + 42 * i, self.Rectangle[2], 40)
+                elif event.button == 4:
+                    self.ScrollY -= 5
+                    return
 
-            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                if ItemRect.collidepoint(self.Cursor_Position):
-                    self.LastItemClicked = itemNam
-                    self.ItemSelected[i] = True
-                    self.LastItemOrderID = self.ItemOrderID[i]
-            if event.type == pygame.MOUSEBUTTONUP:
-                self.ItemSelected[i] = False
+            # -- Select the Clicked Item -- #
+            for i, itemNam in enumerate(self.ItemsName):
+                ItemRect = pygame.Rect(self.ColisionXOffset + self.Rectangle[0], self.ColisionYOffset + self.ScrollY + self.Rectangle[1] + 42 * i, self.Rectangle[2], 40)
+
+                if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                    if ItemRect.collidepoint(self.Cursor_Position):
+                        self.LastItemClicked = itemNam
+                        self.ItemSelected[i] = True
+                        self.LastItemOrderID = self.ItemOrderID[i]
+                if event.type == pygame.MOUSEBUTTONUP:
+                    self.ItemSelected[i] = False
 
     def Set_X(self, Value):
         self.Rectangle[0] = int(Value)
@@ -586,19 +595,13 @@ class GameItemsView:
             sprite.FontRender(self.ListSurface, "/PressStart2P.ttf", 9, ItemName, (250, 250, 250), ItemRect[0] + ItemRect[2] / 2 - sprite.GetFont_width("/PressStart2P.ttf", 9, ItemName) / 2, ItemRect[1] + 2, reg.ReadKey_bool("/OPTIONS/font_aa"))
 
             # -- Render the Item Sprite -- #
-            sprite.ImageRender(self.ListSurface, reg.ReadKey(gameItems.GetItemSprite_ByID(int(itemID))), ItemRect[0] + 3, ItemRect[1] + 10, 64, 64)
+            sprite.ImageRender(self.ListSurface, reg.ReadKey(gameItems.GetItemSprite_ByID(int(itemID))), ItemRect[0] + 3, ItemRect[1] + 15, 64, 64, reg.ReadKey_bool("/OPTIONS/sprite_aa"))
 
             # -- Render the Item Info -- #
             LittleInfoText = reg.ReadKey("/strings/game/items_info").format(str(gameItems.GetItemCount_ByID(self.ItemsID[i])), str(gameItems.GetItemLevel_ByID(self.ItemsID[i])))
 
+            # -- Render Item Info -- #
             sprite.FontRender(self.ListSurface, "/PressStart2P.ttf", 10, LittleInfoText, (250, 250, 250), ItemRect[0] + 70, ItemRect[1] + 12, reg.ReadKey_bool("/OPTIONS/font_aa"))
-
-        # -- Render Scanline -- #
-        if reg.ReadKey_bool("/OPTIONS/scanline_effect"):
-            for y in range(0, int(self.Rectangle[3] / 5)):
-                sprite.Shape_Rectangle(self.ListSurface, (0, 0, 0), (2, y * 5, self.ListSurface.get_width() - 4, 1))
-
-            sprite.Shape_Rectangle(self.ListSurface, (0, 0, 0), (0, 0, self.Rectangle[2], self.Rectangle[3]), 3, 5)
 
         DISPLAY.blit(self.ListSurface, (self.Rectangle[0], self.Rectangle[1]))
 

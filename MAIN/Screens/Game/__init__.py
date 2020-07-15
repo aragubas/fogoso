@@ -32,6 +32,7 @@ from Fogoso.MAIN.Screens.Game import Maintenance as maintenance
 from Fogoso.MAIN import GameItems as gameItems
 from Fogoso.MAIN import ScreenTransition as transition
 from Fogoso.MAIN.Screens.Game import GameClock as gameClock
+import ENGINE as tge
 import pygame
 
 # -- Objects Definition -- #
@@ -47,10 +48,10 @@ OpenExperienceWindowButton = gameObjs.Button
 ItemsView = gameObjs.GameItemsView
 
 # -- Store Window -- #
-StoreWindow_Enabled = False
+StoreWindow_Enabled = True
 
 # -- Infos Window -- #
-InfosWindow_Enabled = True
+InfosWindow_Enabled = False
 
 # -- Experience Store Windows -- #
 ExperienceStore_Enabled = False
@@ -105,7 +106,6 @@ def SaveGame():
 
     BackgroundAnim_Type = 1
     BackgroundAnim_Enabled = True
-
 
 def UpdateSavingScreen(DISPLAY):
     global SavingScreenEnabled
@@ -169,14 +169,14 @@ def Update():
     global SavingScreenEnabled
     global ExperienceStore_Enabled
     global InfosWindow_Enabled
-    global GameLoadToggle
     global SaveInitializedDelta
     global SaveInitializeMessageSent
+    global GameLoadToggle
     global GameLoadToggle
 
     # -- Load Save -- #
     if not GameLoadToggle:
-        if SaveInitializedDelta >= 2:
+        if SaveInitializedDelta >= 1:
             GameLoadToggle = True
             SaveInitializeMessageSent = False
             SaveInitializedDelta = 0
@@ -185,7 +185,7 @@ def Update():
 
         else:
             if not SaveInitializeMessageSent:
-                taiyouMain.ReceiveCommand("INITIALIZE_SAVE_FOLDER")
+                taiyouMain.ReceiveCommand("SWITCH_SAVE_FOLDER")
                 SaveInitializeMessageSent = True
             SaveInitializedDelta += 1
 
@@ -233,6 +233,8 @@ def Update():
                 BackToMainMenu_Delay = 0
                 BackToMainMenu = False
 
+                RestartSavingThing()
+
         # -- Open Store Button -- #
         if OpenStoreButton.ButtonState == "UP":
             if StoreWindow_Enabled:
@@ -244,7 +246,7 @@ def Update():
                 ExperienceStore_Enabled = False
 
         # -- Open Infos Button -- #
-        if OpenInfosWindowButton.ButtonState == "UP":
+        elif OpenInfosWindowButton.ButtonState == "UP":
             if InfosWindow_Enabled:
                 InfosWindow_Enabled = False
                 storeWindow.RestartAnimation()
@@ -254,10 +256,11 @@ def Update():
                 ExperienceStore_Enabled = False
 
         # -- Open Experience Store Button -- #
-        if OpenExperienceWindowButton.ButtonState == "UP" and gameItems.GetItemCount_ByID(-1) >= 1:
+        elif OpenExperienceWindowButton.ButtonState == "UP" and gameItems.GetItemCount_ByID(-1) >= 1:
             if ExperienceStore_Enabled:
                 ExperienceStore_Enabled = False
                 storeWindow.RestartAnimation()
+
             else:
                 ExperienceStore_Enabled = True
                 StoreWindow_Enabled = False
@@ -273,6 +276,7 @@ def Update():
         OpenStoreButton.Set_Y(gameMain.DefaultDisplay.get_height() - OpenStoreButton.Rectangle[3] - 5)
         OpenInfosWindowButton.Set_X(OpenStoreButton.Rectangle[0] + OpenStoreButton.Rectangle[2] + 5)
         OpenInfosWindowButton.Set_Y(OpenStoreButton.Rectangle[1])
+
         if gameItems.GetItemCount_ByID(-1) >= 1:
             OpenExperienceWindowButton.Set_X(OpenInfosWindowButton.Rectangle[0] + OpenInfosWindowButton.Rectangle[2] + 5)
             OpenExperienceWindowButton.Set_Y(OpenInfosWindowButton.Rectangle[1])
@@ -426,6 +430,10 @@ def Initialize(DISPLAY):
     # -- Initialize the Screen -- #
     HUD_Surface = pygame.Surface((DISPLAY.get_width(), DISPLAY.get_height()))
 
+    if reg.ReadKey_bool("/OPTIONS/debug_enabled"):
+        tge.Set_SaveFolder("Aragubas/")
+
+
 def EventUpdate(event):
     # -- Update all buttons -- #
     global GrindButton
@@ -472,7 +480,20 @@ def EventUpdate(event):
     if event.type == pygame.KEYUP and event.key == pygame.K_m:
         GrindClick()
 
+def Unload():
+    RestartSavingThing()
 
+def RestartSavingThing():
+    global SaveInitializedDelta
+    global SaveInitializeMessageSent
+    global GameLoadToggle
+
+    GameLoadToggle = False
+    SaveInitializedDelta = 0
+    SaveInitializeMessageSent = False
+
+
+# -- Action when grinding -- #
 def GrindClick():
     save.Current_TotalClicks += 1
 

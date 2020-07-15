@@ -20,9 +20,11 @@ from ENGINE import REGISTRY as reg
 from ENGINE import UTILS as utils
 import ENGINE as tge
 from ENGINE import SOUND as sound
+from ENGINE import DEBUGGING as debug
 from Fogoso.MAIN import ClassesUtils as gameObjs
 from Fogoso.MAIN.Screens import Settings as ScreenSettings
 from Fogoso import MAIN as gameMain
+
 from Fogoso.MAIN.Window import StoreWindow as storeWindow
 from Fogoso.MAIN.Window import ExperienceStore as expStoreWindow
 from Fogoso.MAIN.Window import InfosWindow as infosWindow
@@ -38,53 +40,52 @@ MapTileset = 0
 MapSizeW = 0
 MapSizeH = 0
 MapTileSize = 0
-MapCamX = 15
-MapCamY = 15
+MapCamX = 0
+MapCamY = 0
+
 
 class Player:
     def __init__(self, TileX, TileY):
         self.Rectangle = pygame.Rect(TileX * MapTileSize, TileY * MapTileSize,MapTileSize,MapTileSize)
         self.SpriteInd = 0
-        self.DrawnRectangle = pygame.Rect(0,0,MapTileSize,MapTileSize)
         self.MoveXEnabled = True
         self.MoveXDest = self.Rectangle[0]
         self.MoveYEnabled = True
         self.MoveYDest = self.Rectangle[1]
+        self.MoveDelay = 0
+        self.MoveDelayLimit = 1
 
     def Draw(self, DISPLAY):
-        sprite.Shape_Rectangle(DISPLAY, (255, 255, 0), self.DrawnRectangle)
-        sprite.Shape_Rectangle(DISPLAY, (255, 0, 0), self.Rectangle)
+        sprite.Shape_Rectangle(DISPLAY, (255, 0, 0), pygame.Rect(MapCamX + self.Rectangle[0], MapCamY + self.Rectangle[1], self.Rectangle[2], self.Rectangle[3]))
 
     def Update(self):
         PlayerMovA = False
         PlayerMovD = False
         PlayerMovW = False
         PlayerMovS = False
-
-        MovSpeed = 5
-        if self.DrawnRectangle[0] <= self.Rectangle[0] + MovSpeed:
-            self.DrawnRectangle[0] += MovSpeed
-        if self.DrawnRectangle[0] >= self.Rectangle[0] + MovSpeed:
-            self.DrawnRectangle[0] -= MovSpeed
-
-        if self.DrawnRectangle[1] <= self.Rectangle[1] + MovSpeed:
-            self.DrawnRectangle[1] += MovSpeed
-        if self.DrawnRectangle[1] >= self.Rectangle[1] + MovSpeed:
-            self.DrawnRectangle[1] -= MovSpeed
-
-
         PressedKeys = pygame.key.get_pressed()
 
         if PressedKeys[pygame.K_a]:
             PlayerMovA = True
+            self.MoveDelay += 1
+
         if PressedKeys[pygame.K_d]:
             PlayerMovD = True
+            self.MoveDelay += 1
+
         if PressedKeys[pygame.K_w]:
             PlayerMovW = True
+            self.MoveDelay += 1
+
         if PressedKeys[pygame.K_s]:
             PlayerMovS = True
+            self.MoveDelay += 1
 
         if PlayerMovW:
+            if self.MoveDelay > self.MoveDelayLimit:
+                self.MoveDelay = 0
+                return
+
             PlayerTileAfront = pygame.Rect(self.Rectangle[0], self.Rectangle[1] - MapTileSize, self.Rectangle[2],self.Rectangle[3])
 
             if GetTile(PlayerTileAfront) == 0:
@@ -93,6 +94,10 @@ class Player:
                 self.MoveYDest = self.Rectangle[1]
 
         if PlayerMovS:
+            if self.MoveDelay > self.MoveDelayLimit:
+                self.MoveDelay = 0
+                return
+
             PlayerTileAfront = pygame.Rect(self.Rectangle[0], self.Rectangle[1] + MapTileSize, self.Rectangle[2],self.Rectangle[3])
 
             if GetTile(PlayerTileAfront) == 0:
@@ -101,6 +106,10 @@ class Player:
                 self.MoveYDest = self.Rectangle[1]
 
         if PlayerMovA:
+            if self.MoveDelay > self.MoveDelayLimit:
+                self.MoveDelay = 0
+                return
+
             PlayerTileAfront = pygame.Rect(self.Rectangle[0] - MapTileSize, self.Rectangle[1], self.Rectangle[2], self.Rectangle[3])
 
             if GetTile(PlayerTileAfront) == 0:
@@ -109,8 +118,11 @@ class Player:
                 self.MoveXDest = self.Rectangle[0]
 
         if PlayerMovD:
-            PlayerTileAfront = pygame.Rect(self.Rectangle[0] + MapTileSize, self.Rectangle[1], self.Rectangle[2], self.Rectangle[3])
+            if self.MoveDelay > self.MoveDelayLimit:
+                self.MoveDelay = 0
+                return
 
+            PlayerTileAfront = pygame.Rect(self.Rectangle[0] + MapTileSize, self.Rectangle[1], self.Rectangle[2], self.Rectangle[3])
             if GetTile(PlayerTileAfront) == 0:
                 self.Rectangle[0] += MapTileSize
                 self.MoveXEnabled = True
@@ -201,8 +213,6 @@ def GameDraw(DISPLAY):
         for y, data in enumerate(row):
             sprite.ImageRender(DISPLAY, "/map/{0}/{1}.png".format(str(MapTileset), data), MapCamX + x * MapTileSize, MapCamY + y * MapTileSize, MapTileSize, MapTileSize)
 
-    sprite.FontRender(DISPLAY, "/PressStart2P.ttf", 12, "X: " + str(MapCamX) + ", Y:" + str(MapCamY) + "\nPlayer[Rect{" + str(PlayerObj.Rectangle) + "}, DrawnRect{" + str(PlayerObj.DrawnRectangle) + "}].", (255, 255, 255), 5, 5)
-
     PlayerObj.Draw(DISPLAY)
 
 def GetTile(Rectangle):
@@ -210,18 +220,23 @@ def GetTile(Rectangle):
 
     for x, row in enumerate(MapData):
         for y, data in enumerate(row):
-            ColisionRect = pygame.Rect(MapCamX + x * MapTileSize, MapCamY + y * MapTileSize, MapTileSize, MapTileSize)
+            ColisionRect = pygame.Rect(x * MapTileSize, y * MapTileSize, MapTileSize, MapTileSize)
 
             if Rectangle.colliderect(ColisionRect):
                 return data
 
-
 def Update():
     global PlayerObj
+    global MapCamY
+    global MapCamX
+
     PlayerObj.Update()
 
+    MapCamX = 1024 / 2 - PlayerObj.Rectangle[0]
+    MapCamY = 480 / 2 - PlayerObj.Rectangle[1]
 
-
+    debug.Set_Parameter("MapCamX", MapCamX)
+    debug.Set_Parameter("MapCamY", MapCamY)
 
 def EventUpdate(event):
     global MapData

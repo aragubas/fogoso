@@ -80,7 +80,7 @@ def GameDraw(DISPLAY):  # -- Engine Required Function
 
     # -- Clear the Surface -- #
     DefaultDisplay = DISPLAY
-#    DISPLAY.fill(ClearColor)
+    DISPLAY.fill(ClearColor)
 
     if not reg.ReadKey_bool("/OPTIONS/debug_enabled"):
         try:
@@ -111,8 +111,7 @@ def GameDraw(DISPLAY):  # -- Engine Required Function
     if LastErrorTextEnabled:
         LastErrorTextDeltaTime += 1
 
-        sprite.Shape_Rectangle(DISPLAY, (0, 0, 0), (0, 2, DISPLAY.get_width() , sprite.GetFont_height("/PressStart2P.ttf", 9, LastErrorText) * 2 + 4))
-        sprite.FontRender(DISPLAY, "/PressStart2P.ttf", 9, LastErrorText, (200, 0, 0), 5, 5, False)
+        sprite.FontRender(DISPLAY, "/PressStart2P.ttf", 9, LastErrorText, (200, 0, 0), 5, 5, False, (10, 20, 27))
 
         if LastErrorTextDeltaTime >= 1500:
             LastErrorTextDeltaTime = 0
@@ -267,6 +266,7 @@ def Initialize(DISPLAY):  # -- Engine Required Function
 
 def Unload():  # -- Engine Required Function
     gameVar.Unload()
+    ScreenGame.Unload()
 
 def SetWindowParameters():
     global DefaultDisplay

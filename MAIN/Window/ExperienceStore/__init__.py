@@ -185,15 +185,18 @@ def ReloadItemsList():
 
     print("ReloadItemsList : Add Store Items")
     for x in range(-1, reg.ReadKey_int("/ItemData/upgrade/all") + 1):
-        # -- Reg Keys Locations -- #
-        CurrentItemRoot = "/ItemData/upgrade/" + str(x) + "_"
-        CurrentItemLevel = gameItems.GetItemLevel_ByID(x) + 1
-        CurrentItemSprite = gameItems.GetItemSprite_ByID(x)
-        CurrentItemDescription = CurrentItemRoot + "description_" + str(CurrentItemLevel)
-        CurrentItemName = CurrentItemRoot + "name_" + str(CurrentItemLevel)
+        # -- Check if item is Visible -- #
+        if reg.ReadKey_bool("/ItemData/" + str(x) + "/is_visible"):
 
-        print("ReloadItemsList : CurrentItem[" + CurrentItemRoot + "]")
-        ListItems.AddItem(reg.ReadKey(CurrentItemName), reg.ReadKey(CurrentItemDescription), reg.ReadKey(CurrentItemSprite))
+            # -- Reg Keys Locations -- #
+            CurrentItemRoot = "/ItemData/upgrade/" + str(x) + "_"
+            CurrentItemLevel = gameItems.GetItemLevel_ByID(x) + 1
+            CurrentItemSprite = gameItems.GetItemSprite_ByID(x)
+            CurrentItemDescription = CurrentItemRoot + "description_" + str(CurrentItemLevel)
+            CurrentItemName = CurrentItemRoot + "name_" + str(CurrentItemLevel)
+
+            print("ReloadItemsList : CurrentItem[" + CurrentItemRoot + "]")
+            ListItems.AddItem(reg.ReadKey(CurrentItemName), reg.ReadKey(CurrentItemDescription), reg.ReadKey(CurrentItemSprite))
 
     print("ReloadItemsList : Add Store Items")
 
