@@ -61,9 +61,9 @@ def ReloadItemsList():
     global ListItems
 
     # -- Load Items -- #
-    for x in range(-1, reg.ReadKey_int("/ItemData/store/all") + 1):
+    for x in range(reg.ReadKey_int("/ItemData/minimum"), reg.ReadKey_int("/ItemData/all") + 1):
         # -- Check if item is Visible -- #
-        if reg.ReadKey_bool("/ItemData/" + str(x) + "/is_visible"):
+        if reg.ReadKey_bool("/ItemData/" + str(x) + "/is_buyable"):
             CurrentItemRoot = "/ItemData/store/" + str(x) + "_"
             ItemSprite = gameItems.GetItemSprite_ByID(x)
             ListItems.AddItem(reg.ReadKey(CurrentItemRoot + "name"), reg.ReadKey(CurrentItemRoot + "description"), reg.ReadKey(ItemSprite))
@@ -150,7 +150,7 @@ def UpdateControls():
         # -- Update Item Price -- #
         SelectedItemPrice = gameItems.GetItemPrice_ByID(ListItems.LastItemOrderID)
 
-        if save.Current_Money >= gameItems.GetItemPrice_ByID(SelectedItemID):  # -- If you can buy the Item -- #
+        if save.Current_Money >= SelectedItemPrice:  # -- If you can buy the Item -- #
             BuyItem_ByID(SelectedItemID)
 
         else:  # -- Notify that you can't buy that item
@@ -184,17 +184,19 @@ def RestartAnimation():
 def BuyItem_ByID(ItemID):
     ItemID = int(ItemID)
     ItemPrice = gameItems.GetItemPrice_ByID(ItemID)
-    ItemLevel = gameItems.GetItemLevel_ByID(ItemID)
+    ItemCount = gameItems.GetItemCount_ByID(ItemID)
+    ItemIsUnlocker = gameItems.GetItemIsUnlocker_ByID(ItemID)
+    BuySucefully = False
 
-    print("BuyItem : ItemPrice:{0}; ItemLevel{1}; ItemID:{2}".format(str(ItemPrice), str(ItemLevel), str(ItemID)))
-
-    if gameItems.GetItemIsUnlocker_ByID(ItemID):  # -- Buy Unlocker Items
-        if not gameItems.GetItemCount_ByID(ItemID) >= 1:
+    if ItemIsUnlocker:  # -- Buy Unlocker Items
+        if not ItemCount >= 1:
             # -- Increase Item Count -- #
             gameItems.IncreaseItemCount_ByID(ItemID)
 
             # -- Create Item Object -- #
             gameItems.CreateItemObject(ItemID)
+
+            BuySucefully = True
 
     else:  # -- Buy Common Items -- #
         # -- Increase Item Count -- #
@@ -203,11 +205,18 @@ def BuyItem_ByID(ItemID):
         # -- Create Item Object -- #
         gameItems.CreateItemObject(ItemID)
 
-    # -- Add Item to the Item View on Game Screen -- #
-    GameScreen.ItemsView.AddItem(str(ItemID))
+        BuySucefully = True
 
-    # -- Subtract the Money -- #
-    IncomingLog.AddMessageText(utils.FormatNumber(-ItemPrice, 2), True, (250, 150, 150), -ItemPrice)
+    if BuySucefully:
+        # -- Subtract the Money -- #
+        IncomingLog.AddMessageText(utils.FormatNumber(-ItemPrice, 2), True, (250, 150, 150), -ItemPrice)
+
+        # -- Add Item to the Item View on Game Screen -- #
+        GameScreen.ItemsView.AddItem(str(ItemID))
+    else:
+        # -- Subtract the Money -- #
+        IncomingLog.AddMessageText(reg.ReadKey("/strings/window/store/cant_buy_item"), False, (250, 150, 150))
+        sound.PlaySound("/hit_2.wav", 0.5)
 
 
 def EventUpdate(event):

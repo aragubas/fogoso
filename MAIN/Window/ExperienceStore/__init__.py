@@ -83,9 +83,9 @@ def Render(DISPLAY):
             LastClickedItem = ListItems.LastItemClicked
 
             # -- Set Item Price and ID -- #
-            SelectedItemID = ListItems.LastItemOrderID
-            SelectedItemLevel = GetNextLevelByID(SelectedItemID)
-            SelectedItemPrice = GetItemPrice_ByID(SelectedItemID)
+            SelectedItemID = ListItems.LastItemOrderID - 1
+            SelectedItemLevel = gameItems.GetItemLevel_ByID(SelectedItemID) + 1
+            SelectedItemPrice = gameItems.GetItemUpgradePrice_ByID(SelectedItemID)
 
             # -- Down Panel Background -- #
             sprite.Shape_Rectangle(DrawnSurface, (0, 0, 0, 100), (0, DrawnSurface.get_height() - DownBar_BuyPanelYOffset, DrawnSurface.get_width(), DownBar_BuyPanelYOffset))
@@ -124,8 +124,8 @@ def UpdateControls():
     BuyButton.Set_ColisionY(WindowObject.WindowRectangle[1] + BuyButton.Rectangle[1] + BuyButton.Rectangle[3])
 
     if BuyButton.ButtonState == "UP":
-        BuyButton.ButtonState = "INACTIVE"
-        if save.Current_Experience >= GetItemPrice_ByID(SelectedItemID):
+        BuyButton.ButtonState = "INATIVE"
+        if save.Current_Experience >= gameItems.GetItemUpgradePrice_ByID(SelectedItemID):
             BuyItem_ByID(SelectedItemID)
 
     # -- Set Items List Size -- #
@@ -150,23 +150,16 @@ def GetNextLevelByID(ItemID):
 
     return CurrentLevel
 
-def GetItemPrice_ByID(ItemID):
-    global SelectedItemLevel
-    CorrectKeyName = "/ItemData/upgrade/price/" + str(ItemID) + "_" + str(SelectedItemLevel)
-    return reg.ReadKey_int(CorrectKeyName)
-
 def BuyItem_ByID(ItemID):
     global SelectedItemLevel
     global LastClickedItem
     global SelectedItemPrice
     global SelectedItemID
-    Price = GetItemPrice_ByID(ItemID)
+    Price = gameItems.GetItemUpgradePrice_ByID(ItemID)
 
     print("BuyItemUpgrade : ItemID[{0}] Price[{1}]".format(str(ItemID), str(Price)))
 
-    if Price < 0.0:
-        IncomingLog.AddMessageText(reg.ReadKey("/strings/window/expecience_store/item_not_upgradable"), False, (250, 140, 140))
-    else:
+    if save.Current_Experience >= Price:
         save.Current_Experience -= Price
         IncomingLog.AddMessageText(reg.ReadKey("/strings/window/expecience_store/item_upgrade"), False, (140, 240, 140))
 
@@ -174,6 +167,8 @@ def BuyItem_ByID(ItemID):
         gameItems.IncreaseItemLevel_ByID(ItemID)
 
         ReloadItemsList()
+    else:
+        sound.PlaySound("/hit_2.wav", 0.5)
 
 def ReloadItemsList():
     global ListItems
@@ -184,9 +179,9 @@ def ReloadItemsList():
     ListItems = gameObjs.VerticalListWithDescription(pygame.Rect(0, 0, 350, 250))
 
     print("ReloadItemsList : Add Store Items")
-    for x in range(-1, reg.ReadKey_int("/ItemData/upgrade/all") + 1):
+    for x in range(reg.ReadKey_int("/ItemData/minimum"), reg.ReadKey_int("/ItemData/all") + 1):
         # -- Check if item is Visible -- #
-        if reg.ReadKey_bool("/ItemData/" + str(x) + "/is_visible"):
+        if reg.ReadKey_bool("/ItemData/" + str(x) + "/is_upgradeable"):
 
             # -- Reg Keys Locations -- #
             CurrentItemRoot = "/ItemData/upgrade/" + str(x) + "_"

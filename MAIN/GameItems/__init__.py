@@ -45,11 +45,7 @@ def LoadItemsLevels():
 
 # -- Get Item Sprite Name -- #
 def GetItemSprite_ByID(ItemID):
-    # -- The Root Folder -- #
-    RootFolder = "/ItemData/sprite/"
-
-    return RootFolder + str(ItemID) + "_level_" + str(GetItemLevel_ByID(ItemID))
-
+    return "/ItemData/sprite/{0}_level_{1}".format(str(ItemID), str(GetItemLevel_ByID(ItemID)))
 
 
 # -- Item Level -- #
@@ -79,19 +75,24 @@ def GetItemLevel_ByID(ItemID):
 
     else:
         print("Fogoso.GameItems.GetItemsLevelByID : ItemID[{0}] is invalid.".format(str(ItemID)))
-        return None
+        return 0
 
 # -- Item Price -- #
 def GetItemPrice_ByID(ItemID):
-    RegDir = "/ItemData/store/price/" + str(ItemID) + "_level_" + str(GetItemLevel_ByID(int(ItemID)))
+    RegDir = "/ItemData/{0}/lv_{1}_price".format(str(ItemID), str(GetItemLevel_ByID(int(ItemID))))
 
     return max(reg.ReadKey_float(RegDir), reg.ReadKey_float(RegDir) * GetItemCount_ByID(ItemID))
 
-# -- Item Price -- #
-def GetItemIsUnlocker_ByID(ItemID):
-    RegDir = "/ItemData/" + str(ItemID) + "/is_unlocker"
+# -- Item Upgrade -- #
+def GetItemUpgradePrice_ByID(ItemID):
+    RegDir = "/ItemData/{0}/lv_{1}_upgrade_price".format(str(ItemID), str(GetItemLevel_ByID(int(ItemID))))
 
-    return reg.ReadKey_bool(RegDir)
+    return reg.ReadKey_int(RegDir)
+
+
+# -- Item Unlocker -- #
+def GetItemIsUnlocker_ByID(ItemID):
+    return reg.ReadKey_bool("/ItemData/{0}/is_unlocker".format(str(ItemID)))
 
 
 # -- Item Object -- #
@@ -127,10 +128,10 @@ def GetItemCount_ByID(ItemID):
 def IncreaseItemLevel_ByID(ItemID):
     global Item_ExperienceStore_LastLevel
     global Item_AutoClicker_LastLevel
-    global Item_Shop_Count
+    global Item_Shop_LastLevel
 
     if ItemID == -2:
-        Item_Shop_Count += 1
+        Item_Shop_LastLevel += 1
 
     elif ItemID == -1:
         Item_ExperienceStore_LastLevel += 1
@@ -182,7 +183,7 @@ def LoadItems():
     global ItemsList
     global ItemsInitialized
     AllKeys = 0
-    SavedItemsData = reg.ReadAppData_WithTry("Items", str, "").splitlines()
+    SavedItemsData = reg.ReadAppData_WithTry("Items", str, "-2").splitlines()
 
     # -- Load Items Level -- #
     LoadItemsLevels()
@@ -258,13 +259,24 @@ class Item_AutoClicker:
         self.SecoundTimeAction = int(reg.ReadKey("/ItemData/0/lv_" + str(self.ItemLevel) + "_activation_sec"))
         self.maintenance_cost = reg.ReadKey_float("/ItemData/0/lv_" + str(self.ItemLevel) + "_cost_maintenance")
         self.ExpMiningTotal = reg.ReadKey_int("/ItemData/0/lv_" + str(self.ItemLevel) + "_exp")
+        self.ActivationType = reg.ReadKey_int("/ItemData/0/lv_" + str(self.ItemLevel) + "_activation_type")
 
     def Update(self):
+        if self.ActivationType == 0:
+            self.ActivationPerSecound()
+
+        elif self.ActivationType == 1:
+            self.ActivationPerMinute()
+
+        elif self.ActivationType == 2:
+            self.ActivationPerConstantFlux()
+
+    def ActivationPerSecound(self):
         if self.ItemRoll == 1:
             if gameMain.save.CurrentDate_Second == 0:
                 self.ItemRoll = 0
 
-        if self.ItemRoll == 0:
+        elif self.ItemRoll == 0:
             if gameMain.save.CurrentDate_Second >= int(self.SecoundTimeAction):
                 self.ItemIsActivated = True
                 self.DeltaTimeAction = self.InstanceID + 5
@@ -278,18 +290,64 @@ class Item_AutoClicker:
                 self.ItemIsActivated = False
                 self.ItemRoll += 1
 
-                # -- Reload Item Statistics -- #
-                self.ItemLevel = GetItemLevel_ByID(self.ItemID)
-                self.ItemClickPerSecound = reg.ReadKey("/ItemData/0/lv_" + str(self.ItemLevel) + "_click")
-                self.SecoundTimeAction = int(reg.ReadKey("/ItemData/0/lv_" + str(self.ItemLevel) + "_activation_sec"))
-                self.maintenance_cost = reg.ReadKey_float("/ItemData/0/lv_" + str(self.ItemLevel) + "_cost_maintenance")
-                self.ExpMiningTotal = reg.ReadKey_int("/ItemData/0/lv_" + str(self.ItemLevel) + "_exp")
+                self.ItemAction()
 
-                gameMain.ScreenGame.IncomingLog.AddMessageText("+" + str(self.ItemClickPerSecound), True, (100, 210, 100), self.ItemClickPerSecound)
-                if self.ExpMiningTotal > 0:
-                    gameMain.ScreenGame.save.Current_Experience += self.ExpMiningTotal
-                    gameMain.ScreenGame.IncomingLog.AddMessageText("€+" + str(self.ItemClickPerSecound), True, (100, 110, 100), self.ItemClickPerSecound)
+    def ActivationPerMinute(self):
+        if self.ItemRoll == 1:
+            if gameMain.save.CurrentDate_Minute == 0:
+                self.ItemRoll = 0
 
+        if self.ItemRoll == 0:
+            if gameMain.save.CurrentDate_Minute >= int(self.SecoundTimeAction):
+                self.ItemIsActivated = True
+                self.DeltaTimeAction = self.InstanceID + 5
+
+        if self.ItemIsActivated:
+            self.DeltaTime += 1
+
+            if self.DeltaTime >= self.DeltaTimeAction:
+                self.DeltaTime = 0
+                self.DeltaTimeAction = 0
+                self.ItemIsActivated = False
+                self.ItemRoll += 1
+
+                self.ItemAction()
+
+    def ActivationPerConstantFlux(self):
+        if self.ItemRoll == 1:
+            self.ItemRoll = 0
+
+        if self.ItemRoll == 0:
+            self.ItemIsActivated = True
+            self.DeltaTimeAction = self.InstanceID + 5
+
+        if self.ItemIsActivated:
+            self.DeltaTime += 1
+
+            if self.DeltaTime >= self.DeltaTimeAction:
+                self.DeltaTime = 0
+                self.DeltaTimeAction = 0
+                self.ItemIsActivated = False
+                self.ItemRoll += 1
+
+                self.ItemAction()
+
+
+    def ReloadStatus(self):
+        self.ItemLevel = GetItemLevel_ByID(self.ItemID)
+        self.ItemClickPerSecound = reg.ReadKey("/ItemData/0/lv_" + str(self.ItemLevel) + "_click")
+        self.SecoundTimeAction = int(reg.ReadKey("/ItemData/0/lv_" + str(self.ItemLevel) + "_activation_sec"))
+        self.maintenance_cost = reg.ReadKey_float("/ItemData/0/lv_" + str(self.ItemLevel) + "_cost_maintenance")
+        self.ExpMiningTotal = reg.ReadKey_int("/ItemData/0/lv_" + str(self.ItemLevel) + "_exp")
+        self.ActivationType = reg.ReadKey_int("/ItemData/0/lv_" + str(self.ItemLevel) + "_activation_type")
+
+    def ItemAction(self):
+        gameMain.ScreenGame.IncomingLog.AddMessageText("+" + str(self.ItemClickPerSecound), True, (100, 210, 100), self.ItemClickPerSecound)
+        if self.ExpMiningTotal > 0:
+            gameMain.ScreenGame.save.Current_Experience += self.ExpMiningTotal
+            gameMain.ScreenGame.IncomingLog.AddMessageText("€+" + str(self.ItemClickPerSecound), True, (100, 110, 100), self.ItemClickPerSecound)
+
+        self.ReloadStatus()
 
 class Item_ExperienceStore:
     def __init__(self):
@@ -325,8 +383,20 @@ class Item_ExperienceStore:
                 self.ItemIsActivated = False
                 self.ItemRoll += 1
 
-                gameMain.ScreenGame.IncomingLog.AddMessageText("€+" + str(self.ItemExpPerSecound), False, (55, 45, 60))
-                gameMain.save.Current_Experience += self.ItemExpPerSecound
+                self.ItemAction()
+
+    def ReloadStatus(self):
+        # -- Item Statistics -- #
+        self.ItemLevel = GetItemLevel_ByID(self.ItemID)
+        self.ItemExpPerSecound = reg.ReadKey_int("/ItemData/-1/lv_" + str(self.ItemLevel) + "_exp_click")
+        self.SecoundTimeAction = int(reg.ReadKey("/ItemData/-1/lv_" + str(self.ItemLevel) + "_activation_sec"))
+        self.maintenance_cost = reg.ReadKey_float("/ItemData/-1/lv_" + str(self.ItemLevel) + "_cost_maintenance")
+
+    def ItemAction(self):
+        gameMain.ScreenGame.IncomingLog.AddMessageText("€+" + str(self.ItemExpPerSecound), False, (55, 45, 60))
+        gameMain.save.Current_Experience += self.ItemExpPerSecound
+
+        self.ReloadStatus()
 
 class Item_Shop:
     def __init__(self):
