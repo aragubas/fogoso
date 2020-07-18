@@ -52,7 +52,7 @@ def Update():
     global ElementsX
     global ElementsY
 
-    if OptionsScreen_DebugModeEnabled.ButtonState == "UP" or OptionsScreen_DebugModeEnabled.ButtonState == "DOWN":
+    if OptionsScreen_DebugModeEnabled .ButtonState == 2 or OptionsScreen_DebugModeEnabled.ButtonState == "DOWN":
         current_val = reg.ReadKey_bool("/OPTIONS/debug_enabled")
         if not current_val:
             reg.WriteKey("/OPTIONS/debug_enabled", "True")
@@ -60,7 +60,7 @@ def Update():
         if current_val:
             reg.WriteKey("/OPTIONS/debug_enabled", "False")
 
-    if OptionsScreen_RandomWindowTitle.ButtonState == "UP" or OptionsScreen_RandomWindowTitle.ButtonState == "DOWN":
+    if OptionsScreen_RandomWindowTitle .ButtonState == 2 or OptionsScreen_RandomWindowTitle.ButtonState == "DOWN":
         current_val = reg.ReadKey_bool("/OPTIONS/random_title")
 
         if current_val:
@@ -68,7 +68,7 @@ def Update():
         if not current_val:
             reg.WriteKey("/OPTIONS/random_title", "True")
 
-    if OptionsScreen_NumberFormatting.ButtonState == "UP" or OptionsScreen_NumberFormatting.ButtonState == "DOWN":
+    if OptionsScreen_NumberFormatting .ButtonState == 2 or OptionsScreen_NumberFormatting.ButtonState == "DOWN":
         current_val = reg.ReadKey_bool("/OPTIONS/format_numbers")
 
         if current_val:

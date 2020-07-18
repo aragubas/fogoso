@@ -155,7 +155,7 @@ def EventUpdate(event):
     NextButton.Update(event)
     PreviousButton.Update(event)
 
-    if PreviousButton.ButtonState == "UP":
+    if PreviousButton .ButtonState == 2:
         if CurrentCategory > 0:
             TransitionSurface = DrawnSurfaceGlob.copy()
             CurrentCategory -= 1
@@ -167,7 +167,7 @@ def EventUpdate(event):
             TransitionY = 0
             TransitionAdder = 1
 
-    if NextButton.ButtonState == "UP":
+    if NextButton .ButtonState == 2:
         if CurrentCategory < reg.ReadKey_int("/strings/window/infos/category_max"):
             TransitionSurface = DrawnSurfaceGlob.copy()
             CurrentCategory += 1

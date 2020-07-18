@@ -76,7 +76,7 @@ class SpriteButton:
             sprite.ImageRender(DISPLAY, self.SpriteList[0], self.Rectangle[0], self.Rectangle[1], self.Rectangle[2], self.Rectangle[3])
         if self.ButtonState == "DOWN":
             sprite.ImageRender(DISPLAY, self.SpriteList[1], self.Rectangle[0], self.Rectangle[1], self.Rectangle[2], self.Rectangle[3])
-        if self.ButtonState == "UP":
+        if self .ButtonState == 2:
             sprite.ImageRender(DISPLAY, self.SpriteList[2], self.Rectangle[0], self.Rectangle[1], self.Rectangle[2], self.Rectangle[3])
 
     def EventUpdate(self, event):
@@ -242,7 +242,7 @@ class Button:
 
         # -- Draw the Button -- #
         DISPLAY.blit(self.ButtonSurface, (self.Rectangle[0], self.Rectangle[1]))
-        if self.ButtonState == "UP":
+        if self .ButtonState == 2:
             self.ButtonState = "INATIVE"
 
 class UpDownButton:
@@ -260,16 +260,16 @@ class UpDownButton:
         self.UpButton.Update(event)
         self.DownButton.Update(event)
 
-        if self.UpButton.ButtonState == "UP":
+        if self.UpButton .ButtonState == 2:
             self.ButtonState = "UP"
-        if self.DownButton.ButtonState == "UP":
+        if self.DownButton .ButtonState == 2:
             self.ButtonState = "DOWN"
 
     def Render(self, DISPLAY):
         self.UpButton.Render(DISPLAY)
         self.DownButton.Render(DISPLAY)
 
-        if self.ButtonState == "UP" or self.ButtonState == "DOWN":
+        if self .ButtonState == 2 or self.ButtonState == "DOWN":
             self.BackStateWaitLoop += 1
 
             if self.BackStateWaitLoop >= 1:
@@ -403,7 +403,7 @@ class Window:
         # -- Minimize Button Update -- #
         if self.Minimizable:
             self.MinimizeButton.Update(event)
-            if self.MinimizeButton.ButtonState == "UP":
+            if self.MinimizeButton .ButtonState == 2:
                 self.ToggleMinimize()
             if not self.WindowMinimized:
                 self.MinimizeButton.Set_Text("↑")

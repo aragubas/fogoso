@@ -146,7 +146,7 @@ def UpdateControls():
     BuyButton.Set_ColisionY(WindowObject.WindowRectangle[1] + BuyButton.Rectangle[1] + BuyButton.Rectangle[3])
 
     # -- Update Buy Button -- #
-    if BuyButton.ButtonState == "UP":
+    if BuyButton .ButtonState == 2:
         # -- Update Item Price -- #
         SelectedItemPrice = gameItems.GetItemPrice_ByID(ListItems.LastItemOrderID)
 

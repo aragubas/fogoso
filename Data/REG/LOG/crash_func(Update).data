@@ -3,10 +3,14 @@ Traceback (most recent call last):
     ScreensUpdate()
   File "/home/abacate/Projetos/Python/Taiyou Game Engine/Fogoso/MAIN/__init__.py", line 165, in ScreensUpdate
     ScreenGame.Update()
-  File "/home/abacate/Projetos/Python/Taiyou Game Engine/Fogoso/MAIN/Screens/Game/__init__.py", line 194, in Update
-    save.Update()
-  File "/home/abacate/Projetos/Python/Taiyou Game Engine/Fogoso/MAIN/GameVariables/__init__.py", line 280, in Update
-    UpdateClock()
-  File "/home/abacate/Projetos/Python/Taiyou Game Engine/Fogoso/MAIN/GameVariables/__init__.py", line 246, in UpdateClock
-    CurrentDate_Microseconds += 1
-TypeError: unsupported operand type(s) for +=: 'NoneType' and 'int'
+  File "/home/abacate/Projetos/Python/Taiyou Game Engine/Fogoso/MAIN/Screens/Game/__init__.py", line 184, in Update
+    LoadGame()
+  File "/home/abacate/Projetos/Python/Taiyou Game Engine/Fogoso/MAIN/Screens/Game/__init__.py", line 91, in LoadGame
+    save.LoadSaveData()
+  File "/home/abacate/Projetos/Python/Taiyou Game Engine/Fogoso/MAIN/GameVariables/__init__.py", line 88, in LoadSaveData
+    Current_Money = reg.ReadAppData_WithTry("money", float, 0.0)
+  File "/home/abacate/Projetos/Python/Taiyou Game Engine/ENGINE/REGISTRY/__init__.py", line 406, in ReadAppData_WithTry
+    return ReadAppData(FileName, DataType)
+  File "/home/abacate/Projetos/Python/Taiyou Game Engine/ENGINE/REGISTRY/__init__.py", line 395, in ReadAppData
+    raise ValueError("Taiyou.Registry.ReadAppData.Exception! : Save Folder was not initialized.")
+ValueError: Taiyou.Registry.ReadAppData.Exception! : Save Folder was not initialized.

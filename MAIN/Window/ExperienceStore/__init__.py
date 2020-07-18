@@ -123,7 +123,7 @@ def UpdateControls():
     BuyButton.Set_ColisionX(WindowObject.WindowRectangle[0] + BuyButton.Rectangle[0])
     BuyButton.Set_ColisionY(WindowObject.WindowRectangle[1] + BuyButton.Rectangle[1] + BuyButton.Rectangle[3])
 
-    if BuyButton.ButtonState == "UP":
+    if BuyButton .ButtonState == 2:
         BuyButton.ButtonState = "INATIVE"
         if save.Current_Experience >= gameItems.GetItemUpgradePrice_ByID(SelectedItemID):
             BuyItem_ByID(SelectedItemID)

@@ -80,7 +80,7 @@ def Update():
     OptionsScreen_Scanline_Effect.Set_Y(ElementsY + 200)
 
     # -- UI Blur Enabled -- #
-    if OptionsScreen_UI_Blur_Enabled.ButtonState == "UP" or OptionsScreen_UI_Blur_Enabled.ButtonState == "DOWN":
+    if OptionsScreen_UI_Blur_Enabled .ButtonState == 2 or OptionsScreen_UI_Blur_Enabled.ButtonState == "DOWN":
         CurrentVal = reg.ReadKey_bool("/OPTIONS/UI_blur_enabled")
         if CurrentVal:
             reg.WriteKey("/OPTIONS/UI_blur_enabled", "False")
@@ -88,7 +88,7 @@ def Update():
             reg.WriteKey("/OPTIONS/UI_blur_enabled", "True")
 
     # -- UI Blur Ammount -- #
-    if OptionsScreen_UI_Blur_Ammount.ButtonState == "UP":
+    if OptionsScreen_UI_Blur_Ammount .ButtonState == 2:
         CurrentVal = reg.ReadKey_float("/OPTIONS/UI_blur_ammount")
         CurrentVal += 0.5
         if CurrentVal >= 100:
@@ -104,7 +104,7 @@ def Update():
             reg.WriteKey("/OPTIONS/UI_blur_ammount", str(CurrentVal))
 
     # -- UI Blur Contrast -- #
-    if OptionsScreen_UI_Blur_Contrast.ButtonState == "UP":
+    if OptionsScreen_UI_Blur_Contrast .ButtonState == 2:
         CurrentVal = reg.ReadKey_int("/OPTIONS/UI_contrast")
         CurrentVal += 1
         if CurrentVal >= 151:
@@ -120,7 +120,7 @@ def Update():
             reg.WriteKey("/OPTIONS/UI_contrast", str(CurrentVal))
 
     # -- UI Pixalizate -- #
-    if OptionsScreen_UI_PixalizateInstedOfBlur.ButtonState == "UP" or OptionsScreen_UI_PixalizateInstedOfBlur.ButtonState == "DOWN":
+    if OptionsScreen_UI_PixalizateInstedOfBlur .ButtonState == 2 or OptionsScreen_UI_PixalizateInstedOfBlur.ButtonState == "DOWN":
         CurrentVal = reg.ReadKey_bool("/OPTIONS/UI_Pixelate")
         if CurrentVal:
             reg.WriteKey("/OPTIONS/UI_Pixelate", "False")
@@ -128,7 +128,7 @@ def Update():
             reg.WriteKey("/OPTIONS/UI_Pixelate", "True")
 
     # -- Windows Transitions -- #
-    if OptionsScreen_Windows_Transitions.ButtonState == "UP" or OptionsScreen_Windows_Transitions.ButtonState == "DOWN":
+    if OptionsScreen_Windows_Transitions .ButtonState == 2 or OptionsScreen_Windows_Transitions.ButtonState == "DOWN":
         CurrentVal = reg.ReadKey_bool("/OPTIONS/Windows_transitions")
         if CurrentVal:
             reg.WriteKey("/OPTIONS/Windows_transitions", "False")
@@ -136,7 +136,7 @@ def Update():
             reg.WriteKey("/OPTIONS/Windows_transitions", "True")
 
     # -- Window Indicator -- #
-    if OptionsScreen_Window_Indicator.ButtonState == "UP" or OptionsScreen_Window_Indicator.ButtonState == "DOWN":
+    if OptionsScreen_Window_Indicator .ButtonState == 2 or OptionsScreen_Window_Indicator.ButtonState == "DOWN":
         CurrentVal = reg.ReadKey_bool("/OPTIONS/UI_WindowIndicator")
         if CurrentVal:
             reg.WriteKey("/OPTIONS/UI_WindowIndicator", "False")
@@ -144,7 +144,7 @@ def Update():
             reg.WriteKey("/OPTIONS/UI_WindowIndicator", "True")
 
     # -- Scanline Effect -- #
-    if OptionsScreen_Scanline_Effect.ButtonState == "UP" or OptionsScreen_Scanline_Effect.ButtonState == "DOWN":
+    if OptionsScreen_Scanline_Effect .ButtonState == 2 or OptionsScreen_Scanline_Effect.ButtonState == "DOWN":
         CurrentVal = reg.ReadKey_bool("/OPTIONS/scanline_effect")
         if CurrentVal:
             reg.WriteKey("/OPTIONS/scanline_effect", "False")

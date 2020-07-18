@@ -185,7 +185,7 @@ def Update():
 
         else:
             if not SaveInitializeMessageSent:
-                taiyouMain.ReceiveCommand("SWITCH_SAVE_FOLDER")
+                taiyouMain.ReceiveCommand(10)
                 SaveInitializeMessageSent = True
             SaveInitializedDelta += 1
 
@@ -203,10 +203,10 @@ def Update():
         maintenance.Update()
 
         # -- Update Buttons Click -- #
-        if GrindButton.ButtonState == "UP":
+        if GrindButton .ButtonState == 2:
             GrindClick()
         # -- Game Options Button -- #
-        if GameOptionsButton.ButtonState == "UP":
+        if GameOptionsButton .ButtonState == 2:
             transition.Run()
             ScreenSettings.ScreenToReturn = gameMain.CurrentScreen
             ScreenSettings.Initialize()
@@ -214,12 +214,12 @@ def Update():
             gameMain.CurrentScreen += 1
 
         # -- Save Buttons -- #
-        if SaveButton.ButtonState == "UP":
+        if SaveButton .ButtonState == 2:
             SavingScreenEnabled = True
             IsControlsEnabled = False
 
         # -- Back to Main Menu Button -- #
-        if BackToMainMenuButton.ButtonState == "UP":
+        if BackToMainMenuButton .ButtonState == 2:
             transition.Run()
             BackToMainMenu = True
 
@@ -236,7 +236,7 @@ def Update():
                 RestartSavingThing()
 
         # -- Open Store Button -- #
-        if OpenStoreButton.ButtonState == "UP":
+        if OpenStoreButton .ButtonState == 2:
             if StoreWindow_Enabled:
                 StoreWindow_Enabled = False
                 storeWindow.RestartAnimation()
@@ -246,7 +246,7 @@ def Update():
                 ExperienceStore_Enabled = False
 
         # -- Open Infos Button -- #
-        elif OpenInfosWindowButton.ButtonState == "UP":
+        elif OpenInfosWindowButton .ButtonState == 2:
             if InfosWindow_Enabled:
                 InfosWindow_Enabled = False
                 storeWindow.RestartAnimation()
@@ -256,7 +256,7 @@ def Update():
                 ExperienceStore_Enabled = False
 
         # -- Open Experience Store Button -- #
-        elif OpenExperienceWindowButton.ButtonState == "UP" and gameItems.GetItemCount_ByID(-1) >= 1:
+        elif OpenExperienceWindowButton .ButtonState == 2 and gameItems.GetItemCount_ByID(-1) >= 1:
             if ExperienceStore_Enabled:
                 ExperienceStore_Enabled = False
                 storeWindow.RestartAnimation()

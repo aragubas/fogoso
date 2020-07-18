@@ -60,7 +60,7 @@ def Update():
     OptionsScreen_UpDownCategory.Set_Y(ElementsY + 3)
 
     # -- Change Category UP Button -- #
-    if OptionsScreen_UpDownCategory.ButtonState == "UP":
+    if OptionsScreen_UpDownCategory .ButtonState == 2:
         MaxCategory = reg.ReadKey_int("/props/settings_max_category")
         Current_Category += 1
         if Current_Category > MaxCategory:
@@ -90,7 +90,7 @@ def Update():
         Category2.ElementsX = ElementsX
         Category2.ElementsY = ElementsY
 
-    if OptionsScreen_CloseButton.ButtonState == "UP":
+    if OptionsScreen_CloseButton .ButtonState == 2:
         transition.Run()
         gameMain.CurrentScreen = ScreenToReturn
 

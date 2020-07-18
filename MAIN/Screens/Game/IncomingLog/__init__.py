@@ -71,7 +71,7 @@ def Update():
     global ReceiveLog_Y_AnimEnabled
     global ObjsDeletionTime
 
-    if ReceiveLog_CloseButton.ButtonState == "UP":
+    if ReceiveLog_CloseButton .ButtonState == 2:
         ReceiveLog_Y_AnimEnabled = True
 
     # -- Update Buttons Location -- #

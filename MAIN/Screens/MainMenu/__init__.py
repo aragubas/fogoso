@@ -181,19 +181,21 @@ def Update():
 
     if ControlsInitialized:
         # -- Menu Buttons Click -- #
-        if PlayButton.ButtonState == "UP":
+        if PlayButton .ButtonState == 2:
             Animation_NextScreen = 1
             Animation_Enabled = True
-        if SettingsButton.ButtonState == "UP":
+
+        if SettingsButton .ButtonState == 2:
             Animation_NextScreen = 2
             Animation_Enabled = True
-        if IntroSpriteButton.ButtonState == "UP":
+
+        if IntroSpriteButton .ButtonState == 2:
             Animation_NextScreen = -1
             Animation_Enabled = True
 
         # -- Update EverdayDay Message Next Button -- #
         if not EverdayMessageWindow.WindowMinimized:
-            if EverdayMessage_GenerateNewMessageButton.ButtonState == "UP":
+            if EverdayMessage_GenerateNewMessageButton .ButtonState == 2:
                 EverdayMessage_UpdateMessage = True
 
             # -- Set Location -- #

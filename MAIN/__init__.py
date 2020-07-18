@@ -123,7 +123,7 @@ def GeneratedWindowTitle():
         NumberMax = reg.ReadKey_int("/strings/gme_wt/all")
         Current = randint(0, NumberMax)
 
-        taiyouMain.ReceiveCommand("SET_TITLE;{0}{1}".format("Fogoso : ", reg.ReadKey("/strings/gme_wt/" + str(Current))))
+        taiyouMain.ReceiveCommand(9, "Fogoso : {0}".format(reg.ReadKey("/strings/gme_wt/{0}".format(Current))))
 
 def Update():  # -- Engine Required Function
     global CursorW
@@ -183,24 +183,32 @@ def ScreenDraw(DefaultDisplay):
 def ScreenEventUpdate(event):
     if CurrentScreen == -1:
         ScreenIntro.EventUpdate(event)
+
     elif CurrentScreen == 0:
         ScreenMenu.EventUpdate(event)
+
     elif CurrentScreen == 1:
         ScreenGame.EventUpdate(event)
+
     elif CurrentScreen == 2:
         ScreenSettings.EventUpdate(event)
+
     elif CurrentScreen == 3:
         ScreenMap.EventUpdate(event)
 
 def ScreensInitialize(DISPLAY):
     if CurrentScreen == -1:
         ScreenIntro.Initialize(DISPLAY)
+
     elif CurrentScreen == 0:
         ScreenMenu.Initialize(DISPLAY)
+
     elif CurrentScreen == 1:
         ScreenGame.Initialize(DISPLAY)
+
     elif CurrentScreen == 2:
         ScreenSettings.Initialize()
+
     elif CurrentScreen == 3:
         ScreenMap.Initialize()
 
@@ -274,8 +282,8 @@ def SetWindowParameters():
 
     DefaultDisplay = pygame.Surface((reg.ReadKey_int("/props/default_resW"), reg.ReadKey_int("/props/default_resH")))
 
-    taiyouMain.ReceiveCommand("SET_RESOLUTION:{0}:{1}".format(str(reg.ReadKey_int("/props/default_resW")), str(reg.ReadKey_int("/props/default_resH"))))
-    taiyouMain.ReceiveCommand("SET_FPS:" + str(Engine_MaxFPS))
+    taiyouMain.ReceiveCommand(1, "{0}x{1}".format(str(reg.ReadKey_int("/props/default_resW")), str(reg.ReadKey_int("/props/default_resH"))))
+    taiyouMain.ReceiveCommand(0, Engine_MaxFPS)
 
 def WriteErrorLog(ex, func, ExitWhenFinished=False):
     global LastErrorText
