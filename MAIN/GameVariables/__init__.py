@@ -84,6 +84,8 @@ def LoadSaveData():
     global CurrentDate_SecondLimiter
     global CurrentDate_YearLimiter
 
+    print("Fogoso.SaveManager : Loading Save Data...")
+
     # -- Load Money and Click Variables -- #
     Current_Money = reg.ReadAppData_WithTry("money", float, 0.0)
     Current_MoneyValuePerClick = reg.ReadAppData_WithTry("money_per_click", float, 0.50)
@@ -116,6 +118,8 @@ def LoadSaveData():
     maintenance.BaseMaintenance = reg.ReadAppData_WithTry("maintenance_base_price", float, 15.0)
 
     gameItems.LoadItems()
+    print("Fogoso.SaveManager : Operation Completed.")
+
 
 def SaveData():
     global CurrentDate_Day

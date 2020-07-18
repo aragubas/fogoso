@@ -54,40 +54,16 @@ def Initialize():
 
 CurrentCategory = 0 # 0 - Maintenance Info
 DrawnSurfaceGlob = pygame.Surface
-TransitionSurface = pygame.Surface((0,0))
-TransitionEnabled = False
-TransitionY = 1
-TransitionAdder = 1
-TransitionBGSurf = pygame.Surface((0,0))
+
 def Render(DISPLAY):
     global WindowObject
     global DrawnSurface
     global NextButton
     global PreviousButton
     global DrawnSurfaceGlob
-    global TransitionSurface
-    global TransitionEnabled
-    global TransitionY
-    global TransitionBGSurf
-    global TransitionAdder
+
     # -- Update the Surface -- #
     DrawnSurface = pygame.Surface((WindowObject.WindowSurface_Rect[2], WindowObject.WindowSurface_Rect[3]), pygame.SRCALPHA)
-
-    if TransitionEnabled and reg.ReadKey_bool("/OPTIONS/Windows_transitions"):
-        # -- Render the Transition Surface -- #
-        TransitionBGSurf = pygame.Surface((DrawnSurface.get_width(),DrawnSurface.get_height()), pygame.SRCALPHA)        
-        TransitionBGSurf.blit(TransitionSurface, (0, TransitionY))
-        DrawnSurface.blit(sprite.Surface_Blur(TransitionBGSurf,1.0 + TransitionY / 4), (0,0))
-
-        TransitionAdder += 1
-        TransitionY += TransitionAdder
-
-        # -- Detect Animation End -- #
-        if TransitionY >= DrawnSurface.get_height() - TransitionAdder:
-            TransitionY = 1
-            TransitionEnabled = False
-            TransitionSurface = DrawnSurface.copy()
-        
 
     # -- Draw the Top Bar -- #
     sprite.Shape_Rectangle(DrawnSurface, (1, 22, 39, 100), (0, 0, DrawnSurface.get_width(), 20))
@@ -100,17 +76,18 @@ def Render(DISPLAY):
     # -- Draw the Category -- #
     if CurrentCategory == 0:
         DrawCategory_0(DrawnSurface)
+
     if CurrentCategory == 1:
         DrawCategory_1(DrawnSurface)
 
     # -- Update Controls -- #
     UpdateControls(DrawnSurface)
 
-    #sprite.RenderFont(DrawnSurface, "/PressStart2P.ttf", 10, reg.ReadKey("/strings/window/infos/txt_previuos_best") + str("{:5.2f}".format(reg.ReadKey_float("/Save/money_per_click_last_best"))), (140, 240, 140), 5, 95)
-
     WindowObject.Render(DISPLAY)
     DISPLAY.blit(DrawnSurface, (WindowObject.WindowSurface_Rect[0], WindowObject.WindowSurface_Rect[1]))
     DrawnSurfaceGlob = DrawnSurface
+
+
 
 # -- Maintenance Category -- #
 def DrawCategory_0(DISPLAY):
@@ -146,35 +123,19 @@ def EventUpdate(event):
     global NextButton
     global PreviousButton
     global CurrentCategory
-    global TransitionSurface
     global DrawnSurfaceGlob
-    global TransitionEnabled
-    global TransitionY
-    global TransitionAdder
     WindowObject.EventUpdate(event)
     NextButton.Update(event)
     PreviousButton.Update(event)
 
     if PreviousButton .ButtonState == 2:
         if CurrentCategory > 0:
-            TransitionSurface = DrawnSurfaceGlob.copy()
             CurrentCategory -= 1
         else:
             CurrentCategory = reg.ReadKey_int("/strings/window/infos/category_max")
-        # -- Trigger Transition Animation (if enabled) -- #
-        if reg.ReadKey_bool("/OPTIONS/Windows_transitions"):
-            TransitionEnabled = True
-            TransitionY = 0
-            TransitionAdder = 1
 
     if NextButton .ButtonState == 2:
         if CurrentCategory < reg.ReadKey_int("/strings/window/infos/category_max"):
-            TransitionSurface = DrawnSurfaceGlob.copy()
             CurrentCategory += 1
         else:
             CurrentCategory = 0
-        # -- Trigger Transition Animation (if enabled) -- #
-        if reg.ReadKey_bool("/OPTIONS/Windows_transitions"):
-            TransitionEnabled = True
-            TransitionY = 0
-            TransitionAdder = 1

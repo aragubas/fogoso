@@ -24,6 +24,14 @@ import pygame
 import random
 from Fogoso.MAIN import GameItems as gameItems
 
+# -- UI Color -- #
+# -- Buttons Color -- #
+Button_Active_IndicatorColor = (46, 196, 182)
+Button_Active_BackgroundColor = (15, 27, 44, 150)
+Button_Inactive_IndicatorColor = (255, 51, 102)
+Button_Inactive_BackgroundColor = (1, 22, 39, 150)
+Button_BackgroundColor = (12, 22, 14)
+
 
 print("Game : Classes Utils v1.1")
 
@@ -123,43 +131,39 @@ class Button:
         self.Rectangle = Rectangle
         self.ButtonText = ButtonText
         self.TextSize = TextSize
-        self.ButtonState = "INATIVE"
+        self.ButtonState = 0 # 0 - INACTIVE, 1 - DOWN, 2 - UP
+        self.FontFile = "/PressStart2P.ttf"
         self.IsButtonEnabled = True
-        self.WhiteButton = False
-        self.Rectangle = pygame.rect.Rect(self.Rectangle[0], self.Rectangle[1],
-                                          sprite.GetFont_width("/PressStart2P.ttf", self.TextSize,
-                                                               self.ButtonText) + 5,
-                                          sprite.GetFont_height("/PressStart2P.ttf", self.TextSize,
-                                                                self.ButtonText) + 3)
+        self.Rectangle = pygame.rect.Rect(self.Rectangle[0], self.Rectangle[1], sprite.GetFont_width(self.FontFile, self.TextSize, self.ButtonText) + 5, sprite.GetFont_height(self.FontFile, self.TextSize, self.ButtonText) + 6)
+        self.LastRect = self.Rectangle
         self.CursorSettedToggle = False
         self.ButtonDowed = False
         self.ColisionRectangle = self.Rectangle
         self.CustomColisionRectangle = False
-        self.BackgroundColor = (1, 22, 39)
-        self.ButtonSurface = pygame.Surface((self.Rectangle[2], self.Rectangle[3]))
-        self.ButtonSurfaceUpdated = False
+        self.BackgroundColor = Button_BackgroundColor
+        self.SurfaceUpdated = False
+        self.LastRect = pygame.Rect(0, 0, 0, 0)
+        self.Surface = pygame.Surface((Rectangle[2], Rectangle[3]))
 
     def Update(self, event):
+        # -- Set the Custom Colision Rectangle -- #
         if not self.CustomColisionRectangle:
             self.ColisionRectangle = self.Rectangle
+        else:
+            self.ColisionRectangle = pygame.Rect(self.ColisionRectangle[0], self.ColisionRectangle[1], self.Rectangle[2], self.Rectangle[3])
 
-        if not self.ButtonSurfaceUpdated:
-            self.ButtonSurfaceUpdated = False
-            self.ButtonSurface = pygame.Surface((self.Rectangle[2], self.Rectangle[3]))
-
-        if self.IsButtonEnabled:
-            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+        if self.IsButtonEnabled:  # -- Only update the button, when is enabled.
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:  # Set the button to the DOWN state
                 if self.ColisionRectangle.collidepoint(mainScript.Cursor_Position):
-                    self.ButtonState = "DOWN"
+                    self.ButtonState = 1
                     self.ButtonDowed = True
 
-            elif event.type == pygame.MOUSEBUTTONUP and event.button == 1:
-                if self.ColisionRectangle.collidepoint(mainScript.Cursor_Position):
-                    if self.ButtonDowed:
-                        self.ButtonState = "UP"
-                        self.ButtonDowed = False
+            elif event.type == pygame.MOUSEBUTTONUP and event.button == 1:  # Set the button to the UP state
+                if self.ButtonDowed:
+                    self.ButtonState = 2
+                    self.ButtonDowed = False
 
-            if event.type == pygame.MOUSEMOTION:
+            if event.type == pygame.MOUSEMOTION:  # Change the Cursor
                 if self.ColisionRectangle.collidepoint(mainScript.Cursor_Position):
                     self.CursorSettedToggle = True
                     mainScript.Cursor_CurrentLevel = 3
@@ -167,17 +171,13 @@ class Button:
                     if self.CursorSettedToggle:
                         self.CursorSettedToggle = False
                         mainScript.Cursor_CurrentLevel = 0
-                        self.ButtonState = "INATIVE"
+                        self.ButtonState = 0
 
         else:
-            self.ButtonState = "INATIVE"
-
-        if not self.WhiteButton:
-            self.Rectangle = pygame.rect.Rect(self.Rectangle[0], self.Rectangle[1],
-                                              sprite.GetFont_width("/PressStart2P.ttf", self.TextSize,
-                                                                   self.ButtonText) + 5,
-                                              sprite.GetFont_height("/PressStart2P.ttf", self.TextSize,
-                                                                    self.ButtonText) + 3)
+            self.ButtonState = 0
+            if self.CursorSettedToggle:
+                self.CursorSettedToggle = False
+                mainScript.Cursor_CurrentLevel = 0
 
     def Set_X(self, Value):
         self.Rectangle[0] = Value
@@ -187,11 +187,9 @@ class Button:
 
     def Set_Width(self, Value):
         self.Rectangle[2] = Value
-        self.ButtonSurfaceUpdated = True
 
     def Set_Height(self, Value):
         self.Rectangle[3] = Value
-        self.ButtonSurfaceUpdated = True
 
     def Set_ColisionX(self, Value):
         self.ColisionRectangle[0] = Value
@@ -203,47 +201,43 @@ class Button:
         self.ButtonText = Value
 
     def Render(self, DISPLAY):
-        # -- Render the Background -- #
-        sprite.Shape_Rectangle(self.ButtonSurface, self.BackgroundColor, (0, 0, self.Rectangle[2], self.Rectangle[3]), 0, 0, 5, 5)
+        # -- Update the Surface -- #
+        self.Rectangle = pygame.rect.Rect(self.Rectangle[0], self.Rectangle[1], sprite.GetFont_width(self.FontFile, self.TextSize, self.ButtonText) + 5, sprite.GetFont_height(self.FontFile, self.TextSize, self.ButtonText) + 6)
 
-        if not self.WhiteButton:
-            if self.ButtonState == "INATIVE":
-                self.BackgroundColor = (1, 22, 39)
+        # -- Update the Rect Wheen Needed -- #
+        if self.Rectangle == self.LastRect:
+            self.Surface = pygame.Surface((self.Rectangle[2], self.Rectangle[3]))
 
-                # -- Indicator Bar -- #
-                sprite.Shape_Rectangle(self.ButtonSurface, (255, 51, 102), (0, 0, self.Rectangle[2], 1))
+        # -- Update Surface when the size is changed -- #
+        if not self.LastRect == self.Rectangle:
+            self.SurfaceUpdated = False
+            self.LastRect = self.Rectangle
 
-                # -- Text -- #
-                sprite.FontRender(self.ButtonSurface, "/PressStart2P.ttf", self.TextSize, self.ButtonText, (200, 200, 200),
-                                  3, 3, reg.ReadKey_bool("/OPTIONS/font_aa"))
+        # -- Set the Button Colors -- #
+        IndicatorColor = (0, 0, 0)
 
-            else:
-                # -- Background -- #
-                self.BackgroundColor = (15, 27, 44)
-                # -- Indicator Bar -- #
-                sprite.Shape_Rectangle(self.ButtonSurface, (46, 196, 182), (0, 0, self.Rectangle[2], 1))
+        if self.ButtonState == 0:
+            IndicatorColor = Button_Inactive_IndicatorColor
+            self.BackgroundColor = Button_Inactive_BackgroundColor
 
-                # -- Text -- #
-                sprite.FontRender(self.ButtonSurface, "/PressStart2P.ttf", self.TextSize, self.ButtonText, (255, 255, 255),
-                                  3, 3, reg.ReadKey_bool("/OPTIONS/font_aa"))
-        else:
-            if self.ButtonState == "INATIVE":
-                # -- Background -- #
-                self.BackgroundColor = (1, 22, 39)
+        elif self.ButtonState == 1:
+            IndicatorColor = Button_Active_IndicatorColor
+            self.BackgroundColor = Button_Active_BackgroundColor
 
-                # -- Indicator Bar -- #
-                sprite.Shape_Rectangle(self.ButtonSurface, (255, 51, 102), (0, 0, self.Rectangle[2], 4))
+        # -- Render Background -- #
+        self.Surface.fill(self.BackgroundColor)
 
-            else:
-                # -- Background -- #
-                self.BackgroundColor = (15, 27, 44)
-                # -- Indicator Bar -- #
-                sprite.Shape_Rectangle(self.ButtonSurface, (46, 196, 182), (0, 0, self.Rectangle[2], 2))
+        # -- Indicator Bar -- #
+        sprite.Shape_Rectangle(self.Surface, IndicatorColor, (0, 0, self.Rectangle[2], 2), 0, 0)
+
+        # -- Text -- #
+        sprite.FontRender(self.Surface, self.FontFile, self.TextSize, self.ButtonText, (200, 200, 200), 3, 3, reg.ReadKey_bool("/OPTIONS/font_aa"))
 
         # -- Draw the Button -- #
-        DISPLAY.blit(self.ButtonSurface, (self.Rectangle[0], self.Rectangle[1]))
-        if self .ButtonState == 2:
-            self.ButtonState = "INATIVE"
+        DISPLAY.blit(self.Surface, (self.Rectangle[0], self.Rectangle[1]))
+
+        if self.ButtonState == 2:
+            self.ButtonState = 0
 
 class UpDownButton:
     def __init__(self, X, Y, TextSize):
@@ -252,7 +246,7 @@ class UpDownButton:
         self.TextSize = TextSize
         self.UpButton = Button(pygame.Rect(X, Y, 20, 20), "/\\", TextSize)
         self.DownButton = Button(pygame.Rect(X + sprite.GetFont_width("/PressStart2P.ttf", TextSize, "\/") + 5, Y, 20, 20), "\/", TextSize)
-        self.ButtonState = "INATIVE"
+        self.ButtonState = 0
         self.BackStateWaitLoop = 0
         print("ObjectCreation : UpDownButton created.")
 
@@ -260,20 +254,20 @@ class UpDownButton:
         self.UpButton.Update(event)
         self.DownButton.Update(event)
 
-        if self.UpButton .ButtonState == 2:
-            self.ButtonState = "UP"
+        if self.UpButton.ButtonState == 2:
+            self.ButtonState = 2
         if self.DownButton .ButtonState == 2:
-            self.ButtonState = "DOWN"
+            self.ButtonState = 1
 
     def Render(self, DISPLAY):
         self.UpButton.Render(DISPLAY)
         self.DownButton.Render(DISPLAY)
 
-        if self .ButtonState == 2 or self.ButtonState == "DOWN":
+        if self.ButtonState == 2 or self.ButtonState == 1:
             self.BackStateWaitLoop += 1
 
             if self.BackStateWaitLoop >= 1:
-                self.ButtonState = "INATIVE"
+                self.ButtonState = 0
                 self.BackStateWaitLoop = 0
 
     def Get_Width(self):

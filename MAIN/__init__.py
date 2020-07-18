@@ -159,24 +159,32 @@ def SendErrorMessage(Message):
 def ScreensUpdate():
     if CurrentScreen == -1:
         ScreenIntro.Update()
+
     elif CurrentScreen == 0:
         ScreenMenu.Update()
+
     elif CurrentScreen == 1:
         ScreenGame.Update()
+
     elif CurrentScreen == 2:
         ScreenSettings.Update()
+
     elif CurrentScreen == 3:
         ScreenMap.Update()
 
 def ScreenDraw(DefaultDisplay):
     if CurrentScreen == -1:
         ScreenIntro.GameDraw(DefaultDisplay)
+
     elif CurrentScreen == 0:
         ScreenMenu.GameDraw(DefaultDisplay)
+
     elif CurrentScreen == 1:
         ScreenGame.GameDraw(DefaultDisplay)
+
     elif CurrentScreen == 2:
         ScreenSettings.GameDraw(DefaultDisplay)
+
     elif CurrentScreen == 3:
         ScreenMap.GameDraw(DefaultDisplay)
 
@@ -275,6 +283,7 @@ def Initialize(DISPLAY):  # -- Engine Required Function
 def Unload():  # -- Engine Required Function
     gameVar.Unload()
     ScreenGame.Unload()
+
 
 def SetWindowParameters():
     global DefaultDisplay

@@ -266,9 +266,6 @@ class Item_AutoClicker:
             self.ActivationPerSecound()
 
         elif self.ActivationType == 1:
-            self.ActivationPerMinute()
-
-        elif self.ActivationType == 2:
             self.ActivationPerConstantFlux()
 
     def ActivationPerSecound(self):
@@ -278,27 +275,6 @@ class Item_AutoClicker:
 
         elif self.ItemRoll == 0:
             if gameMain.save.CurrentDate_Second >= int(self.SecoundTimeAction):
-                self.ItemIsActivated = True
-                self.DeltaTimeAction = self.InstanceID + 5
-
-        if self.ItemIsActivated:
-            self.DeltaTime += 1
-
-            if self.DeltaTime >= self.DeltaTimeAction:
-                self.DeltaTime = 0
-                self.DeltaTimeAction = 0
-                self.ItemIsActivated = False
-                self.ItemRoll += 1
-
-                self.ItemAction()
-
-    def ActivationPerMinute(self):
-        if self.ItemRoll == 1:
-            if gameMain.save.CurrentDate_Minute == 0:
-                self.ItemRoll = 0
-
-        if self.ItemRoll == 0:
-            if gameMain.save.CurrentDate_Minute >= int(self.SecoundTimeAction):
                 self.ItemIsActivated = True
                 self.DeltaTimeAction = self.InstanceID + 5
 
@@ -331,7 +307,6 @@ class Item_AutoClicker:
                 self.ItemRoll += 1
 
                 self.ItemAction()
-
 
     def ReloadStatus(self):
         self.ItemLevel = GetItemLevel_ByID(self.ItemID)

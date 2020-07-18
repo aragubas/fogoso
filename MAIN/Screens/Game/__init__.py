@@ -118,6 +118,24 @@ def UpdateSavingScreen(DISPLAY):
     global SavingScreenCopyOfScreen
     global HUD_Surface
 
+    # -- Copy the Screen -- #
+    if not SavingScreen_DISPLAYCopied:
+        SavingScreenCopyOfScreen = HUD_Surface.copy()
+        SavingScreen_DISPLAYCopied = True
+
+    # -- Draw the Blurred Background -- #
+    DISPLAY.blit(sprite.Surface_Blur(SavingScreenCopyOfScreen, BackgroundAnim_Numb * 9), (0, 0))
+
+    SavingText = reg.ReadKey("/strings/game/save_screen/title")
+    SavingStatusText = reg.ReadKey("/strings/game/save_screen/message")
+    TextsOpacity = BackgroundAnim_Numb * 8.5
+
+    TextSavingX = DISPLAY.get_width() / 2 - sprite.GetFont_width("/PressStart2P.ttf", 50, SavingText) / 2
+    TextSavingY = DISPLAY.get_height() / 2 - sprite.GetFont_height("/PressStart2P.ttf", 50, SavingText) / 2 - 100
+
+    sprite.FontRender(DISPLAY, "/PressStart2P.ttf", 50, SavingText, (250, 250, 255), TextSavingX, TextSavingY, reg.ReadKey_bool("/OPTIONS/font_aa"), Opacity=TextsOpacity)
+    sprite.FontRender(DISPLAY, "/PressStart2P.ttf", 35, SavingStatusText, (250, 250, 255), DISPLAY.get_width() / 2 - sprite.GetFont_width("/PressStart2P.ttf", 35, SavingStatusText) / 2, TextSavingY + 100, reg.ReadKey_bool("/OPTIONS/font_aa"), Opacity=TextsOpacity)
+
     # -- Run the Animation -- #
     if BackgroundAnim_Enabled:
         if BackgroundAnim_Type == 0:
@@ -138,24 +156,7 @@ def UpdateSavingScreen(DISPLAY):
                 SavingScreenEnabled = False
                 IsControlsEnabled = True
                 SavingScreen_DISPLAYCopied = False
-
-    # -- Copy the Screen -- #
-    if not SavingScreen_DISPLAYCopied:
-        SavingScreenCopyOfScreen = HUD_Surface.copy()
-        SavingScreen_DISPLAYCopied = True
-
-    # -- Draw the Blurred Background -- #
-    DISPLAY.blit(sprite.Surface_Blur(SavingScreenCopyOfScreen, BackgroundAnim_Numb * 3.5), (0,0))
-
-    SavingText = reg.ReadKey("/strings/game/save_screen/title")
-    SavingStatusText = reg.ReadKey("/strings/game/save_screen/message")
-    TextsOpacity = BackgroundAnim_Numb * 8.5
-
-    TextSavingX = DISPLAY.get_width() / 2 - sprite.GetFont_width("/PressStart2P.ttf", 50, SavingText) / 2
-    TextSavingY = DISPLAY.get_height() / 2 - sprite.GetFont_height("/PressStart2P.ttf", 50, SavingText) / 2 - 100
-
-    sprite.FontRender(DISPLAY, "/PressStart2P.ttf", 50, SavingText, (250, 250, 255), TextSavingX, TextSavingY, reg.ReadKey_bool("/OPTIONS/font_aa"), Opacity=TextsOpacity)
-    sprite.FontRender(DISPLAY, "/PressStart2P.ttf", 35, SavingStatusText, (250, 250, 255), DISPLAY.get_width() / 2 - sprite.GetFont_width("/PressStart2P.ttf", 35, SavingStatusText) / 2, TextSavingY + 100, reg.ReadKey_bool("/OPTIONS/font_aa"), Opacity=TextsOpacity)
+                SavingScreenCopyOfScreen.fill((0, 0, 0))
 
 def Update():
     global GameOptionsButton
@@ -172,22 +173,29 @@ def Update():
     global SaveInitializedDelta
     global SaveInitializeMessageSent
     global GameLoadToggle
-    global GameLoadToggle
 
     # -- Load Save -- #
     if not GameLoadToggle:
-        if SaveInitializedDelta >= 1:
+        if reg.ReadKey_bool("/OPTIONS/debug_enabled"):
+            tge.Set_SaveFolder("Aragubas/")
             GameLoadToggle = True
-            SaveInitializeMessageSent = False
+            SaveInitializeMessageSent = True
             SaveInitializedDelta = 0
 
             LoadGame()
-
         else:
-            if not SaveInitializeMessageSent:
-                taiyouMain.ReceiveCommand(10)
+            if SaveInitializedDelta >= 1:
+                GameLoadToggle = True
                 SaveInitializeMessageSent = True
-            SaveInitializedDelta += 1
+                SaveInitializedDelta = 0
+
+                LoadGame()
+
+            else:
+                if not SaveInitializeMessageSent:
+                    taiyouMain.ReceiveCommand(10)
+                    SaveInitializeMessageSent = True
+                SaveInitializedDelta += 1
 
     if IsControlsEnabled:
         # -- Update Save -- #
@@ -318,36 +326,36 @@ def GameDraw(DISPLAY):
     global SavingScreenEnabled
     global BlinkExperienceValue
     global HUD_Surface
-    global GameLoadToggle
+    global SaveInitializeMessageSent
 
     if SavingScreenEnabled:
         UpdateSavingScreen(DISPLAY)
 
-    if not SavingScreenEnabled:
-        HUD_Surface.fill((5, 13, 17))
+    if not SavingScreenEnabled and SaveInitializeMessageSent:
+        #DISPLAY.fill((5, 13, 17))
 
         # -- Draw the Grind Text -- #
-        IncomingLog.Draw(HUD_Surface)
+        IncomingLog.Draw(DISPLAY)
         # -- Draw the Grind Button -- #
-        GrindButton.Render(HUD_Surface)
+        GrindButton.Render(DISPLAY)
         # -- Draw the Options Button -- #
-        GameOptionsButton.Render(HUD_Surface)
+        GameOptionsButton.Render(DISPLAY)
         # -- Draw the Save Button -- #
-        SaveButton.Render(HUD_Surface)
+        SaveButton.Render(DISPLAY)
         # -- Draw the BackToMenu button -- #
-        BackToMainMenuButton.Render(HUD_Surface)
+        BackToMainMenuButton.Render(DISPLAY)
         # -- Draw the Store Button -- #
-        OpenStoreButton.Render(HUD_Surface)
+        OpenStoreButton.Render(DISPLAY)
         # -- Draw the Items View -- #
-        ItemsView.Render(HUD_Surface)
+        ItemsView.Render(DISPLAY)
         # -- Draw the OpenInfosWindow -- #
-        OpenInfosWindowButton.Render(HUD_Surface)
+        OpenInfosWindowButton.Render(DISPLAY)
         # -- Draw the OpenExperience -- #
         if gameItems.GetItemCount_ByID(-1) == 1:
-            OpenExperienceWindowButton.Render(HUD_Surface)
+            OpenExperienceWindowButton.Render(DISPLAY)
 
         # -- Render Money Text -- #
-        MoneyColor = (250,250,255)
+        MoneyColor = (250, 250, 255)
         PerSecoundColor = (220, 220, 220)
         if save.Current_Money > 0.1:
             MoneyColor = (120, 220, 120)
@@ -360,41 +368,35 @@ def GameDraw(DISPLAY):
 
         # -- Render Current Money, at Top -- #
         MoneyText = reg.ReadKey("/strings/game/money") + save.Current_MoneyFormated
-        sprite.FontRender(HUD_Surface, "/PressStart2P.ttf", 18, reg.ReadKey("/strings/game/money") + save.Current_MoneyFormated, (0, 0, 0), 12, 22)
-        sprite.FontRender(HUD_Surface, "/PressStart2P.ttf", 18, MoneyText, MoneyColor, 10, 20)
+        sprite.FontRender(DISPLAY, "/PressStart2P.ttf", 18, reg.ReadKey("/strings/game/money") + save.Current_MoneyFormated, (0, 0, 0), 12, 22)
+        sprite.FontRender(DISPLAY, "/PressStart2P.ttf", 18, MoneyText, MoneyColor, 10, 20)
 
         # -- Render Money per Second -- #
         MoneyPerSecoundText = reg.ReadKey("/strings/game/money_per_secound") + save.Current_MoneyPerSecondFormatted
-        sprite.FontRender(HUD_Surface, "/PressStart2P.ttf", 18, MoneyPerSecoundText, (0, 0, 0), 12, 52)
-        sprite.FontRender(HUD_Surface, "/PressStart2P.ttf", 18, MoneyPerSecoundText, PerSecoundColor, 10, 50)
+        sprite.FontRender(DISPLAY, "/PressStart2P.ttf", 18, MoneyPerSecoundText, (0, 0, 0), 12, 52)
+        sprite.FontRender(DISPLAY, "/PressStart2P.ttf", 18, MoneyPerSecoundText, PerSecoundColor, 10, 50)
 
         # -- Render Experience -- #
         ExperienceText = reg.ReadKey("/strings/game/experience") + str(save.Current_ExperienceFormated) + "/" + str(save.Current_TotalClicks - save.Current_TotalClicksNext) + "=" + str(save.Current_ExperiencePerEach)
-        sprite.FontRender(HUD_Surface, "/PressStart2P.ttf", 18, ExperienceText, (BlinkExperienceValue, BlinkExperienceValue, BlinkExperienceValue), 12, 82)
-        sprite.FontRender(HUD_Surface, "/PressStart2P.ttf", 18, ExperienceText, (140 + BlinkExperienceValue, 130 + BlinkExperienceValue, 120 + BlinkExperienceValue), 10, 80)
+        sprite.FontRender(DISPLAY, "/PressStart2P.ttf", 18, ExperienceText, (BlinkExperienceValue, BlinkExperienceValue, BlinkExperienceValue), 12, 82)
+        sprite.FontRender(DISPLAY, "/PressStart2P.ttf", 18, ExperienceText, (140 + BlinkExperienceValue, 130 + BlinkExperienceValue, 120 + BlinkExperienceValue), 10, 80)
 
         # -- Render the Clock -- #
-        gameClock.Draw(HUD_Surface)
+        gameClock.Draw(DISPLAY)
 
         # -- Draw the Store Window -- #
         if StoreWindow_Enabled:
-            storeWindow.Render(HUD_Surface)
+            storeWindow.Render(DISPLAY)
 
         # -- Draw the Infos Window -- #
         if InfosWindow_Enabled:
-            infosWindow.Render(HUD_Surface)
+            infosWindow.Render(DISPLAY)
 
         # -- Draw the Exp Store Window -- #
         if ExperienceStore_Enabled and gameItems.GetItemCount_ByID(-1) >= 1:
-            expStoreWindow.Render(HUD_Surface)
+            expStoreWindow.Render(DISPLAY)
 
-        DISPLAY.blit(HUD_Surface, (0, 0))
-
-        # -- Update Surface Size -- #
-        if not HUD_Surface.get_width() == DISPLAY.get_width() or not HUD_Surface.get_height() == DISPLAY.get_height():
-            print("GameRenderMain : HUD_Surface has been updated.")
-            HUD_Surface = pygame.Surface((DISPLAY.get_width(), DISPLAY.get_height()), pygame.SRCALPHA)
-
+        HUD_Surface = DISPLAY.copy()
 
 def Initialize(DISPLAY):
     # -- Set Buttons -- #
@@ -429,9 +431,6 @@ def Initialize(DISPLAY):
 
     # -- Initialize the Screen -- #
     HUD_Surface = pygame.Surface((DISPLAY.get_width(), DISPLAY.get_height()))
-
-    if reg.ReadKey_bool("/OPTIONS/debug_enabled"):
-        tge.Set_SaveFolder("Aragubas/")
 
 
 def EventUpdate(event):
@@ -482,6 +481,7 @@ def EventUpdate(event):
 
 def Unload():
     RestartSavingThing()
+
 
 def RestartSavingThing():
     global SaveInitializedDelta

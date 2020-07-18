@@ -1,2 +1,2 @@
-# 0 = Activation on Delta Secound, 1 = Activation on Delta Minute, 2 = Constant Flux
-2
+# 0 = Activation on Delta Secound, 1 = Constant Flux
+1

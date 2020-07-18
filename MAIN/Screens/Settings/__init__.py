@@ -67,7 +67,7 @@ def Update():
             Current_Category = 0
         transition.Run()
 
-    if OptionsScreen_UpDownCategory.ButtonState == "DOWN":
+    if OptionsScreen_UpDownCategory.ButtonState == 1:
         MaxCategory = reg.ReadKey_int("/props/settings_max_category")
         Current_Category -= 1
         if Current_Category < 0:
@@ -120,8 +120,10 @@ def GameDraw(DISPLAY):
     # -- Render Categorys -- #
     if Current_Category == 0:
         Category0.Render(DISPLAY)
+
     if Current_Category == 1:
         Category1.Render(DISPLAY)
+
     if Current_Category == 2:
         Category2.Render(DISPLAY)
 
@@ -132,7 +134,7 @@ def Initialize():
     OptionsScreen_CloseButton = gameObjs.Button(pygame.rect.Rect(0, 5, 0, 0), reg.ReadKey("/strings/settings/back_button"), 14)
     OptionsScreen_UpDownCategory = gameObjs.UpDownButton(5,5,14)
 
-    gameMain.ClearColor = (1,24,32)
+    gameMain.ClearColor = (1, 24, 32)
 
     Category0.Initialize()
     Category1.Initialize()

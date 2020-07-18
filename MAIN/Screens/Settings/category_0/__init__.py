@@ -66,7 +66,7 @@ def Update():
     global OptionsScreen_FlashAnimStyle
     global OptionsScreen_SpritesAntiAlias
 
-    if OptionsScreen_ChangeFps .ButtonState == 2:
+    if OptionsScreen_ChangeFps.ButtonState == 2:
         print("MaxFPS is [" + str(gameMain.Engine_MaxFPS) + "]")
         gameMain.Engine_MaxFPS += 5
 
@@ -77,7 +77,7 @@ def Update():
         reg.WriteKey("/OPTIONS/maxFPS", str(gameMain.Engine_MaxFPS))
         print("MaxFPS is now set to[" + str(gameMain.Engine_MaxFPS) + "]")
 
-    if OptionsScreen_ChangeFps.ButtonState == "DOWN":
+    if OptionsScreen_ChangeFps.ButtonState == 1:
         print("MaxFPS is [" + str(gameMain.Engine_MaxFPS) + "]")
         gameMain.Engine_MaxFPS -= 5
 
@@ -88,27 +88,27 @@ def Update():
         reg.WriteKey("/OPTIONS/maxFPS", str(gameMain.Engine_MaxFPS))
         print("MaxFPS is now set to[" + str(gameMain.Engine_MaxFPS) + "]")
 
-    if OptionsScreen_FlashAnimationSpeed .ButtonState == 2:
+    if OptionsScreen_FlashAnimationSpeed.ButtonState == 2:
         print("Old FlashAnimationSpeed : " + str(reg.ReadKey_int("/OPTIONS/fade_flash_speed")))
         if transition.FadeEffectSpeed <= reg.ReadKey_int("/OPTIONS/props/fade_flash_speed_max"):
             transition.FadeEffectSpeed += 1
         reg.WriteKey("/OPTIONS/fade_flash_speed", str(transition.FadeEffectSpeed))
         print("New FlashAnimationSpeed : " + str(reg.ReadKey_int("/OPTIONS/fade_flash_speed")))
 
-    if OptionsScreen_FlashAnimationSpeed.ButtonState == "DOWN":
+    if OptionsScreen_FlashAnimationSpeed.ButtonState == 1:
         print("Old FlashAnimationSpeed : " + str(reg.ReadKey_int("/OPTIONS/fade_flash_speed")))
         if transition.FadeEffectSpeed >= 2:
             transition.FadeEffectSpeed -= 1
         reg.WriteKey("/OPTIONS/fade_flash_speed", str(transition.FadeEffectSpeed))
         print("New FlashAnimationSpeed : " + str(reg.ReadKey_int("/OPTIONS/fade_flash_speed")))
 
-    if OptionsScreen_FontAntiAlias .ButtonState == 2:
+    if OptionsScreen_FontAntiAlias.ButtonState == 2:
         if reg.ReadKey_bool("/OPTIONS/font_aa"):
             reg.WriteKey("/OPTIONS/font_aa", "False")
         else:
             reg.WriteKey("/OPTIONS/font_aa", "True")
 
-    if OptionsScreen_FlashAnimStyle .ButtonState == 2:
+    if OptionsScreen_FlashAnimStyle.ButtonState == 2:
         CurrentValue = reg.ReadKey_int("/OPTIONS/fade_flash_style")
         MaxValue = reg.ReadKey_int("/OPTIONS/props/fade_flash_style_max")
 
@@ -120,7 +120,7 @@ def Update():
         reg.WriteKey("/OPTIONS/fade_flash_style", str(CurrentValue))
         transition.FadeEffectStyle = CurrentValue
 
-    if OptionsScreen_FlashAnimStyle.ButtonState == "DOWN":
+    if OptionsScreen_FlashAnimStyle.ButtonState == 1:
         CurrentValue = reg.ReadKey_int("/OPTIONS/fade_flash_style")
         MaxValue = reg.ReadKey_int("/OPTIONS/props/fade_flash_style_max")
 
@@ -132,7 +132,7 @@ def Update():
         reg.WriteKey("/OPTIONS/fade_flash_style", str(CurrentValue))
         transition.FadeEffectStyle = CurrentValue
 
-    if OptionsScreen_SpritesAntiAlias .ButtonState == 2 or OptionsScreen_SpritesAntiAlias.ButtonState == "DOWN":
+    if OptionsScreen_SpritesAntiAlias .ButtonState == 2 or OptionsScreen_SpritesAntiAlias.ButtonState == 1:
         if reg.ReadKey_bool("/OPTIONS/sprite_aa"):
             reg.WriteKey("/OPTIONS/sprite_aa", "False")
         else:
