@@ -19,6 +19,7 @@ from ENGINE import REGISTRY as reg
 from Fogoso import MAIN as gameMain
 from random import randint
 from ENGINE import UTILS as utils
+from ENGINE import DEBUGGING as debug
 
 # -- Game Items Variables -- #
 ItemsList = list()
@@ -270,62 +271,33 @@ class Item_AutoClicker:
             self.ActivationPerConstantFlux()
 
     def ActivationPerSecound(self):
-        if self.ItemRoll == 1:
-            if gameMain.save.CurrentDate_Second == 0:
-                self.ItemRoll = 0
+        self.DeltaTime += 1
 
-        elif self.ItemRoll == 0:
-            if gameMain.save.CurrentDate_Second >= int(self.SecoundTimeAction):
-                self.ItemIsActivated = True
-                self.DeltaTimeAction = self.InstanceID + 5
+        if self.DeltaTime >= self.DeltaTimeAction:
+            self.DeltaTime = 0
+            self.DeltaTimeAction = 500 + self.InstanceID + self.SecoundTimeAction
 
-        if self.ItemIsActivated:
-            self.DeltaTime += 1
+            gameMain.ScreenGame.IncomingLog.AddMessageText("+" + str(self.ItemClickPerSecound), True, (100, 210, 100), self.ItemClickPerSecound)
+            if self.ExpMiningTotal > 0:
+                gameMain.ScreenGame.save.Current_Experience += self.ExpMiningTotal
+                gameMain.ScreenGame.IncomingLog.AddMessageText("€+" + str(self.ExpMiningTotal), False, (100, 110, 100))
 
-            if self.DeltaTime >= self.DeltaTimeAction:
-                self.DeltaTime = 0
-                self.DeltaTimeAction = 0
-                self.ItemIsActivated = False
-                self.ItemRoll += 1
-
-                gameMain.ScreenGame.IncomingLog.AddMessageText("+" + str(self.ItemClickPerSecound), True, (100, 210, 100), self.ItemClickPerSecound)
-                if self.ExpMiningTotal > 0:
-                    gameMain.ScreenGame.save.Current_Experience += self.ExpMiningTotal
-                    gameMain.ScreenGame.IncomingLog.AddMessageText("€+" + str(self.ExpMiningTotal), False, (100, 110, 100))
-
-                self.ReloadStatus()
+            self.ReloadStatus()
 
     def ActivationPerConstantFlux(self):
-        if self.ItemRoll == 1:
-            self.ItemRoll = 0
+        self.DeltaTime += 1
 
-        if self.ItemRoll == 0:
-            self.ItemIsActivated = True
-            self.DeltaTimeAction = self.InstanceID + 5
+        if self.DeltaTime >= self.DeltaTimeAction:
+            self.DeltaTime = 0
+            self.DeltaTimeAction = self.InstanceID + self.SecoundTimeAction
 
-        if self.ItemIsActivated:
-            self.DeltaTime += 1
+            TotalValue = self.ItemClickPerSecound * gameMain.save.Current_MoneyMultiplier
+            AdderText = "+{0}".format(utils.FormatNumber(TotalValue))
+            ExpValue = self.ExpMiningTotal
 
-            if self.DeltaTime >= self.DeltaTimeAction:
-                self.DeltaTime = 0
-                self.DeltaTimeAction = 0
-                self.ItemIsActivated = False
-                self.ItemRoll += 1
-
-                TotalValue = self.ItemClickPerSecound * GetItemCount_ByID(self.ItemID)
-                AdderText = "+" + utils.FormatNumber(TotalValue)
-                ExpValue = self.ExpMiningTotal * GetItemCount_ByID(self.ItemID)
-
-                # -- Check if item is already on the Receiving Log -- #
-                try:
-                    IndexTest = gameMain.ScreenGame.IncomingLog.TextGrind_Text.index(AdderText)
-
-                    self.ReloadStatus()
-
-                except ValueError:  # -- IF not, Execute Item Mining -- #
-                    gameMain.ScreenGame.IncomingLog.AddMessageText(AdderText, True, (150, 220, 150), TotalValue)
-                    gameMain.ScreenGame.IncomingLog.AddMessageText("€+" + str(ExpValue), True, (100, 110, 100))
-                    gameMain.save.Current_Experience += ExpValue
+            gameMain.ScreenGame.IncomingLog.AddMessageText(AdderText, True, (150, 220, 150), TotalValue)
+            gameMain.ScreenGame.IncomingLog.AddMessageText("€+{0}".format(str(ExpValue)), True, (100, 110, 100))
+            gameMain.save.Current_Experience += ExpValue
 
     def ReloadStatus(self):
         self.ItemLevel = GetItemLevel_ByID(self.ItemID)
@@ -379,7 +351,7 @@ class Item_ExperienceStore:
         self.maintenance_cost = reg.ReadKey_float("/ItemData/-1/lv_" + str(self.ItemLevel) + "_cost_maintenance")
 
     def ItemAction(self):
-        gameMain.ScreenGame.IncomingLog.AddMessageText("€+" + str(self.ItemExpPerSecound), False, (55, 45, 60))
+        gameMain.ScreenGame.IncomingLog.AddMessageText("€+{0}".format(str(self.ItemExpPerSecound)), False, (55, 45, 60))
         gameMain.save.Current_Experience += self.ItemExpPerSecound
 
         self.ReloadStatus()
@@ -391,7 +363,6 @@ class Item_Shop:
 
         self.ItemLevel = GetItemLevel_ByID(self.ItemID)
         self.maintenance_cost = reg.ReadKey_float("/ItemData/-2/lv_" + str(self.ItemLevel) + "_cost_maintenance")
-
 
     def Update(self):
         pass

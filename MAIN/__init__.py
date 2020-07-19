@@ -31,6 +31,7 @@ from Fogoso.MAIN import GameVariables as save
 from ENGINE import DEBUGGING as debug
 from Fogoso.MAIN import ScreenTransition as transition
 import pygame, sys, traceback
+from Fogoso.MAIN import OverlayDialog as dialog
 
 
 # -- Cursor Variables -- #
@@ -64,6 +65,8 @@ ErrorMessageDelay = 0
 CursorX = 0
 CursorY = 0
 
+OverlayDialogEnabled = False
+ScreenLastFrame = pygame.Surface((0, 0))
 
 def GameDraw(DISPLAY):  # -- Engine Required Function
     global DefaultDisplay
@@ -77,6 +80,8 @@ def GameDraw(DISPLAY):  # -- Engine Required Function
     global ErrorMessageEnabled
     global ErrorMessage
     global ErrorMessageDelay
+    global OverlayDialogEnabled
+    global ScreenLastFrame
 
     # -- Clear the Surface -- #
     DefaultDisplay = DISPLAY
@@ -84,11 +89,24 @@ def GameDraw(DISPLAY):  # -- Engine Required Function
 
     if not reg.ReadKey_bool("/OPTIONS/debug_enabled"):
         try:
-            ScreenDraw(DefaultDisplay)
+            if not OverlayDialogEnabled:
+                ScreenDraw(DefaultDisplay)
+
+                ScreenLastFrame = DefaultDisplay.copy()
+
+            else:
+                dialog.Draw(DISPLAY)
+
         except Exception as ex:
             WriteErrorLog(ex, "GameDraw", False)
     else:
-        ScreenDraw(DefaultDisplay)
+        if not OverlayDialogEnabled:
+            ScreenDraw(DefaultDisplay)
+
+            ScreenLastFrame = DefaultDisplay.copy()
+
+        else:
+            dialog.Draw(DISPLAY)
 
     # -- Render the Error Message -- #
     if ErrorMessageEnabled:
@@ -118,6 +136,7 @@ def GameDraw(DISPLAY):  # -- Engine Required Function
             LastErrorTextEnabled = False
             LastErrorText = ""
 
+
 def GeneratedWindowTitle():
     if reg.ReadKey_bool("/OPTIONS/random_title"):
         NumberMax = reg.ReadKey_int("/strings/gme_wt/all")
@@ -128,18 +147,26 @@ def GeneratedWindowTitle():
 def Update():  # -- Engine Required Function
     global CursorW
     global CursorH
-    
+    global OverlayDialogEnabled
+
     # -- Set the Cursor Size -- #
     CursorW = reg.ReadKey_int("/CursorSize/" + str(Cursor_CurrentLevel) + "/w")
     CursorH = reg.ReadKey_int("/CursorSize/" + str(Cursor_CurrentLevel) + "/h")
 
     if not reg.ReadKey_bool("/OPTIONS/debug_enabled"):
         try:
-            ScreensUpdate()
+            if not OverlayDialogEnabled:
+                ScreensUpdate()
+            else:
+                dialog.Update()
+
         except Exception as ex:
             WriteErrorLog(ex, "Update", True)
     else:
-        ScreensUpdate()
+        if not OverlayDialogEnabled:
+            ScreensUpdate()
+        else:
+            dialog.Update()
 
     # -- Update the Screen Transtion -- #
     try:
@@ -227,17 +254,26 @@ def EventUpdate(event):  # -- Engine Required Function
     global DefaultDisplay
     global CursorW
     global CursorH
+    global OverlayDialogEnabled
     # -- Update Cursor Location -- #
     if event.type == pygame.MOUSEMOTION:
         Cursor_Position[0], Cursor_Position[1] = pygame.mouse.get_pos()
 
     if not reg.ReadKey_bool("/OPTIONS/debug_enabled"):
         try:
-            ScreenEventUpdate(event)
+            if not OverlayDialogEnabled:
+                ScreenEventUpdate(event)
+            else:
+                dialog.EventUpdate(event)
+
         except Exception as ex:
             WriteErrorLog(ex, "EventUpdate", False)
     else:
-        ScreenEventUpdate(event)
+        if not OverlayDialogEnabled:
+            ScreenEventUpdate(event)
+        else:
+            dialog.EventUpdate(event)
+
 
 def LoadOptions():
     global Engine_ResH
@@ -279,6 +315,7 @@ def Initialize(DISPLAY):  # -- Engine Required Function
     else:
         ScreensInitialize(DISPLAY)
 
+    dialog.Initialize()
 
 def Unload():  # -- Engine Required Function
     gameVar.Unload()

@@ -103,7 +103,7 @@ def Update():
 
     for x, TextGrind_TxT in enumerate(TextGrind_Text):
         # -- Delete Object -- #
-        if x > 32 or not gameScr.IsControlsEnabled or TextGrind_Y[x] <= 0:
+        if x > 24 or not gameScr.IsControlsEnabled or TextGrind_Y[x] <= 0:
             if TextGrind_IsGrindText[x]:
                 AddMoney(TextGrind_Value[x])
 
@@ -119,7 +119,7 @@ def Update():
         else:
             # -- Move the Text -- #
             if TextGrind_IsGrindText[x]:
-                TextGrind_Y[x] -= sprite.GetFont_height("/PressStart2P.ttf", 18, TextGrind_TxT) / 2.55
+                TextGrind_Y[x] -= sprite.GetFont_height("/PressStart2P.ttf", 18, TextGrind_TxT) / max(1, 1.05 - x)
 
             else:
                 TextGrind_Y[x] -= sprite.GetFont_height("/PressStart2P.ttf", 18, TextGrind_TxT) / 5.5
@@ -145,7 +145,7 @@ def AddMessageText(Text, IsGrindText, TextColor, Value=0):
     global TextGrind_TextColor
     global TextGrind_Value
 
-    if len(TextGrind_Text) >= 32:  # -- Limit the Input of Items
+    if len(TextGrind_Text) >= 24:  # -- Limit the Input of Items
         if IsGrindText:
             AddMoney(Value, False)
 

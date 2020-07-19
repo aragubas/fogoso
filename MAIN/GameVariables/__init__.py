@@ -22,7 +22,7 @@ from Fogoso.MAIN import GameItems as gameItems
 from Fogoso.MAIN.Screens.Game import Maintenance as maintenance
 from Fogoso.MAIN.Window import StoreWindow as storeWindow
 from Fogoso.MAIN.Window import ExperienceStore as expStoreWindow
-
+from Fogoso.MAIN.Screens.Game import IncomingLog
 from ENGINE import UTILS as utils
 from random import randint
 import os
@@ -32,6 +32,7 @@ print("Fogoso Variables Management, version 1.5")
 # -- Money -- #
 Current_Money = 0.0
 Current_MoneyValuePerClick = 0.2
+Current_MoneyMultiplier = 1
 
 # -- Experience -- #
 Current_Experience = 250
@@ -313,3 +314,21 @@ def Update():
 
     # -- Update All Loaded Items -- #
     gameItems.UpdateItems()
+
+# -- Action when grinding -- #
+def GrindClick():
+    global Current_TotalClicks
+    global Current_TotalClicksNext
+    global Current_Experience
+    global Current_MoneyValuePerClick
+    global Current_ExperiencePerEach
+
+    Current_TotalClicks += 1
+
+    # -- €xp Mining -- #
+    if Current_TotalClicks == Current_TotalClicksNext:
+        Current_TotalClicksNext = Current_TotalClicks + Current_TotalClicksForEach
+        Current_Experience += Current_ExperiencePerEach
+        IncomingLog.AddMessageText("€+{0}".format(str(Current_ExperiencePerEach)), False, (150,150,150))
+
+    IncomingLog.AddMessageText("+{0}".format(str(Current_MoneyValuePerClick)), True, (20, 150, 25), Current_MoneyValuePerClick * Current_MoneyMultiplier)

@@ -65,11 +65,93 @@ def Draw_Panel(DISPLAY, Rectangle, DisableBlur=False):
 
     DISPLAY.blit(ResultPanel, (Rectangle[0], Rectangle[1]))
 
+COLOR_INACTIVE = (1, 22, 39)
+COLOR_ACTIVE = (15, 27, 44)
+
+class InputBox:
+    def __init__(self, x, y, w, h, text='LO', FontSize=12):
+        self.rect = pygame.Rect(x, y, w, h)
+        self.colisionRect = pygame.Rect(x, y, w, h)
+        self.CustomColision = False
+        self.color = COLOR_INACTIVE
+        self.text = text
+        self.active = False
+        self.DefaultText = text
+        self.LastHeight = 1
+        self.CustomWidth = False
+        self.width = 1
+        self.FontSize = FontSize
+        self.CharacterLimit = 0
+
+    def Set_X(self, Value):
+        if not self.rect[0] == Value:
+            self.rect = pygame.Rect(Value, self.rect[1], self.rect[2], self.rect[3])
+
+    def Set_Y(self, Value):
+        if not self.rect[1] == Value:
+            self.rect = pygame.Rect(self.rect[0], Value, self.rect[2], self.rect[3])
+
+    def Update(self, event):
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            # If the user clicked on the input_box rect.
+            if self.colisionRect.collidepoint(event.pos):
+                # Toggle the active variable.
+                self.active = not self.active
+            else:
+                self.active = False
+            # Change the current color of the input box.
+            self.color = COLOR_ACTIVE if self.active else COLOR_INACTIVE
+        if event.type == pygame.KEYDOWN:
+            if self.active:
+                if event.key == pygame.K_BACKSPACE:
+                    if len(self.text) > 0:
+                        self.text = self.text[:-1]
+                    else:
+                        self.text = self.DefaultText
+
+                else:
+                    if not self.CharacterLimit == 0:
+                        if len(self.text) < self.CharacterLimit:
+                            self.text += event.unicode
+                    else:
+                        self.text += event.unicode
+
+    def Render(self, screen):
+        # -- Resize the Textbox -- #
+        try:
+            if not self.CustomWidth:
+                self.width = max(100, sprite.GetFont_width(InputBox_FontFile, self.FontSize, self.text) + 10)
+            self.rect.w = self.width
+            self.rect.h = sprite.GetFont_height(InputBox_FontFile, self.FontSize, self.text)
+            self.LastHeight = self.rect.h
+        except:
+            if not self.CustomWidth:
+                self.rect.w = 100
+            self.rect.h = self.LastHeight
+
+        if not self.CustomColision:
+            self.colisionRect = self.rect
+
+        # Blit the rect.
+        Draw_Panel(screen, self.rect, "UP")
+
+        if self.text == self.DefaultText:
+            sprite.FontRender(screen, InputBox_FontFile, self.FontSize, self.text, (140, 140, 140), self.rect[0], self.rect[1])
+        else:
+            if not self.text == "":
+                sprite.FontRender(screen, InputBox_FontFile, self.FontSize, self.text, (240, 240, 240), self.rect[0], self.rect[1])
+
+        if not self.active:
+            sprite.Shape_Rectangle(screen, (255, 51, 102), (self.rect[0], self.rect[1] - 1, self.rect[2], 1))
+        else:
+            sprite.Shape_Rectangle(screen, (46, 196, 182), (self.rect[0], self.rect[1] - 1, self.rect[2], 1))
+
+
 class SpriteButton:
     def __init__(self, Rectangle, SpriteList):
         self.Rectangle = Rectangle
         self.SpriteList = SpriteList
-        self.ButtonState = "INATIVE"
+        self.ButtonState = 0
         self.CursorSettedToggle = False
         self.CustomColisionRectangle = False
         self.ButtonDowed = False

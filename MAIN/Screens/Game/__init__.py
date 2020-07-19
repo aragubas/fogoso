@@ -85,6 +85,9 @@ SaveInitializeMessageSent = False
 # -- Load/Save Functions -- #
 def LoadGame():
     global ItemsView
+    global GameLoadToggle
+    global SaveInitializedDelta
+    global SaveInitializeMessageSent
     print("LoadGame : Init")
     transition.Run()
 
@@ -182,12 +185,14 @@ def Update():
             SaveInitializeMessageSent = True
             SaveInitializedDelta = 0
 
+            print("Loading Thing Loaded 1")
             LoadGame()
         else:
             if SaveInitializedDelta >= 1:
                 GameLoadToggle = True
                 SaveInitializeMessageSent = True
                 SaveInitializedDelta = 0
+                print("Loading Thing Loaded 2")
 
                 LoadGame()
 
@@ -474,34 +479,21 @@ def EventUpdate(event):
             expStoreWindow.EventUpdate(event)
 
     if event.type == pygame.KEYUP and event.key == pygame.K_z:
-        GrindClick()
+        save.GrindClick()
 
     if event.type == pygame.KEYUP and event.key == pygame.K_m:
-        GrindClick()
+        save.GrindClick()
 
 def Unload():
     RestartSavingThing()
-
 
 def RestartSavingThing():
     global SaveInitializedDelta
     global SaveInitializeMessageSent
     global GameLoadToggle
 
+    print("Save Select has been reset.")
     GameLoadToggle = False
     SaveInitializedDelta = 0
     SaveInitializeMessageSent = False
-
-
-# -- Action when grinding -- #
-def GrindClick():
-    save.Current_TotalClicks += 1
-
-    # -- €xp Mining -- #
-    if save.Current_TotalClicks == save.Current_TotalClicksNext:
-        save.Current_TotalClicksNext = save.Current_TotalClicks + save.Current_TotalClicksForEach
-        save.Current_Experience += save.Current_ExperiencePerEach
-        IncomingLog.AddMessageText("€+" + str(save.Current_ExperiencePerEach), False, (150,150,150))
-
-    IncomingLog.AddMessageText("+" + str(save.Current_MoneyValuePerClick), True, (20, 150, 25), save.Current_MoneyValuePerClick)
 
