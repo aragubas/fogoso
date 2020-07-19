@@ -119,7 +119,8 @@ def Update():
         else:
             # -- Move the Text -- #
             if TextGrind_IsGrindText[x]:
-                TextGrind_Y[x] -= sprite.GetFont_height("/PressStart2P.ttf", 18, TextGrind_TxT) / 1.2 + x
+                TextGrind_Y[x] -= sprite.GetFont_height("/PressStart2P.ttf", 18, TextGrind_TxT) / 2.55
+
             else:
                 TextGrind_Y[x] -= sprite.GetFont_height("/PressStart2P.ttf", 18, TextGrind_TxT) / 5.5
 

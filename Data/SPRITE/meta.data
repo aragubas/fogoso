@@ -37,7 +37,8 @@
 # -- Item ID 0 -- #
 /Item/0/0.png:True
 /Item/0/1.png:True
-/Item/0/2.png:TrueItem/0/3.png:True
+/Item/0/2.png:True
+/Item/0/3.png:True
 /Item/0/4.png:True
 
 

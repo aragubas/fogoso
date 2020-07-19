@@ -51,7 +51,6 @@ def Initialize():
     BuyButton = gameObjs.Button(pygame.Rect(20, 20, 50, 50), reg.ReadKey("/strings/window/expecience_store/buy_button"), 14)
     BuyButton.CustomColisionRectangle = True
     DrawnSurface = pygame.Surface((WindowObject.WindowSurface_Rect[2], WindowObject.WindowSurface_Rect[3]), pygame.SRCALPHA)
-    ReloadItemsList()
 
 def Render(DISPLAY):
     global WindowObject

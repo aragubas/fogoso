@@ -20,6 +20,9 @@ from Fogoso.MAIN.Screens import Game as gameScr
 from Fogoso.MAIN import ClassesUtils as gameObjs
 from Fogoso.MAIN import GameItems as gameItems
 from Fogoso.MAIN.Screens.Game import Maintenance as maintenance
+from Fogoso.MAIN.Window import StoreWindow as storeWindow
+from Fogoso.MAIN.Window import ExperienceStore as expStoreWindow
+
 from ENGINE import UTILS as utils
 from random import randint
 import os
@@ -118,7 +121,12 @@ def LoadSaveData():
     maintenance.BaseMaintenance = reg.ReadAppData_WithTry("maintenance_base_price", float, 15.0)
 
     gameItems.LoadItems()
-    print("Fogoso.SaveManager : Operation Completed.")
+    print("Fogoso.SaveManager : Loading Store Items...")
+
+    storeWindow.ReloadItemsList()
+    expStoreWindow.ReloadItemsList()
+
+    print("Fogoso.SaveManager : Operation Completed!")
 
 
 def SaveData():

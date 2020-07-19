@@ -55,8 +55,6 @@ def Initialize():
     DrawnSurface = pygame.Surface((WindowObject.WindowSurface_Rect[2], WindowObject.WindowSurface_Rect[3]), pygame.SRCALPHA)
     ListItems = gameObjs.VerticalListWithDescription(pygame.Rect(0, 0, 350, 250))
 
-    ReloadItemsList()
-
 def ReloadItemsList():
     global ListItems
 

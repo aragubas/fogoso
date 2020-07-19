@@ -18,6 +18,7 @@
 from ENGINE import REGISTRY as reg
 from Fogoso import MAIN as gameMain
 from random import randint
+from ENGINE import UTILS as utils
 
 # -- Game Items Variables -- #
 ItemsList = list()
@@ -255,7 +256,7 @@ class Item_AutoClicker:
 
         # -- Item Statistics -- #
         self.ItemLevel = GetItemLevel_ByID(self.ItemID)
-        self.ItemClickPerSecound = reg.ReadKey("/ItemData/0/lv_" + str(self.ItemLevel) + "_click")
+        self.ItemClickPerSecound = reg.ReadKey_float("/ItemData/0/lv_" + str(self.ItemLevel) + "_click")
         self.SecoundTimeAction = int(reg.ReadKey("/ItemData/0/lv_" + str(self.ItemLevel) + "_activation_sec"))
         self.maintenance_cost = reg.ReadKey_float("/ItemData/0/lv_" + str(self.ItemLevel) + "_cost_maintenance")
         self.ExpMiningTotal = reg.ReadKey_int("/ItemData/0/lv_" + str(self.ItemLevel) + "_exp")
@@ -287,7 +288,12 @@ class Item_AutoClicker:
                 self.ItemIsActivated = False
                 self.ItemRoll += 1
 
-                self.ItemAction()
+                gameMain.ScreenGame.IncomingLog.AddMessageText("+" + str(self.ItemClickPerSecound), True, (100, 210, 100), self.ItemClickPerSecound)
+                if self.ExpMiningTotal > 0:
+                    gameMain.ScreenGame.save.Current_Experience += self.ExpMiningTotal
+                    gameMain.ScreenGame.IncomingLog.AddMessageText("€+" + str(self.ExpMiningTotal), False, (100, 110, 100))
+
+                self.ReloadStatus()
 
     def ActivationPerConstantFlux(self):
         if self.ItemRoll == 1:
@@ -306,23 +312,28 @@ class Item_AutoClicker:
                 self.ItemIsActivated = False
                 self.ItemRoll += 1
 
-                self.ItemAction()
+                TotalValue = self.ItemClickPerSecound * GetItemCount_ByID(self.ItemID)
+                AdderText = "+" + utils.FormatNumber(TotalValue)
+                ExpValue = self.ExpMiningTotal * GetItemCount_ByID(self.ItemID)
+
+                # -- Check if item is already on the Receiving Log -- #
+                try:
+                    IndexTest = gameMain.ScreenGame.IncomingLog.TextGrind_Text.index(AdderText)
+
+                    self.ReloadStatus()
+
+                except ValueError:  # -- IF not, Execute Item Mining -- #
+                    gameMain.ScreenGame.IncomingLog.AddMessageText(AdderText, True, (150, 220, 150), TotalValue)
+                    gameMain.ScreenGame.IncomingLog.AddMessageText("€+" + str(ExpValue), True, (100, 110, 100))
+                    gameMain.save.Current_Experience += ExpValue
 
     def ReloadStatus(self):
         self.ItemLevel = GetItemLevel_ByID(self.ItemID)
-        self.ItemClickPerSecound = reg.ReadKey("/ItemData/0/lv_" + str(self.ItemLevel) + "_click")
+        self.ItemClickPerSecound = reg.ReadKey_float("/ItemData/0/lv_" + str(self.ItemLevel) + "_click")
         self.SecoundTimeAction = int(reg.ReadKey("/ItemData/0/lv_" + str(self.ItemLevel) + "_activation_sec"))
         self.maintenance_cost = reg.ReadKey_float("/ItemData/0/lv_" + str(self.ItemLevel) + "_cost_maintenance")
         self.ExpMiningTotal = reg.ReadKey_int("/ItemData/0/lv_" + str(self.ItemLevel) + "_exp")
         self.ActivationType = reg.ReadKey_int("/ItemData/0/lv_" + str(self.ItemLevel) + "_activation_type")
-
-    def ItemAction(self):
-        gameMain.ScreenGame.IncomingLog.AddMessageText("+" + str(self.ItemClickPerSecound), True, (100, 210, 100), self.ItemClickPerSecound)
-        if self.ExpMiningTotal > 0:
-            gameMain.ScreenGame.save.Current_Experience += self.ExpMiningTotal
-            gameMain.ScreenGame.IncomingLog.AddMessageText("€+" + str(self.ItemClickPerSecound), True, (100, 110, 100), self.ItemClickPerSecound)
-
-        self.ReloadStatus()
 
 class Item_ExperienceStore:
     def __init__(self):
