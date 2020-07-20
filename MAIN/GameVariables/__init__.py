@@ -25,14 +25,17 @@ from Fogoso.MAIN.Window import ExperienceStore as expStoreWindow
 from Fogoso.MAIN.Screens.Game import IncomingLog
 from ENGINE import UTILS as utils
 from random import randint
+from Fogoso.MAIN import OverlayDialog
 import os
 
-print("Fogoso Variables Management, version 1.5")
+print("Fogoso Variables Management, version 1.6")
 
 # -- Money -- #
 Current_Money = 0.0
 Current_MoneyValuePerClick = 0.2
 Current_MoneyMultiplier = 1
+Current_MoneyMinimun = -15000.0
+SaveDataLoaded = False
 
 # -- Experience -- #
 Current_Experience = 250
@@ -67,6 +70,9 @@ CurrentDate_MinuteLimiter = 0
 CurrentDate_SecondLimiter = 0
 CurrentDate_YearLimiter = 0
 
+# -- Tutoriais -- #
+triggered_tutorials = list()
+
 # -- Load Saved Data -- #
 def LoadSaveData():
     global CurrentDate_Day
@@ -87,12 +93,16 @@ def LoadSaveData():
     global CurrentDate_MinuteLimiter
     global CurrentDate_SecondLimiter
     global CurrentDate_YearLimiter
+    global Current_MoneyMinimun
+    global SaveDataLoaded
+    global triggered_tutorials
 
     print("Fogoso.SaveManager : Loading Save Data...")
 
     # -- Load Money and Click Variables -- #
     Current_Money = reg.ReadAppData_WithTry("money", float, 0.0)
     Current_MoneyValuePerClick = reg.ReadAppData_WithTry("money_per_click", float, 0.50)
+    Current_MoneyMinimun = reg.ReadAppData_WithTry("money_minimun", float, -5000)
     Current_Experience = reg.ReadAppData_WithTry("experience", int, 0)
     Current_TotalClicks = reg.ReadAppData_WithTry("total_clicks", int, 0)
     Current_TotalClicksForEach = reg.ReadAppData_WithTry("total_clicks_for_each", int, 35)
@@ -121,6 +131,13 @@ def LoadSaveData():
     maintenance.PerDayValue = reg.ReadAppData_WithTry("maintenance_per_day_value", int, 1)
     maintenance.BaseMaintenance = reg.ReadAppData_WithTry("maintenance_base_price", float, 15.0)
 
+    # -- Load Passed Tutorials -- #
+    FileData = reg.ReadAppData_WithTry("tutorials_triggered", str, "")
+    SplitedData = FileData.split('\n')
+    for tutorial in SplitedData:
+        triggered_tutorials.append(str(tutorial))
+        print("Tutorial triggered:\n" + str(tutorial))
+
     gameItems.LoadItems()
     print("Fogoso.SaveManager : Loading Store Items...")
 
@@ -128,7 +145,7 @@ def LoadSaveData():
     expStoreWindow.ReloadItemsList()
 
     print("Fogoso.SaveManager : Operation Completed!")
-
+    SaveDataLoaded = True
 
 def SaveData():
     global CurrentDate_Day
@@ -149,6 +166,8 @@ def SaveData():
     global CurrentDate_MinuteLimiter
     global CurrentDate_SecondLimiter
     global CurrentDate_YearLimiter
+    global Current_MoneyMinimun
+    global triggered_tutorials
 
     # -- Money and Click Vars -- #
     reg.WriteAppData("money", Current_Money)
@@ -157,6 +176,7 @@ def SaveData():
     reg.WriteAppData("total_clicks", Current_TotalClicks)
     reg.WriteAppData("total_clicks_for_each", Current_TotalClicksForEach)
     reg.WriteAppData("total_experience_per_each", Current_ExperiencePerEach)
+    reg.WriteAppData("money_minimun", Current_MoneyMinimun)
 
     # -- Maintenance Variables -- #
     reg.WriteAppData("maintenance_day_trigger", maintenance.DayTrigger)
@@ -177,6 +197,20 @@ def SaveData():
     reg.WriteAppData("date/limiter/year", CurrentDate_YearLimiter)
     reg.WriteAppData("date/limiter/minute", CurrentDate_MinuteLimiter)
     reg.WriteAppData("date/limiter/second", CurrentDate_SecondLimiter)
+
+    # -- Save Passed Tutorials -- #
+    FileData = ""
+    Index = 0
+    for tutorial in triggered_tutorials:
+        if Index > 1:
+            FileData += "\n" + str(tutorial)
+        else:
+            FileData += str(tutorial)
+        Index += 1
+
+        print("Tutorial Added:\n" + FileData)
+
+    reg.WriteAppData("tutorials_triggered", FileData)
 
     # -- Save Items Data -- #
     gameItems.SaveItems()
@@ -200,6 +234,9 @@ def Unload():
     global CurrentDate_MinuteLimiter
     global CurrentDate_SecondLimiter
     global CurrentDate_YearLimiter
+    global Current_MoneyMinimun
+    global SaveDataLoaded
+    global triggered_tutorials
 
     # -- Save the Game -- #
     SaveData()
@@ -211,6 +248,7 @@ def Unload():
     Current_Money = None
     Current_MoneyValuePerClick = None
     Current_Experience = None
+    Current_MoneyMinimun = None
     Current_TotalClicks = None
     Current_TotalClicksForEach = None
     Current_ExperiencePerEach = None
@@ -242,6 +280,8 @@ def Unload():
     gameScr.GameLoadToggle = False
     gameScr.SaveInitializedDelta = 0
     gameScr.SaveInitializeMessageSent = False
+    SaveDataLoaded = False
+    triggered_tutorials.clear()
 
 def UpdateClock():
     global CurrentDate_Day
@@ -278,6 +318,8 @@ def UpdateClock():
         CurrentDate_Month = 0
         CurrentDate_Year += 1
 
+LowerMoneyWarning = False
+BankruptWarningType = 0
 def Update():
     global Current_Money
     global Current_MoneyValuePerClick
@@ -288,32 +330,95 @@ def Update():
     global MoneyPerSecond_Last
     global Current_ExperienceFormated
     global Current_MoneyPerClickBest
+    global SaveDataLoaded
 
-    # -- Update the Clock -- #
-    UpdateClock()
+    if SaveDataLoaded:
+        # -- Update the Clock -- #
+        UpdateClock()
 
-    # -- Updated Formated Strings -- #
-    if reg.ReadKey_bool("/OPTIONS/format_numbers"):
-        Current_MoneyFormated = utils.FormatNumber(Current_Money, 2)
-        Current_MoneyPerSecondFormatted = utils.FormatNumber(Current_MoneyPerSecond, 2)
-        Current_ExperienceFormated = utils.FormatNumber(Current_Experience, 2)
-    else:
-        Current_MoneyFormated = str(Current_Money)
-        Current_MoneyPerSecondFormatted = str(Current_MoneyPerSecond)
-        Current_ExperienceFormated = str(Current_Experience)
+        # -- Updated Formated Strings -- #
+        if reg.ReadKey_bool("/OPTIONS/format_numbers"):
+            Current_MoneyFormated = utils.FormatNumber(Current_Money, 2)
+            Current_MoneyPerSecondFormatted = utils.FormatNumber(Current_MoneyPerSecond, 2)
+            Current_ExperienceFormated = utils.FormatNumber(Current_Experience, 2)
+        else:
+            Current_MoneyFormated = str(Current_Money)
+            Current_MoneyPerSecondFormatted = str(Current_MoneyPerSecond)
+            Current_ExperienceFormated = str(Current_Experience)
 
-    # -- Update Money Per Second -- #
-    MoneyPerSecond_Delta += 1
-    if MoneyPerSecond_Delta == 1000:
-        Current_MoneyPerSecond = Current_Money - MoneyPerSecond_Last
-        MoneyPerSecond_Last = Current_Money
-        MoneyPerSecond_Delta = 0
+        # -- Update Money Per Second -- #
+        MoneyPerSecond_Delta += 1
+        if MoneyPerSecond_Delta == 1000:
+            Current_MoneyPerSecond = Current_Money - MoneyPerSecond_Last
+            MoneyPerSecond_Last = Current_Money
+            MoneyPerSecond_Delta = 0
 
-        if Current_MoneyValuePerClick >= Current_MoneyPerClickBest:
-            Current_MoneyPerClickBest = Current_MoneyValuePerClick
+            if Current_MoneyValuePerClick >= Current_MoneyPerClickBest:
+                Current_MoneyPerClickBest = Current_MoneyValuePerClick
 
-    # -- Update All Loaded Items -- #
-    gameItems.UpdateItems()
+        # -- Update All Loaded Items -- #
+        gameItems.UpdateItems()
+
+        # -- Triggers Bankrupt -- #
+        TriggerBankrupt()
+
+def RestartSaveGame():
+    print("RestartSaveGame : Unloading Save Game...")
+    Unload()
+
+    print("RestartSaveGame : Deleting Save Folder...")
+    utils.Directory_Remove(tge.Get_GlobalAppDataFolder() + tge.Get_SaveFolder())
+
+    print("RestartSaveGame : Loading Null Data...")
+    LoadSaveData()
+
+    print("RestartSaveGame : Saving Null Data")
+    SaveData()
+
+    print("RestartSaveGame : Done!")
+
+def TriggerBankrupt():
+    global LowerMoneyWarning
+    global Current_MoneyMinimun
+    global BankruptWarningType
+
+    # -- Bankrupt Warning 0 -- #
+    if not LowerMoneyWarning and Current_Money <= -10.00 and not Current_Money <= Current_MoneyMinimun:
+        BankruptWarningType = 0
+        LowerMoneyWarning = True
+        OverlayDialog.subscreen1.SetMessage(reg.ReadKey("/strings/game/bankrupt_0_title"), reg.ReadKey("/strings/game/bankrupt_0_text").format(utils.FormatNumber(Current_MoneyMinimun)), typeDelay=0)
+
+    # -- Bankrupt Warning 1 -- #
+    if Current_Money < Current_MoneyMinimun and not LowerMoneyWarning:
+        BankruptWarningType = 1
+        LowerMoneyWarning = True
+        OverlayDialog.subscreen1.SetMessage(reg.ReadKey("/strings/game/bankrupt_1_title"), reg.ReadKey("/strings/game/bankrupt_1_text").format(utils.FormatNumber(Current_Money)), typeDelay=0)
+        OverlayDialog.subscreen1.OK_Button.Set_Text(":-(")
+
+    if LowerMoneyWarning and Current_Money >= 1 and BankruptWarningType == 0:
+        if OverlayDialog.subscreen1.ResponseTrigger:
+            LowerMoneyWarning = False
+            OverlayDialog.subscreen1.ResponseTrigger = False
+
+    # -- Go Bankrupt -- #
+    if LowerMoneyWarning and BankruptWarningType == 1:
+        LowerMoneyWarning = False
+        RestartSaveGame()
+
+def TutorialTrigger(Action):
+    global triggered_tutorials
+
+    try:
+        Index = triggered_tutorials.index(Action)
+        print("GameVariables.TutorialTrigger : Tutorial for action {0} has already been triggered.".format(str(Action)))
+
+    except ValueError:
+        try:
+            OverlayDialog.subscreen1.SetMessage(reg.ReadKey("/strings/tutorial/title"), reg.ReadKey("/strings/tutorial/{0}".format(str(Action))), typeDelay=0, wordStep=2)
+            triggered_tutorials.append(str(Action))
+
+        except FileNotFoundError:
+            print("GameVariables.TutorialTrigger : Cannot find tutorial text for action:\n{0}".format(str(Action)))
 
 # -- Action when grinding -- #
 def GrindClick():

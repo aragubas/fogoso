@@ -37,7 +37,7 @@ print("Game : Classes Utils v1.1")
 
 def Draw_Panel(DISPLAY, Rectangle, DisableBlur=False):
     # -- the Result Surface -- #
-    ResultPanel = pygame.Surface((Rectangle[2], Rectangle[3]), pygame.SRCALPHA)
+    ResultPanel = pygame.Surface((Rectangle[2], Rectangle[3]))
 
     if not DisableBlur:
         if reg.ReadKey_bool("/OPTIONS/UI_blur_enabled"):  # -- If Blur is Enabled -- #

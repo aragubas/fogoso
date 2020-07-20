@@ -217,7 +217,9 @@ def Update():
 
         # -- Update Buttons Click -- #
         if GrindButton .ButtonState == 2:
-            GrindClick()
+            save.TutorialTrigger("clicking_button")
+            save.GrindClick()
+
         # -- Game Options Button -- #
         if GameOptionsButton .ButtonState == 2:
             transition.Run()
@@ -250,6 +252,8 @@ def Update():
 
         # -- Open Store Button -- #
         if OpenStoreButton .ButtonState == 2:
+            save.TutorialTrigger("store_window_button")
+
             if StoreWindow_Enabled:
                 StoreWindow_Enabled = False
                 storeWindow.RestartAnimation()
@@ -260,6 +264,8 @@ def Update():
 
         # -- Open Infos Button -- #
         elif OpenInfosWindowButton .ButtonState == 2:
+            save.TutorialTrigger("infos_window_button")
+
             if InfosWindow_Enabled:
                 InfosWindow_Enabled = False
                 storeWindow.RestartAnimation()
@@ -270,6 +276,8 @@ def Update():
 
         # -- Open Experience Store Button -- #
         elif OpenExperienceWindowButton .ButtonState == 2 and gameItems.GetItemCount_ByID(-1) >= 1:
+            save.TutorialTrigger("expstore_window_button")
+
             if ExperienceStore_Enabled:
                 ExperienceStore_Enabled = False
                 storeWindow.RestartAnimation()
