@@ -248,7 +248,10 @@ def Update():
                 BackToMainMenu_Delay = 0
                 BackToMainMenu = False
 
-                RestartSavingThing()
+                SaveGame()
+                Unload()
+                save.Unload(False)
+
 
         # -- Open Store Button -- #
         if OpenStoreButton .ButtonState == 2:
@@ -504,4 +507,4 @@ def RestartSavingThing():
     GameLoadToggle = False
     SaveInitializedDelta = 0
     SaveInitializeMessageSent = False
-
+    tge.Unload_SaveFolder()

@@ -84,8 +84,7 @@ def EventUpdate(event):
         SettingsButton.Update(event)
         EverdayMessageWindow.EventUpdate(event)
         IntroSpriteButton.EventUpdate(event)
-        if not EverdayMessageWindow.WindowMinimized:
-            EverdayMessage_GenerateNewMessageButton.Update(event)
+        EverdayMessage_GenerateNewMessageButton.Update(event)
 
 
 def GameDraw(DISPLAY):
@@ -118,24 +117,23 @@ def EverdayMessage(DISPLAY):
     # -- Draw the Window Frame -- #
     EverdayMessageWindow.Render(DISPLAY)
 
-    if not EverdayMessageWindow.WindowMinimized:
-        # -- Clear Surface -- #
-        WindowSurface = pygame.Surface((EverdayMessageWindow.WindowSurface_Rect[2], EverdayMessageWindow.WindowSurface_Rect[3]), pygame.SRCALPHA)
+    # -- Clear Surface -- #
+    WindowSurface = pygame.Surface((EverdayMessageWindow.WindowSurface_Rect[2], EverdayMessageWindow.WindowSurface_Rect[3]), pygame.SRCALPHA)
 
-        # -- Render Title Background -- #
-        sprite.Shape_Rectangle(WindowSurface, (56, 65, 74), (0, 0, WindowSurface.get_width(), 30))
+    # -- Render Title Background -- #
+    sprite.Shape_Rectangle(WindowSurface, (56, 65, 74), (0, 0, WindowSurface.get_width(), 30))
 
-        # -- Render the Title -- #
-        sprite.FontRender(WindowSurface, "/PressStart2P.ttf", 18, EverdayMessage_TextTitle, (255, 255, 255), 5, 7, reg.ReadKey_bool("/OPTIONS/font_aa"))
+    # -- Render the Title -- #
+    sprite.FontRender(WindowSurface, "/PressStart2P.ttf", 18, EverdayMessage_TextTitle, (255, 255, 255), 5, 7, reg.ReadKey_bool("/OPTIONS/font_aa"))
 
-        # -- Render the Text -- #
-        sprite.FontRender(WindowSurface, "/PressStart2P.ttf", 10, EverdayMessage_Text, (255, 255, 255), 5, 37, reg.ReadKey_bool("/OPTIONS/font_aa"))
+    # -- Render the Text -- #
+    sprite.FontRender(WindowSurface, "/PressStart2P.ttf", 10, EverdayMessage_Text, (255, 255, 255), 5, 37, reg.ReadKey_bool("/OPTIONS/font_aa"))
 
-        # -- Render Next Button -- ##
-        EverdayMessage_GenerateNewMessageButton.Render(WindowSurface)
+    # -- Render Next Button -- ##
+    EverdayMessage_GenerateNewMessageButton.Render(WindowSurface)
 
-        # -- Blit Window to Screen -- #
-        DISPLAY.blit(WindowSurface, (EverdayMessageWindow.WindowSurface_Rect[0], EverdayMessageWindow.WindowSurface_Rect[1]))
+    # -- Blit Window to Screen -- #
+    DISPLAY.blit(WindowSurface, (EverdayMessageWindow.WindowSurface_Rect[0], EverdayMessageWindow.WindowSurface_Rect[1]))
 
 
 MenuDelay = 0
@@ -192,21 +190,6 @@ def Update():
         if IntroSpriteButton .ButtonState == 2:
             Animation_NextScreen = -1
             Animation_Enabled = True
-
-        # -- Update EverdayDay Message Next Button -- #
-        if not EverdayMessageWindow.WindowMinimized:
-            if EverdayMessage_GenerateNewMessageButton .ButtonState == 2:
-                EverdayMessage_UpdateMessage = True
-
-            # -- Set Location -- #
-            EverdayMessage_GenerateNewMessageButton.Set_X(EverdayMessageWindow.WindowRectangle[2] - EverdayMessage_GenerateNewMessageButton.Rectangle[2] - 5)
-            EverdayMessage_GenerateNewMessageButton.Set_Y(EverdayMessageWindow.WindowRectangle[3] - EverdayMessage_GenerateNewMessageButton.Rectangle[3] - 25)
-
-            # -- Set the Colision Rectangle -- #
-            ColisionX = EverdayMessageWindow.WindowRectangle[0] + EverdayMessage_GenerateNewMessageButton.Rectangle[0]
-            ColisionY = EverdayMessageWindow.WindowRectangle[1] + EverdayMessage_GenerateNewMessageButton.Rectangle[1] + EverdayMessage_GenerateNewMessageButton.Rectangle[3] - 2
-            EverdayMessage_GenerateNewMessageButton.Set_ColisionX(ColisionX)
-            EverdayMessage_GenerateNewMessageButton.Set_ColisionY(ColisionY)
 
         # -- Update Play Button Position -- #
         PlayButton.Set_X(Animation_Value + 20)

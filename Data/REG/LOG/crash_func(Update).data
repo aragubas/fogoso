@@ -1,12 +1,14 @@
 Traceback (most recent call last):
-  File "/home/abacate/Projetos/Python/Taiyou Game Engine/Fogoso/MAIN/__init__.py", line 138, in Update
+  File "/home/abacate/Projetos/Python/Taiyou Game Engine/Fogoso/MAIN/__init__.py", line 159, in Update
     ScreensUpdate()
-  File "/home/abacate/Projetos/Python/Taiyou Game Engine/Fogoso/MAIN/__init__.py", line 167, in ScreensUpdate
+  File "/home/abacate/Projetos/Python/Taiyou Game Engine/Fogoso/MAIN/__init__.py", line 194, in ScreensUpdate
     ScreenGame.Update()
-  File "/home/abacate/Projetos/Python/Taiyou Game Engine/Fogoso/MAIN/Screens/Game/__init__.py", line 207, in Update
-    save.Update()
-  File "/home/abacate/Projetos/Python/Taiyou Game Engine/Fogoso/MAIN/GameVariables/__init__.py", line 293, in Update
-    UpdateClock()
-  File "/home/abacate/Projetos/Python/Taiyou Game Engine/Fogoso/MAIN/GameVariables/__init__.py", line 259, in UpdateClock
-    CurrentDate_Microseconds += 1
-TypeError: unsupported operand type(s) for +=: 'NoneType' and 'int'
+  File "/home/abacate/Projetos/Python/Taiyou Game Engine/Fogoso/MAIN/Screens/Game/__init__.py", line 252, in Update
+    save.Unload()
+  File "/home/abacate/Projetos/Python/Taiyou Game Engine/Fogoso/MAIN/GameVariables/__init__.py", line 242, in Unload
+    SaveData()
+  File "/home/abacate/Projetos/Python/Taiyou Game Engine/Fogoso/MAIN/GameVariables/__init__.py", line 173, in SaveData
+    reg.WriteAppData("money", Current_Money)
+  File "/home/abacate/Projetos/Python/Taiyou Game Engine/ENGINE/REGISTRY/__init__.py", line 429, in WriteAppData
+    raise ValueError("Taiyou.Registry.WriteAppData.Exception! : Save Folder was not initialized.")
+ValueError: Taiyou.Registry.WriteAppData.Exception! : Save Folder was not initialized.

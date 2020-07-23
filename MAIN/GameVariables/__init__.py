@@ -215,7 +215,7 @@ def SaveData():
     # -- Save Items Data -- #
     gameItems.SaveItems()
 
-def Unload():
+def Unload(SaveWhenExiting=True):
     global CurrentDate_Day
     global CurrentDate_Month
     global CurrentDate_Year
@@ -238,8 +238,9 @@ def Unload():
     global SaveDataLoaded
     global triggered_tutorials
 
-    # -- Save the Game -- #
-    SaveData()
+    if SaveWhenExiting:
+        # -- Save the Game -- #
+        SaveData()
 
     # -- Unload Items Data -- #
     gameItems.UnloadItems()
