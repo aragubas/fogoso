@@ -27,6 +27,7 @@ from Fogoso.MAIN.Screens import Intro as ScreenIntro
 from Fogoso.MAIN import ScreenTransition as transition
 from Fogoso import MAIN as gameMainObj
 from ENGINE import SPRITE as sprite
+from Fogoso.MAIN.Window import Tips as tipsWindow
 import pygame, sys
 import importlib
 import time
@@ -42,14 +43,6 @@ Animation_NextScreen = 0
 CommonScreenObj = pygame.Surface
 ControlsInitialized = False
 
-# -- Window Test
-EverdayMessageWindow = gameObjs.Window
-EverdayMessage_TextTitle = "Wait"
-EverdayMessage_Text = "Loading message..."
-EverdayMessage_UpdateMessage = True
-EverdayMessage_GenerateNewMessageButton = gameObjs.Button
-EverdayMessage_LastMessageID = 0
-
 # -- Objects Declaration -- #
 PlayButton = gameObjs.Button
 SettingsButton = gameObjs.Button
@@ -58,43 +51,32 @@ IntroSpriteButton = gameObjs.SpriteButton
 def Initialize(DISPLAY):
     global PlayButton
     global SettingsButton
-    global EverdayMessageWindow
-    global EverdayMessage_GenerateNewMessageButton
     global IntroSpriteButton
     PlayButton = gameObjs.Button(pygame.Rect(50, 50, 0, 0), reg.ReadKey("/strings/main_menu/play_button"), 18)
     SettingsButton = gameObjs.Button(pygame.Rect(50 ,50 ,0 ,0), reg.ReadKey("/strings/main_menu/settings_button"), 18)
-    EverdayMessageWindow = gameObjs.Window(pygame.Rect(350, 50, 550, 200), reg.ReadKey("/strings/main_menu/message_window/window_title"), True)
-    EverdayMessage_GenerateNewMessageButton = gameObjs.Button(pygame.Rect(0,0,0,0), reg.ReadKey("/strings/main_menu/message_window/next_button"),18)
-    EverdayMessage_GenerateNewMessageButton.CustomColisionRectangle = True
     gameMainObj.ClearColor = (1, 20, 30)
     IntroSpriteButton = gameObjs.SpriteButton(pygame.Rect(0,0,47, 45), ("/icon.png","/icon.png","/icon.png"))
 
     print("GameMenu : Initialize")
+    tipsWindow.Initialize(DISPLAY)
 
 def EventUpdate(event):
     global PlayButton
     global SettingsButton
-    global EverdayMessageWindow
-    global EverdayMessage_GenerateNewMessageButton
     global ControlsInitialized
     global IntroSpriteButton
 
     if ControlsInitialized:
         PlayButton.Update(event)
         SettingsButton.Update(event)
-        EverdayMessageWindow.EventUpdate(event)
         IntroSpriteButton.EventUpdate(event)
-        EverdayMessage_GenerateNewMessageButton.Update(event)
 
+        tipsWindow.EventUpdate(event)
 
 def GameDraw(DISPLAY):
     global PlayButton
     global SettingsButton
     global CommonScreenObj
-    global EverdayMessageWindow
-    global EverdayMessage_TextTitle
-    global EverdayMessage_Text
-    global EverdayMessage_GenerateNewMessageButton
     global ControlsInitialized
     global IntroSpriteButton
     CommonScreenObj = DISPLAY
@@ -110,30 +92,7 @@ def GameDraw(DISPLAY):
         IntroSpriteButton.Render(DISPLAY)
         sprite.FontRender(DISPLAY, "/PressStart2P.ttf", 10, reg.ReadKey("/strings/main_menu/about"), (240, 250, 250), IntroSpriteButton.Rectangle[0] + IntroSpriteButton.Rectangle[2] + 5, IntroSpriteButton.Rectangle[1] + 3, reg.ReadKey_bool("/OPTIONS/font_aa"))
 
-        EverdayMessage(DISPLAY)
-
-def EverdayMessage(DISPLAY):
-    global EverdayMessageWindow
-    # -- Draw the Window Frame -- #
-    EverdayMessageWindow.Render(DISPLAY)
-
-    # -- Clear Surface -- #
-    WindowSurface = pygame.Surface((EverdayMessageWindow.WindowSurface_Rect[2], EverdayMessageWindow.WindowSurface_Rect[3]), pygame.SRCALPHA)
-
-    # -- Render Title Background -- #
-    sprite.Shape_Rectangle(WindowSurface, (56, 65, 74), (0, 0, WindowSurface.get_width(), 30))
-
-    # -- Render the Title -- #
-    sprite.FontRender(WindowSurface, "/PressStart2P.ttf", 18, EverdayMessage_TextTitle, (255, 255, 255), 5, 7, reg.ReadKey_bool("/OPTIONS/font_aa"))
-
-    # -- Render the Text -- #
-    sprite.FontRender(WindowSurface, "/PressStart2P.ttf", 10, EverdayMessage_Text, (255, 255, 255), 5, 37, reg.ReadKey_bool("/OPTIONS/font_aa"))
-
-    # -- Render Next Button -- ##
-    EverdayMessage_GenerateNewMessageButton.Render(WindowSurface)
-
-    # -- Blit Window to Screen -- #
-    DISPLAY.blit(WindowSurface, (EverdayMessageWindow.WindowSurface_Rect[0], EverdayMessageWindow.WindowSurface_Rect[1]))
+        tipsWindow.Draw(DISPLAY)
 
 
 MenuDelay = 0
@@ -144,10 +103,6 @@ def Update():
     global Animation_Value
     global Animation_Enabled
     global Animation_CurrentAnim
-    global EverdayMessage_Text
-    global EverdayMessage_TextTitle
-    global EverdayMessage_UpdateMessage
-    global EverdayMessage_LastMessageID
     global ControlsInitialized
     global MenuDelay
     global Animation_ValueAdder
@@ -160,34 +115,20 @@ def Update():
             MenuDelay = 0
             ControlsInitialized = True
 
-    if EverdayMessage_UpdateMessage:
-        EverdayMessage_UpdateMessage = False
-        if reg.ReadKeyWithTry_bool("/strings/main_menu/EMW/first_message", True):
-            EverdayMessage_TextTitle = "Welcome!"
-            EverdayMessage_Text = reg.ReadKey("/strings/main_menu/EMW/first")
-            reg.WriteKey("/strings/main_menu/EMW/first_message", "False")
-
-        MessageID = randint(0,reg.ReadKey_int("/strings/main_menu/EMW/total_messages"))
-        if EverdayMessage_LastMessageID == MessageID:
-            MessageID = randint(MessageID, reg.ReadKey_int("/strings/main_menu/EMW/total_messages"))
-
-        EverdayMessage_TextTitle = reg.ReadKey("/strings/main_menu/EMW/" + str(MessageID) + "_title")
-        EverdayMessage_Text = reg.ReadKey("/strings/main_menu/EMW/" + str(MessageID))
-        print("EverdayMessage_UpdateMessage : MessageID[" + str(MessageID) + "]")
-
     UpdateAnimation()
 
     if ControlsInitialized:
+        tipsWindow.Update()
         # -- Menu Buttons Click -- #
-        if PlayButton .ButtonState == 2:
+        if PlayButton.ButtonState == 2:
             Animation_NextScreen = 1
             Animation_Enabled = True
 
-        if SettingsButton .ButtonState == 2:
+        elif SettingsButton.ButtonState == 2:
             Animation_NextScreen = 2
             Animation_Enabled = True
 
-        if IntroSpriteButton .ButtonState == 2:
+        elif IntroSpriteButton.ButtonState == 2:
             Animation_NextScreen = -1
             Animation_Enabled = True
 

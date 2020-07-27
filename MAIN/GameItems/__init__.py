@@ -258,54 +258,25 @@ class Item_AutoClicker:
         # -- Item Statistics -- #
         self.ItemLevel = GetItemLevel_ByID(self.ItemID)
         self.ItemClickPerSecound = reg.ReadKey_float("/ItemData/0/lv_" + str(self.ItemLevel) + "_click")
-        self.SecoundTimeAction = int(reg.ReadKey("/ItemData/0/lv_" + str(self.ItemLevel) + "_activation_sec"))
         self.maintenance_cost = reg.ReadKey_float("/ItemData/0/lv_" + str(self.ItemLevel) + "_cost_maintenance")
-        self.ExpMiningTotal = reg.ReadKey_int("/ItemData/0/lv_" + str(self.ItemLevel) + "_exp")
-        self.ActivationType = reg.ReadKey_int("/ItemData/0/lv_" + str(self.ItemLevel) + "_activation_type")
 
     def Update(self):
-        if self.ActivationType == 0:
-            self.ActivationPerSecound()
-
-        elif self.ActivationType == 1:
-            self.ActivationPerConstantFlux()
-
-    def ActivationPerSecound(self):
         self.DeltaTime += 1
 
         if self.DeltaTime >= self.DeltaTimeAction:
             self.DeltaTime = 0
-            self.DeltaTimeAction = 500 + self.InstanceID + self.SecoundTimeAction
-
-            gameMain.ScreenGame.IncomingLog.AddMessageText("+" + str(self.ItemClickPerSecound), True, (100, 210, 100), self.ItemClickPerSecound)
-            if self.ExpMiningTotal > 0:
-                gameMain.ScreenGame.save.Current_Experience += self.ExpMiningTotal
-                gameMain.ScreenGame.IncomingLog.AddMessageText("€+" + str(self.ExpMiningTotal), False, (100, 110, 100))
-
-            self.ReloadStatus()
-
-    def ActivationPerConstantFlux(self):
-        self.DeltaTime += 1
-
-        if self.DeltaTime >= self.DeltaTimeAction:
-            self.DeltaTime = 0
-            self.DeltaTimeAction = self.InstanceID + self.SecoundTimeAction
+            self.DeltaTimeAction = self.InstanceID * (gameMain.save.CurrentDate_Second / 2)
 
             TotalValue = self.ItemClickPerSecound * gameMain.save.Current_MoneyMultiplier
             AdderText = "+{0}".format(utils.FormatNumber(TotalValue))
-            ExpValue = self.ExpMiningTotal
 
             gameMain.ScreenGame.IncomingLog.AddMessageText(AdderText, True, (150, 220, 150), TotalValue)
-            gameMain.ScreenGame.IncomingLog.AddMessageText("€+{0}".format(str(ExpValue)), True, (100, 110, 100))
-            gameMain.save.Current_Experience += ExpValue
+            self.ReloadStatus()
 
     def ReloadStatus(self):
         self.ItemLevel = GetItemLevel_ByID(self.ItemID)
         self.ItemClickPerSecound = reg.ReadKey_float("/ItemData/0/lv_" + str(self.ItemLevel) + "_click")
-        self.SecoundTimeAction = int(reg.ReadKey("/ItemData/0/lv_" + str(self.ItemLevel) + "_activation_sec"))
         self.maintenance_cost = reg.ReadKey_float("/ItemData/0/lv_" + str(self.ItemLevel) + "_cost_maintenance")
-        self.ExpMiningTotal = reg.ReadKey_int("/ItemData/0/lv_" + str(self.ItemLevel) + "_exp")
-        self.ActivationType = reg.ReadKey_int("/ItemData/0/lv_" + str(self.ItemLevel) + "_activation_type")
 
 class Item_ExperienceStore:
     def __init__(self):

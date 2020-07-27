@@ -22,6 +22,8 @@ from Fogoso.MAIN import ClassesUtils as gameObjs
 from Fogoso.MAIN.Screens import Game as ScreenGame
 from Fogoso.MAIN.Screens import MainMenu as ScreenMenu
 from Fogoso.MAIN.Screens import Settings as ScreenSettings
+from Fogoso.MAIN.Screens import Test as ScreenTest
+
 from Fogoso.MAIN import GameVariables as gameVar
 from Fogoso.MAIN.Screens import Intro as ScreenIntro
 from Fogoso.MAIN.Screens.Game import MapRender as ScreenMap
@@ -184,68 +186,87 @@ def SendErrorMessage(Message):
     ErrorMessageDelay = 0
 
 def ScreensUpdate():
-    if CurrentScreen == -1:
+    if CurrentScreen == -2:
+        ScreenTest.Update()
+        return
+
+    elif CurrentScreen == -1:
         ScreenIntro.Update()
+        return
 
     elif CurrentScreen == 0:
         ScreenMenu.Update()
+        return
 
     elif CurrentScreen == 1:
         ScreenGame.Update()
+        return
 
     elif CurrentScreen == 2:
         ScreenSettings.Update()
+        return
 
     elif CurrentScreen == 3:
         ScreenMap.Update()
+        return
 
 def ScreenDraw(DefaultDisplay):
-    if CurrentScreen == -1:
+    if CurrentScreen == -2:
+        ScreenTest.GameDraw(DefaultDisplay)
+        return
+
+    elif CurrentScreen == -1:
         ScreenIntro.GameDraw(DefaultDisplay)
+        return
 
     elif CurrentScreen == 0:
         ScreenMenu.GameDraw(DefaultDisplay)
+        return
 
     elif CurrentScreen == 1:
         ScreenGame.GameDraw(DefaultDisplay)
+        return
 
     elif CurrentScreen == 2:
         ScreenSettings.GameDraw(DefaultDisplay)
+        return
 
     elif CurrentScreen == 3:
         ScreenMap.GameDraw(DefaultDisplay)
+        return
 
 def ScreenEventUpdate(event):
-    if CurrentScreen == -1:
+    if CurrentScreen == -2:
+        ScreenTest.EventUpdate(event)
+        return
+
+    elif CurrentScreen == -1:
         ScreenIntro.EventUpdate(event)
+        return
 
     elif CurrentScreen == 0:
         ScreenMenu.EventUpdate(event)
+        return
 
     elif CurrentScreen == 1:
         ScreenGame.EventUpdate(event)
+        return
 
     elif CurrentScreen == 2:
         ScreenSettings.EventUpdate(event)
+        return
 
     elif CurrentScreen == 3:
         ScreenMap.EventUpdate(event)
+        return
 
 def ScreensInitialize(DISPLAY):
-    if CurrentScreen == -1:
-        ScreenIntro.Initialize(DISPLAY)
-
-    elif CurrentScreen == 0:
-        ScreenMenu.Initialize(DISPLAY)
-
-    elif CurrentScreen == 1:
-        ScreenGame.Initialize(DISPLAY)
-
-    elif CurrentScreen == 2:
-        ScreenSettings.Initialize()
-
-    elif CurrentScreen == 3:
-        ScreenMap.Initialize()
+    ScreenTest.Initialize(DISPLAY)
+    ScreenIntro.Initialize(DISPLAY)
+    ScreenMenu.Initialize(DISPLAY)
+    ScreenGame.Initialize(DISPLAY)
+    ScreenSettings.Initialize()
+    ScreenMap.Initialize()
 
 def EventUpdate(event):  # -- Engine Required Function
     global Cursor_Position
@@ -317,11 +338,6 @@ def Initialize(DISPLAY):  # -- Engine Required Function
 
     dialog.Initialize()
 
-def Unload():  # -- Engine Required Function
-    gameVar.Unload()
-    ScreenGame.Unload()
-
-
 def SetWindowParameters():
     global DefaultDisplay
     global Engine_MaxFPS
@@ -330,6 +346,8 @@ def SetWindowParameters():
 
     taiyouMain.ReceiveCommand(1, "{0}x{1}".format(str(reg.ReadKey_int("/props/default_resW")), str(reg.ReadKey_int("/props/default_resH"))))
     taiyouMain.ReceiveCommand(0, Engine_MaxFPS)
+
+    pygame.mouse.set_visible(False)
 
 def WriteErrorLog(ex, func, ExitWhenFinished=False):
     global LastErrorText

@@ -22,7 +22,6 @@ from ENGINE import UTILS as utils
 from Fogoso import MAIN as gameMain
 from ENGINE import *
 import pygame
-
 print("Fogoso Screens Transtion, version 1.0")
 
 # -- Variables -- #

@@ -54,6 +54,7 @@ CopyOfScreen_Last = False
 CopyOfScreen_Result = pygame.Surface
 CopyOfScreen_BlurAmount = 0
 CopyOfScreen_Set = False
+CopyOfTheScreen = pygame.Surface((5, 5))
 
 Subscreen = 1
 

@@ -77,17 +77,9 @@ BackgroundAnim_Numb = 1.0
 # -- HUD -- #
 HUD_Surface = pygame.Surface
 
-# -- Saving Thing -- #
-GameLoadToggle = False
-SaveInitializedDelta = 0
-SaveInitializeMessageSent = False
-
 # -- Load/Save Functions -- #
 def LoadGame():
     global ItemsView
-    global GameLoadToggle
-    global SaveInitializedDelta
-    global SaveInitializeMessageSent
     print("LoadGame : Init")
     transition.Run()
 
@@ -104,8 +96,6 @@ def SaveGame():
 
     # -- Save Game Data -- #
     save.SaveData()
-    # -- Save Items Data -- #
-    gameItems.SaveItems()
 
     BackgroundAnim_Type = 1
     BackgroundAnim_Enabled = True
@@ -173,34 +163,6 @@ def Update():
     global SavingScreenEnabled
     global ExperienceStore_Enabled
     global InfosWindow_Enabled
-    global SaveInitializedDelta
-    global SaveInitializeMessageSent
-    global GameLoadToggle
-
-    # -- Load Save -- #
-    if not GameLoadToggle:
-        if reg.ReadKey_bool("/OPTIONS/debug_enabled"):
-            tge.Set_SaveFolder("Aragubas/")
-            GameLoadToggle = True
-            SaveInitializeMessageSent = True
-            SaveInitializedDelta = 0
-
-            print("Loading Thing Loaded 1")
-            LoadGame()
-        else:
-            if SaveInitializedDelta >= 1:
-                GameLoadToggle = True
-                SaveInitializeMessageSent = True
-                SaveInitializedDelta = 0
-                print("Loading Thing Loaded 2")
-
-                LoadGame()
-
-            else:
-                if not SaveInitializeMessageSent:
-                    taiyouMain.ReceiveCommand(10)
-                    SaveInitializeMessageSent = True
-                SaveInitializedDelta += 1
 
     if IsControlsEnabled:
         # -- Update Save -- #
@@ -243,15 +205,11 @@ def Update():
 
             if BackToMainMenu_Delay >= 5:
                 gameMain.CurrentScreen -= 1
-
                 # -- Reset Variables -- #
                 BackToMainMenu_Delay = 0
                 BackToMainMenu = False
 
                 SaveGame()
-                Unload()
-                save.Unload(False)
-
 
         # -- Open Store Button -- #
         if OpenStoreButton .ButtonState == 2:
@@ -342,12 +300,11 @@ def GameDraw(DISPLAY):
     global SavingScreenEnabled
     global BlinkExperienceValue
     global HUD_Surface
-    global SaveInitializeMessageSent
 
     if SavingScreenEnabled:
         UpdateSavingScreen(DISPLAY)
 
-    if not SavingScreenEnabled and SaveInitializeMessageSent:
+    if not SavingScreenEnabled:
         #DISPLAY.fill((5, 13, 17))
 
         # -- Draw the Grind Text -- #
@@ -448,6 +405,8 @@ def Initialize(DISPLAY):
     # -- Initialize the Screen -- #
     HUD_Surface = pygame.Surface((DISPLAY.get_width(), DISPLAY.get_height()))
 
+    # -- Load the Save Game -- #
+    LoadGame()
 
 def EventUpdate(event):
     # -- Update all buttons -- #
@@ -463,7 +422,6 @@ def EventUpdate(event):
     global OpenInfosWindowButton
     global BlinkExperienceEnabled
     global HUD_Surface
-    global GameLoadToggle
 
     if IsControlsEnabled:
         GrindButton.Update(event)
@@ -494,17 +452,3 @@ def EventUpdate(event):
 
     if event.type == pygame.KEYUP and event.key == pygame.K_m:
         save.GrindClick()
-
-def Unload():
-    RestartSavingThing()
-
-def RestartSavingThing():
-    global SaveInitializedDelta
-    global SaveInitializeMessageSent
-    global GameLoadToggle
-
-    print("Save Select has been reset.")
-    GameLoadToggle = False
-    SaveInitializedDelta = 0
-    SaveInitializeMessageSent = False
-    tge.Unload_SaveFolder()

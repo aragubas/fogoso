@@ -133,7 +133,7 @@ def LoadSaveData():
 
     # -- Load Passed Tutorials -- #
     FileData = reg.ReadAppData_WithTry("tutorials_triggered", str, "")
-    SplitedData = FileData.split('\n')
+    SplitedData = FileData.split('%n')
     for tutorial in SplitedData:
         triggered_tutorials.append(str(tutorial))
         print("Tutorial triggered:\n" + str(tutorial))
@@ -200,89 +200,17 @@ def SaveData():
 
     # -- Save Passed Tutorials -- #
     FileData = ""
-    Index = 0
-    for tutorial in triggered_tutorials:
-        if Index > 1:
-            FileData += "\n" + str(tutorial)
-        else:
-            FileData += str(tutorial)
-        Index += 1
-
-        print("Tutorial Added:\n" + FileData)
+    for i, tutorial in enumerate(triggered_tutorials):
+        if not tutorial == "":
+            if i > 1:
+                FileData += "%n" + str(tutorial)
+            else:
+                FileData += str(tutorial)
 
     reg.WriteAppData("tutorials_triggered", FileData)
 
     # -- Save Items Data -- #
     gameItems.SaveItems()
-
-def Unload(SaveWhenExiting=True):
-    global CurrentDate_Day
-    global CurrentDate_Month
-    global CurrentDate_Year
-    global CurrentDate_Minute
-    global CurrentDate_Second
-    global CurrentDate_Microseconds
-    global Current_TotalClicks
-    global Current_TotalClicksNext
-    global Current_TotalClicksForEach
-    global Current_ExperiencePerEach
-    global Current_Experience
-    global Current_Money
-    global Current_MoneyValuePerClick
-    global CurrentDate_DayLimiter
-    global CurrentDate_MonthLimiter
-    global CurrentDate_MinuteLimiter
-    global CurrentDate_SecondLimiter
-    global CurrentDate_YearLimiter
-    global Current_MoneyMinimun
-    global SaveDataLoaded
-    global triggered_tutorials
-
-    if SaveWhenExiting:
-        # -- Save the Game -- #
-        SaveData()
-
-    # -- Unload Items Data -- #
-    gameItems.UnloadItems()
-
-    # -- Load Money and Click Variables -- #
-    Current_Money = None
-    Current_MoneyValuePerClick = None
-    Current_Experience = None
-    Current_MoneyMinimun = None
-    Current_TotalClicks = None
-    Current_TotalClicksForEach = None
-    Current_ExperiencePerEach = None
-
-    # -- Calculate the Total Clicks Next -- #
-    Current_TotalClicksNext = None
-
-    # -- Load the Current Date -- #
-    CurrentDate_Year = None
-    CurrentDate_Month = None
-    CurrentDate_Day = None
-    CurrentDate_Second = None
-    CurrentDate_Minute = None
-    CurrentDate_Microseconds = None
-
-    # -- Load the Date Limiters -- #
-    CurrentDate_MinuteLimiter = None
-    CurrentDate_SecondLimiter = None
-    CurrentDate_DayLimiter = None
-    CurrentDate_MonthLimiter = None
-    CurrentDate_YearLimiter = None
-
-    # -- Load Last Maintenance -- #
-    maintenance.DayTrigger = None
-    maintenance.PerDayValue = None
-    maintenance.BaseMaintenance = None
-
-    # -- Reset some Variables -- #
-    gameScr.GameLoadToggle = False
-    gameScr.SaveInitializedDelta = 0
-    gameScr.SaveInitializeMessageSent = False
-    SaveDataLoaded = False
-    triggered_tutorials.clear()
 
 def UpdateClock():
     global CurrentDate_Day
@@ -319,8 +247,6 @@ def UpdateClock():
         CurrentDate_Month = 0
         CurrentDate_Year += 1
 
-LowerMoneyWarning = False
-BankruptWarningType = 0
 def Update():
     global Current_Money
     global Current_MoneyValuePerClick
@@ -378,6 +304,8 @@ def RestartSaveGame():
 
     print("RestartSaveGame : Done!")
 
+LowerMoneyWarning = False
+BankruptWarningType = 0
 def TriggerBankrupt():
     global LowerMoneyWarning
     global Current_MoneyMinimun
@@ -410,7 +338,7 @@ def TutorialTrigger(Action):
     global triggered_tutorials
 
     try:
-        Index = triggered_tutorials.index(Action)
+        Index = triggered_tutorials.index(str(Action))
         print("GameVariables.TutorialTrigger : Tutorial for action {0} has already been triggered.".format(str(Action)))
 
     except ValueError:

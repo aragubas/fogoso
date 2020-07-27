@@ -159,12 +159,7 @@ class SpriteButton:
         self.ColisionRectangle = pygame.Rect(0,0,0,0)
 
     def Render(self,DISPLAY):
-        if self.ButtonState == "INATIVE":
-            sprite.ImageRender(DISPLAY, self.SpriteList[0], self.Rectangle[0], self.Rectangle[1], self.Rectangle[2], self.Rectangle[3])
-        if self.ButtonState == "DOWN":
-            sprite.ImageRender(DISPLAY, self.SpriteList[1], self.Rectangle[0], self.Rectangle[1], self.Rectangle[2], self.Rectangle[3])
-        if self .ButtonState == 2:
-            sprite.ImageRender(DISPLAY, self.SpriteList[2], self.Rectangle[0], self.Rectangle[1], self.Rectangle[2], self.Rectangle[3])
+        sprite.ImageRender(DISPLAY, self.SpriteList[self.ButtonState], self.Rectangle[0], self.Rectangle[1], self.Rectangle[2], self.Rectangle[3])
 
     def EventUpdate(self, event):
         if not self.CustomColisionRectangle:
@@ -173,12 +168,12 @@ class SpriteButton:
         if self.IsButtonEnabled:
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if self.ColisionRectangle.collidepoint(mainScript.Cursor_Position):
-                    self.ButtonState = "DOWN"
+                    self.ButtonState = 1
                     self.ButtonDowed = True
             elif event.type == pygame.MOUSEBUTTONUP:
                 if self.ColisionRectangle.collidepoint(mainScript.Cursor_Position):
                     if self.ButtonDowed:
-                        self.ButtonState = "UP"
+                        self.ButtonState = 2
                         self.ButtonDowed = False
             if event.type == pygame.MOUSEMOTION:
                 if self.ColisionRectangle.collidepoint(mainScript.Cursor_Position):
@@ -188,10 +183,10 @@ class SpriteButton:
                     if self.CursorSettedToggle:
                         self.CursorSettedToggle = False
                         mainScript.Cursor_CurrentLevel = 0
-                        self.ButtonState = "INATIVE"
+                        self.ButtonState = 0
 
         else:
-            self.ButtonState = "INATIVE"
+            self.ButtonState = 0
 
     def Set_X(self, Value):
         self.Rectangle[0] = Value
