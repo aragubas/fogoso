@@ -58,6 +58,8 @@ def Initialize():
 def ReloadItemsList():
     global ListItems
 
+    ListItems.ClearItems()
+    gameItems.RestartItems()
     # -- Load Items -- #
     for x in range(reg.ReadKey_int("/ItemData/minimum"), reg.ReadKey_int("/ItemData/all") + 1):
         # -- Check if item is Visible -- #

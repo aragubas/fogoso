@@ -1,0 +1,14 @@
+Traceback (most recent call last):
+  File "C:\Users\Vsauce\Desktop\Taiyou\Fogoso\MAIN\__init__.py", line 160, in Update
+    ScreensUpdate()
+  File "C:\Users\Vsauce\Desktop\Taiyou\Fogoso\MAIN\__init__.py", line 201, in ScreensUpdate
+    ScreenGame.Update()
+  File "C:\Users\Vsauce\Desktop\Taiyou\Fogoso\MAIN\Screens\Game\__init__.py", line 267, in Update
+    IncomingLog.Update()
+  File "C:\Users\Vsauce\Desktop\Taiyou\Fogoso\MAIN\Screens\Game\IncomingLog\__init__.py", line 107, in Update
+    AddMoney(TextGrind_Value[x])
+  File "C:\Users\Vsauce\Desktop\Taiyou\Fogoso\MAIN\Screens\Game\IncomingLog\__init__.py", line 133, in AddMoney
+    sound.PlaySound("/hit_1.wav", 0.35)
+  File "C:\Users\Vsauce\Desktop\Taiyou\ENGINE\SOUND\__init__.py", line 137, in PlaySound
+    sound.set_volume(Volume)
+AttributeError: 'NoneType' object has no attribute 'set_volume'

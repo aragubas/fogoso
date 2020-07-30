@@ -54,7 +54,6 @@ CopyOfScreen_Last = False
 CopyOfScreen_Result = pygame.Surface
 CopyOfScreen_BlurAmount = 0
 CopyOfScreen_Set = False
-CopyOfTheScreen = pygame.Surface((5, 5))
 
 Subscreen = 1
 
@@ -111,7 +110,7 @@ def Draw_ScreenshotOfGameScreen(Display):
 
     # -- Blur Amount Value -- #
     if not CopyOfScreen_Last:
-        CopyOfScreen_BlurAmount = max(1.0, DialogOpctAnim_AnimOpacity / reg.ReadKey_float("/OPTIONS/UI_blur_ammount"))
+        CopyOfScreen_BlurAmount = max(1.0, DialogOpctAnim_AnimOpacity / reg.ReadKey_float("/OPTIONS/UI_blur_ammount") * 2.5)
 
     if DialogOpctAnim_AnimEnabled:  # -- Draw the Animation -- #
         CopyOfScreen_Last = False
@@ -119,11 +118,15 @@ def Draw_ScreenshotOfGameScreen(Display):
             Display.blit(sprite.Surface_Blur(fogosoMain.ScreenLastFrame, CopyOfScreen_BlurAmount, reg.ReadKey_bool("/OPTIONS/UI_Pixelate")), (0, 0))
 
         else:
-            Display.blit(CopyOfTheScreen, (0, 0))
+            Display.blit(fogosoMain.ScreenLastFrame, (0, 0))
 
     # -- Draw the Last Frame -- #
     if not CopyOfScreen_Last and not DialogOpctAnim_AnimEnabled:
-        CopyOfScreen_Result = sprite.Surface_Blur(fogosoMain.ScreenLastFrame, CopyOfScreen_BlurAmount)
+        if reg.ReadKey_bool("/OPTIONS/UI_blur_enabled"):
+            CopyOfScreen_Result = sprite.Surface_Blur(fogosoMain.ScreenLastFrame, CopyOfScreen_BlurAmount)
+        else:
+            CopyOfScreen_Result = fogosoMain.ScreenLastFrame
+
         CopyOfScreen_Last = True
 
     # -- Render the Last Frame -- #

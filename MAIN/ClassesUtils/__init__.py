@@ -452,17 +452,17 @@ class Window:
 
         # -- Grab Window -- #
         if self.Window_IsBeingGrabbed:
-            self.TitleBarRectangle[0] = self.Cursor_Position[0] - self.WindowRectangle[2] / 2
-            self.TitleBarRectangle[1] = self.Cursor_Position[1] - self.TitleBarRectangle[3] / 2
+            self.TitleBarRectangle[0] = mainScript.Cursor_Position[0] - self.WindowRectangle[2] / 2
+            self.TitleBarRectangle[1] = mainScript.Cursor_Position[1] - self.TitleBarRectangle[3] / 2
 
         # -- Resize Window -- #
         if self.Window_IsBeingResized and self.Resiziable:
             # -- Limit Window Size -- #
             if self.WindowRectangle[2] >= self.Window_MinimunW:
-                self.WindowRectangle[2] = self.Cursor_Position[0] - self.WindowRectangle[0]
+                self.WindowRectangle[2] = mainScript.Cursor_Position[0] - self.WindowRectangle[0]
 
             if self.WindowRectangle[3] >= self.Window_MinimunH: # <- Resize the Window
-                self.WindowRectangle[3] = self.Cursor_Position[1] - self.WindowRectangle[1]
+                self.WindowRectangle[3] = mainScript.Cursor_Position[1] - self.WindowRectangle[1]
 
         # -- Dont Allow the Window to be resized lower than Minimum Size -- #
         if self.WindowRectangle[2] < self.Window_MinimunW:
@@ -583,6 +583,13 @@ class VerticalListWithDescription:
         self.ItemSelected.append(False)
         self.ItemOrderID.append((len(self.ItemOrderID) - 2) + 1)
 
+    def ClearItems(self):
+        self.ItemsName.clear()
+        self.ItemsDescription.clear()
+        self.ItemSprite.clear()
+        self.ItemSelected.clear()
+        self.ItemOrderID.clear()
+
 class GameItemsView:
     def __init__(self, Rectangle):
         self.Rectangle = Rectangle
@@ -621,12 +628,15 @@ class GameItemsView:
             sprite.ImageRender(self.ListSurface, reg.ReadKey(gameItems.GetItemSprite_ByID(int(itemID))), ItemRect[0] + 3, ItemRect[1] + 15, 64, 64, reg.ReadKey_bool("/OPTIONS/sprite_aa"))
 
             # -- Render the Item Info -- #
-            LittleInfoText = reg.ReadKey("/strings/game/items_info").format(str(gameItems.GetItemCount_ByID(self.ItemsID[i])), str(gameItems.GetItemLevel_ByID(self.ItemsID[i])))
+            LittleInfoText = reg.ReadKey("/strings/game/items_info").format(utils.FormatNumber(gameItems.GetItemCount_ByID(self.ItemsID[i])).replace(".00", ""), str(gameItems.GetItemLevel_ByID(self.ItemsID[i])))
 
             # -- Render Item Info -- #
             sprite.FontRender(self.ListSurface, "/PressStart2P.ttf", 10, LittleInfoText, (250, 250, 250), ItemRect[0] + 70, ItemRect[1] + 12, reg.ReadKey_bool("/OPTIONS/font_aa"))
 
         DISPLAY.blit(self.ListSurface, (self.Rectangle[0], self.Rectangle[1]))
+
+    def ClearItems(self):
+        self.ItemsID.clear()
 
     def Update(self, event):
         # -- Scroll the List -- #
@@ -652,12 +662,8 @@ class GameItemsView:
         self.Rectangle[3] = float(Value)
 
     def AddItem(self, ItemID):
-        ItemID = int(ItemID)
         try:
-            Index = self.ItemsID.index(ItemID)
-            ItemAlreadyExists = True
-        except:
-            ItemAlreadyExists = False
-
-        if not ItemAlreadyExists:
+            Index = self.ItemsID.index(int(ItemID))
+            return
+        except ValueError:
             self.ItemsID.append(int(ItemID))

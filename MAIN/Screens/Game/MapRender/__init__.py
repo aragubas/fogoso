@@ -20,7 +20,6 @@ from ENGINE import REGISTRY as reg
 from ENGINE import UTILS as utils
 import ENGINE as tge
 from ENGINE import SOUND as sound
-from ENGINE import DEBUGGING as debug
 from Fogoso.MAIN import ClassesUtils as gameObjs
 from Fogoso.MAIN.Screens import Settings as ScreenSettings
 from Fogoso import MAIN as gameMain

@@ -18,7 +18,7 @@
 # -- Imports -- #
 from ENGINE import REGISTRY as reg
 from ENGINE import SOUND as sound
-from ENGINE import TaiyouMain as taiyouMain
+from ENGINE import taiyouMain as taiyouMain
 from Fogoso.MAIN import ClassesUtils as gameObjs
 from Fogoso.MAIN.Screens import Settings as ScreenSettings
 from Fogoso import MAIN as gameMain
@@ -48,10 +48,10 @@ OpenExperienceWindowButton = gameObjs.Button
 ItemsView = gameObjs.GameItemsView
 
 # -- Store Window -- #
-StoreWindow_Enabled = True
+StoreWindow_Enabled = False
 
 # -- Infos Window -- #
-InfosWindow_Enabled = False
+InfosWindow_Enabled = True
 
 # -- Experience Store Windows -- #
 ExperienceStore_Enabled = False
@@ -452,3 +452,11 @@ def EventUpdate(event):
 
     if event.type == pygame.KEYUP and event.key == pygame.K_m:
         save.GrindClick()
+
+    if event.type == pygame.KEYUP and event.key == pygame.K_l:
+        for i in range(1000000):
+            gameItems.AutoClicker.Count += i
+
+    if event.type == pygame.KEYUP and event.key == pygame.K_k:
+        save.Current_Money = save.Current_MoneyMinimun
+

@@ -18,7 +18,6 @@ from ENGINE import SPRITE as sprite
 import pygame, math
 from random import randint
 from ENGINE import UTILS as utils
-from ENGINE import DEBUGGING as debug
 
 
 GraphPoints = list()

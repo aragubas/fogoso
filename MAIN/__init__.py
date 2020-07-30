@@ -14,30 +14,32 @@
 #   limitations under the License.
 #
 #
+# -- ENGINE imports -- #
+from ENGINE import utils
+from ENGINE import reg
+from ENGINE import sprite
+from ENGINE import taiyouMain
 
-# -- Imports -- #
-from ENGINE import REGISTRY as reg
-from ENGINE import TaiyouMain as taiyouMain
+# -- Fogoso Module Imports -- #
 from Fogoso.MAIN import ClassesUtils as gameObjs
 from Fogoso.MAIN.Screens import Game as ScreenGame
 from Fogoso.MAIN.Screens import MainMenu as ScreenMenu
 from Fogoso.MAIN.Screens import Settings as ScreenSettings
 from Fogoso.MAIN.Screens import Test as ScreenTest
-
 from Fogoso.MAIN import GameVariables as gameVar
 from Fogoso.MAIN.Screens import Intro as ScreenIntro
 from Fogoso.MAIN.Screens.Game import MapRender as ScreenMap
-from ENGINE import SPRITE as sprite
-from random import randint
 from Fogoso.MAIN import GameVariables as save
-from ENGINE import DEBUGGING as debug
 from Fogoso.MAIN import ScreenTransition as transition
-import pygame, sys, traceback
 from Fogoso.MAIN import OverlayDialog as dialog
+
+# -- MISC Imports -- #
+from random import randint
+import pygame, sys, traceback
 
 
 # -- Cursor Variables -- #
-Cursor_Position = list((20, 20))
+Cursor_Position = (20, 20)
 Cursor_CurrentLevel = 0  #-- 0 = Arrow, 1 = Resize, 2 = Move, 3 = Hand, 4 = Ibeam, 5 = Pirate *x cursor*
 CursorW = 0
 CursorH = 0
@@ -106,7 +108,6 @@ def GameDraw(DISPLAY):  # -- Engine Required Function
             ScreenDraw(DefaultDisplay)
 
             ScreenLastFrame = DefaultDisplay.copy()
-
         else:
             dialog.Draw(DISPLAY)
 
@@ -127,6 +128,10 @@ def GameDraw(DISPLAY):  # -- Engine Required Function
     # -- Render the Transition -- #
     transition.Render(DefaultDisplay)
 
+    if reg.ReadKey_bool("/OPTIONS/debug_enabled"):
+        sprite.FontRender(DefaultDisplay, "/PressStart2P.ttf", 10, "FPS: {0}".format(utils.FormatNumber(taiyouMain.clock.get_fps())), (240, 240, 240), 5, 5, backgroundColor=(5, 8, 13))
+
+
     # -- Render the Error Overlay -- #
     if LastErrorTextEnabled:
         LastErrorTextDeltaTime += 1
@@ -144,7 +149,7 @@ def GeneratedWindowTitle():
         NumberMax = reg.ReadKey_int("/strings/gme_wt/all")
         Current = randint(0, NumberMax)
 
-        taiyouMain.ReceiveCommand(9, "Fogoso : {0}".format(reg.ReadKey("/strings/gme_wt/{0}".format(Current))))
+        taiyouMain.ReceiveCommand(5, "Fogoso : {0}".format(reg.ReadKey("/strings/gme_wt/{0}".format(Current))))
 
 def Update():  # -- Engine Required Function
     global CursorW
@@ -278,7 +283,7 @@ def EventUpdate(event):  # -- Engine Required Function
     global OverlayDialogEnabled
     # -- Update Cursor Location -- #
     if event.type == pygame.MOUSEMOTION:
-        Cursor_Position[0], Cursor_Position[1] = pygame.mouse.get_pos()
+        Cursor_Position = pygame.mouse.get_pos()
 
     if not reg.ReadKey_bool("/OPTIONS/debug_enabled"):
         try:
@@ -337,6 +342,9 @@ def Initialize(DISPLAY):  # -- Engine Required Function
         ScreensInitialize(DISPLAY)
 
     dialog.Initialize()
+
+def Exit():
+    print("Fogoso.Exit called.")
 
 def SetWindowParameters():
     global DefaultDisplay

@@ -21,7 +21,7 @@ from Fogoso import MAIN as gameMain
 from ENGINE import REGISTRY as reg
 from ENGINE import sprite as sprite
 from Fogoso.MAIN import ScreenTransition as transition
-from ENGINE import TaiyouMain as taiyouMain
+from ENGINE import taiyouMain as taiyouMain
 
 # -- Objects Definition -- #
 OptionsScreen_ChangeFps = gameObjs.UpDownButton

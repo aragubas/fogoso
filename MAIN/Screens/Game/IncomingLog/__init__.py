@@ -23,7 +23,6 @@ from Fogoso import MAIN as gameMain
 from ENGINE import SPRITE as sprite
 from Fogoso.MAIN.Screens import Game as gameScr
 from Fogoso.MAIN import GameVariables as save
-from ENGINE import DEBUGGING as debug
 import pygame, os
 
 # -- Receive Log -- #

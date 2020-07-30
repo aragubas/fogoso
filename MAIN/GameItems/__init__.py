@@ -15,32 +15,29 @@
 #
 #
 
-from ENGINE import REGISTRY as reg
-from Fogoso import MAIN as gameMain
+from ENGINE import reg
 from random import randint
-from ENGINE import UTILS as utils
-from ENGINE import DEBUGGING as debug
+from ENGINE import utils
+from Fogoso import MAIN as gameMain
+from Fogoso.MAIN.GameItems import AutoClicker
 
 # -- Game Items Variables -- #
 ItemsList = list()
 ItemsInitialized = False
 
 # -- Items Levels -- #
-Item_AutoClicker_LastLevel = 0
 Item_ExperienceStore_LastLevel = 0
 Item_Shop_LastLevel = 0
 
 # -- Items Count -- #
 Item_ExperienceStore_Count = 0
-Item_AutoClicker_Count = 0
 Item_Shop_Count = 0
 
 def LoadItemsLevels():
-    global Item_AutoClicker_LastLevel
     global Item_ExperienceStore_LastLevel
     global Item_Shop_LastLevel
 
-    Item_AutoClicker_LastLevel = reg.ReadAppData_WithTry("item_level/0_level", int, "0")
+    AutoClicker.LastLevel = reg.ReadAppData_WithTry("item_level/0_level", int, "0")
     Item_ExperienceStore_LastLevel = reg.ReadAppData_WithTry("item_level/-1_level", int, "0")
     Item_Shop_LastLevel = reg.ReadAppData_WithTry("item_level/-2_level", int, "0")
 
@@ -49,20 +46,17 @@ def LoadItemsLevels():
 def GetItemSprite_ByID(ItemID):
     return "/ItemData/sprite/{0}_level_{1}".format(str(ItemID), str(GetItemLevel_ByID(ItemID)))
 
-
 # -- Item Level -- #
 def SaveItemsLevel():
-    global Item_AutoClicker_LastLevel
     global Item_ExperienceStore_LastLevel
     global Item_Shop_LastLevel
 
-    reg.WriteAppData("item_level/0_level", Item_AutoClicker_LastLevel)
+    reg.WriteAppData("item_level/0_level", AutoClicker.LastLevel)
     reg.WriteAppData("item_level/-1_level", Item_ExperienceStore_LastLevel)
     reg.WriteAppData("item_level/-2_level", Item_Shop_LastLevel)
 
 # -- Get Item Level -- #
 def GetItemLevel_ByID(ItemID):
-    global Item_AutoClicker_LastLevel
     global Item_ExperienceStore_LastLevel
     global Item_Shop_LastLevel
 
@@ -73,11 +67,18 @@ def GetItemLevel_ByID(ItemID):
         return Item_ExperienceStore_LastLevel
 
     elif ItemID == 0:
-        return Item_AutoClicker_LastLevel
+        return AutoClicker.LastLevel
 
     else:
         print("Fogoso.GameItems.GetItemsLevelByID : ItemID[{0}] is invalid.".format(str(ItemID)))
         return 0
+
+# -- Get the Maintenance Price -- #
+def GetItem_MaintenancePrice(ItemID):
+    RegDir = "/ItemData/{0}/lv_{1}_cost_maintenance".format(str(ItemID), str(GetItemLevel_ByID(int(ItemID))))
+
+    return max(reg.ReadKey_float(RegDir), reg.ReadKey_float(RegDir) * GetItemCount_ByID(ItemID))
+
 
 # -- Item Price -- #
 def GetItemPrice_ByID(ItemID):
@@ -107,14 +108,10 @@ def CreateItemObject(ItemID):
     elif ItemID == -1:
         ItemsList.append(Item_ExperienceStore())
 
-    elif ItemID == 0:
-        ItemsList.append(Item_AutoClicker())
-
 
 # -- Item Count -- #
 def GetItemCount_ByID(ItemID):
     global Item_ExperienceStore_Count
-    global Item_AutoClicker_Count
     global Item_Shop_Count
 
     if ItemID == -2:
@@ -124,12 +121,11 @@ def GetItemCount_ByID(ItemID):
         return Item_ExperienceStore_Count
 
     elif ItemID == 0:
-        return Item_AutoClicker_Count
+        return AutoClicker.Count
 
 # -- Increase Item Level -- #
 def IncreaseItemLevel_ByID(ItemID):
     global Item_ExperienceStore_LastLevel
-    global Item_AutoClicker_LastLevel
     global Item_Shop_LastLevel
 
     if ItemID == -2:
@@ -139,12 +135,11 @@ def IncreaseItemLevel_ByID(ItemID):
         Item_ExperienceStore_LastLevel += 1
 
     elif ItemID == 0:
-        Item_AutoClicker_LastLevel += 1
+        AutoClicker.LastLevel += 1
 
 # -- Increase Item Count -- #
-def IncreaseItemCount_ByID(ItemID):
+def IncreaseItemCount_ByID(ItemID, AddToItemDisplay=True):
     global Item_ExperienceStore_Count
-    global Item_AutoClicker_Count
     global Item_Shop_Count
 
     if ItemID == -2:
@@ -154,7 +149,12 @@ def IncreaseItemCount_ByID(ItemID):
         Item_ExperienceStore_Count += 1
 
     elif ItemID == 0:
-        Item_AutoClicker_Count += 1
+        AutoClicker.Count += 1
+
+    # -- Add item to the Items View -- #
+    if AddToItemDisplay:
+        gameMain.ScreenGame.ItemsView.AddItem(int(ItemID))
+
 
 def UnloadItems():
     global ItemsInitialized
@@ -171,17 +171,15 @@ def UnloadItems():
 
 def RestartItemCount():
     global Item_ExperienceStore_Count
-    global Item_AutoClicker_Count
     global Item_Shop_Count
 
     Item_Shop_Count = 0
     Item_ExperienceStore_Count = 0
-    Item_AutoClicker_Count = 0
+    AutoClicker.Count = 0
 
 # -- Load Items Data -- #
 def LoadItems():
     global Item_ExperienceStore_Count
-    global Item_AutoClicker_Count
     global ItemsList
     global ItemsInitialized
     AllKeys = 0
@@ -196,21 +194,31 @@ def LoadItems():
         # -- Increase item Count -- #
         IncreaseItemCount_ByID(int(x))
 
-        # -- Add Game item -- #
-        CreateItemObject(int(x))
-
         # -- Add item to the Items View -- #
         gameMain.ScreenGame.ItemsView.AddItem(int(x))
 
     ItemsInitialized = True
     print("LoadItems ; AllItemsLoaded: " + str(AllKeys))
 
+    # -- Load the Items2 List --
+    Items2List = reg.ReadAppData_WithTry("Items2", str, "").splitlines()
+
+    for i, x in enumerate(Items2List):
+        x = x.rstrip()
+        SplitLine = x.split(":")
+
+        ItemIDs = int(SplitLine[0])
+        ItemCount = int(SplitLine[1])
+
+        for _ in range(ItemCount):
+            IncreaseItemCount_ByID(ItemIDs)
+
 # -- Save Items Data -- #
 def SaveItems():
     global ItemsList
 
     AllItemsData = ""
-    for i in range(0, len(ItemsList)):
+    for i in range(len(ItemsList)):
         print("SaveItem : id:" + str(i))
         if i >= 1:
             AllItemsData += "\n" + str(ItemsList[i].ItemID)
@@ -221,8 +229,16 @@ def SaveItems():
     # -- Write Files -- #
     reg.WriteAppData("Items", AllItemsData)
 
-    SaveItemsLevel()
+    # -- Save AutoClicker Instance -- #
+    Items2List = ""
 
+    if GetItemCount_ByID(0) > 1:
+        Items2List += "0:{0}".format(GetItemCount_ByID(0))
+
+    # -- Write Save File -- #
+    reg.WriteAppData("Items2", Items2List)
+
+    SaveItemsLevel()
 
 def UpdateItems():
     global ItemsList
@@ -233,6 +249,8 @@ def UpdateItems():
             x.InstanceID = i
             x.Update()
 
+    if GetItemCount_ByID(0) > 1:
+        AutoClicker.Run()
 
 # -- Restart Items Data -- #
 def RestartItems():
@@ -242,41 +260,9 @@ def RestartItems():
     ItemsInitialized = False
     RestartItemCount()
     ItemsList.clear()
+    gameMain.ScreenGame.ItemsView.ClearItems()
 
     LoadItems()
-
-
-class Item_AutoClicker:
-    def __init__(self):
-        self.DeltaTime = 0
-        self.DeltaTimeAction = 0
-        self.ItemIsActivated = False
-        self.InstanceID = 0
-        self.ItemRoll = 0
-        self.ItemID = 0
-
-        # -- Item Statistics -- #
-        self.ItemLevel = GetItemLevel_ByID(self.ItemID)
-        self.ItemClickPerSecound = reg.ReadKey_float("/ItemData/0/lv_" + str(self.ItemLevel) + "_click")
-        self.maintenance_cost = reg.ReadKey_float("/ItemData/0/lv_" + str(self.ItemLevel) + "_cost_maintenance")
-
-    def Update(self):
-        self.DeltaTime += 1
-
-        if self.DeltaTime >= self.DeltaTimeAction:
-            self.DeltaTime = 0
-            self.DeltaTimeAction = self.InstanceID * (gameMain.save.CurrentDate_Second / 2)
-
-            TotalValue = self.ItemClickPerSecound * gameMain.save.Current_MoneyMultiplier
-            AdderText = "+{0}".format(utils.FormatNumber(TotalValue))
-
-            gameMain.ScreenGame.IncomingLog.AddMessageText(AdderText, True, (150, 220, 150), TotalValue)
-            self.ReloadStatus()
-
-    def ReloadStatus(self):
-        self.ItemLevel = GetItemLevel_ByID(self.ItemID)
-        self.ItemClickPerSecound = reg.ReadKey_float("/ItemData/0/lv_" + str(self.ItemLevel) + "_click")
-        self.maintenance_cost = reg.ReadKey_float("/ItemData/0/lv_" + str(self.ItemLevel) + "_cost_maintenance")
 
 class Item_ExperienceStore:
     def __init__(self):

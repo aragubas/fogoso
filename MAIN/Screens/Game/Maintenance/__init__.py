@@ -23,7 +23,7 @@ from Fogoso.MAIN.Screens.Game import IncomingLog
 from ENGINE import UTILS as utils
 from random import randint
 
-print("Fogoso Maintenance , version 1.2")
+print("Fogoso Maintenance , version 1.3")
 
 # -- Variables -- #
 ItemsMaintenance = 0.0
@@ -33,6 +33,18 @@ LastMaintenancePrice = 0.0
 DayTrigger = 1
 PerDayValue = 1
 NextMaintenanceDay = 0
+
+def Unload():
+    global LastMaintenancePrice
+    global DayTrigger
+    global PerDayValue
+    global NextMaintenanceDay
+    global ItemsMaintenance
+
+    LastMaintenancePrice = 0.0
+    DayTrigger = 1
+    PerDayValue = 1
+    ItemsMaintenance = 0.0
 
 def Update():
     global ItemsMaintenance
@@ -55,6 +67,10 @@ def Update():
         for item in gameItems.ItemsList:
             TotalItems += 1
             ItemsMaintenance = ItemsMaintenance + item.maintenance_cost + randint(1, TotalItems)
+
+        # -- Add Maintenance of Auto Clicker -- #
+        if gameItems.GetItemCount_ByID(0) > 1:
+            ItemsMaintenance += (gameItems.GetItem_MaintenancePrice(0) * gameItems.GetItemCount_ByID(0))
 
         # -- Calculate the Maintenance -- #
         MaintenancePrice = BaseMaintenance + ItemsMaintenance
