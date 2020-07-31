@@ -16,13 +16,13 @@
 #
 
 # -- Imports -- #
-from ENGINE import REGISTRY as reg
+from ENGINE import APPDATA as reg
 from ENGINE import UTILS as utils
 import ENGINE as tge
 from ENGINE import SOUND as sound
 from Fogoso.MAIN import ClassesUtils as gameObjs
 from Fogoso import MAIN as gameMain
-from ENGINE import SPRITE as sprite
+from ENGINE import CONTENT_MANAGER as sprite
 
 import pygame, sys
 
@@ -53,28 +53,28 @@ def Update():
     global ElementsY
 
     if OptionsScreen_DebugModeEnabled .ButtonState == 2 or OptionsScreen_DebugModeEnabled.ButtonState == 1:
-        current_val = reg.ReadKey_bool("/OPTIONS/debug_enabled")
+        current_val = gameMain.DefaultCnt.Get_RegKey("/OPTIONS/debug_enabled", bool)
         if not current_val:
-            reg.WriteKey("/OPTIONS/debug_enabled", "True")
+            gameMain.DefaultCnt.Write_RegKey("/OPTIONS/debug_enabled", "True")
 
         if current_val:
-            reg.WriteKey("/OPTIONS/debug_enabled", "False")
+            gameMain.DefaultCnt.Write_RegKey("/OPTIONS/debug_enabled", "False")
 
     if OptionsScreen_RandomWindowTitle .ButtonState == 2 or OptionsScreen_RandomWindowTitle.ButtonState == 1:
-        current_val = reg.ReadKey_bool("/OPTIONS/random_title")
+        current_val = gameMain.DefaultCnt.Get_RegKey("/OPTIONS/random_title", bool)
 
         if current_val:
-            reg.WriteKey("/OPTIONS/random_title", "False")
+            gameMain.DefaultCnt.Write_RegKey("/OPTIONS/random_title", "False")
         if not current_val:
-            reg.WriteKey("/OPTIONS/random_title", "True")
+            gameMain.DefaultCnt.Write_RegKey("/OPTIONS/random_title", "True")
 
     if OptionsScreen_NumberFormatting .ButtonState == 2 or OptionsScreen_NumberFormatting.ButtonState == 1:
-        current_val = reg.ReadKey_bool("/OPTIONS/format_numbers")
+        current_val = gameMain.DefaultCnt.Get_RegKey("/OPTIONS/format_numbers", bool)
 
         if current_val:
-            reg.WriteKey("/OPTIONS/format_numbers", "False")
+            gameMain.DefaultCnt.Write_RegKey("/OPTIONS/format_numbers", "False")
         if not current_val:
-            reg.WriteKey("/OPTIONS/format_numbers", "True")
+            gameMain.DefaultCnt.Write_RegKey("/OPTIONS/format_numbers", "True")
 
     OptionsScreen_DebugModeEnabled.Set_X(ElementsX + 20)
     OptionsScreen_RandomWindowTitle.Set_X(ElementsX + 20)
@@ -94,13 +94,13 @@ def Render(DISPLAY):
     OptionsScreen_NumberFormatting.Render(DISPLAY)
 
     # -- Debug Mode -- #
-    sprite.FontRender(DISPLAY, "/PressStart2P.ttf", 14, reg.ReadKey("/strings/settings/debug_mode") + str(reg.ReadKey_bool("/OPTIONS/debug_enabled")), (240, 240, 240), ElementsX + 95, ElementsY + 52, reg.ReadKey_bool("/OPTIONS/font_aa"))
+    gameMain.DefaultCnt.FontRender(DISPLAY, "/PressStart2P.ttf", 14, gameMain.DefaultCnt.Get_RegKey("/strings/settings/debug_mode") + str(gameMain.DefaultCnt.Get_RegKey("/OPTIONS/debug_enabled")), (240, 240, 240), ElementsX + 95, ElementsY + 52, gameMain.DefaultCnt.Get_RegKey("/OPTIONS/font_aa"))
 
     # -- Random Title -- #
-    sprite.FontRender(DISPLAY, "/PressStart2P.ttf", 14, reg.ReadKey("/strings/settings/random_title") + str(reg.ReadKey_bool("/OPTIONS/random_title")), (240, 240, 240), ElementsX + 95, ElementsY + 77, reg.ReadKey_bool("/OPTIONS/font_aa"))
+    gameMain.DefaultCnt.FontRender(DISPLAY, "/PressStart2P.ttf", 14, gameMain.DefaultCnt.Get_RegKey("/strings/settings/random_title") + str(gameMain.DefaultCnt.Get_RegKey("/OPTIONS/random_title")), (240, 240, 240), ElementsX + 95, ElementsY + 77, gameMain.DefaultCnt.Get_RegKey("/OPTIONS/font_aa"))
 
     # -- Number Formatting -- #
-    sprite.FontRender(DISPLAY, "/PressStart2P.ttf", 14, reg.ReadKey("/strings/settings/number_formatting") + str(reg.ReadKey_bool("/OPTIONS/format_numbers")), (240, 240, 240), ElementsX + 95, ElementsY + 102, reg.ReadKey_bool("/OPTIONS/font_aa"))
+    gameMain.DefaultCnt.FontRender(DISPLAY, "/PressStart2P.ttf", 14, gameMain.DefaultCnt.Get_RegKey("/strings/settings/number_formatting") + str(gameMain.DefaultCnt.Get_RegKey("/OPTIONS/format_numbers")), (240, 240, 240), ElementsX + 95, ElementsY + 102, gameMain.DefaultCnt.Get_RegKey("/OPTIONS/font_aa"))
 
 
 

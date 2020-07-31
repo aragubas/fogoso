@@ -16,13 +16,13 @@
 #
 
 # -- Imports -- #
-from ENGINE import REGISTRY as reg
+from ENGINE import APPDATA as reg
 from ENGINE import UTILS as utils
 import ENGINE as tge
 from ENGINE import SOUND as sound
 from Fogoso.MAIN import ClassesUtils as gameObjs
 from Fogoso import MAIN as gameMain
-from ENGINE import SPRITE as sprite
+from ENGINE import CONTENT_MANAGER as sprite
 from Fogoso.MAIN.Screens.Settings import category_0 as Category0
 from Fogoso.MAIN.Screens.Settings import category_1 as Category1
 from Fogoso.MAIN.Screens.Settings import category_2 as Category2
@@ -39,6 +39,7 @@ OptionsScreen_UpDownCategory = gameObjs.UpDownButton
 
 # -- Category -- #
 Current_Category = 1
+CurrentCategoryUpdate = Category0
 
 # -- Elements -- #
 ElementsX = 0
@@ -50,6 +51,7 @@ def Update():
     global ElementsY
     global ElementsX
     global OptionsScreen_UpDownCategory
+    global CurrentCategoryUpdate
 
     # -- Update Elements Location -- #
     ElementsX = gameMain.DefaultDisplay.get_width() / 2 - 275
@@ -61,40 +63,44 @@ def Update():
 
     # -- Change Category UP Button -- #
     if OptionsScreen_UpDownCategory .ButtonState == 2:
-        MaxCategory = reg.ReadKey_int("/props/settings_max_category")
+        MaxCategory = gameMain.DefaultCnt.Get_RegKey("/props/settings_max_category", int)
         Current_Category += 1
         if Current_Category > MaxCategory:
             Current_Category = 0
         transition.Run()
+        Set_Category(Current_Category)
 
     if OptionsScreen_UpDownCategory.ButtonState == 1:
-        MaxCategory = reg.ReadKey_int("/props/settings_max_category")
+        MaxCategory = gameMain.DefaultCnt.Get_RegKey("/props/settings_max_category", int)
         Current_Category -= 1
         if Current_Category < 0:
             Current_Category = MaxCategory
         transition.Run()
+        Set_Category(Current_Category)
 
-    if Current_Category == 0:
-        Category0.Update()
-        # -- Set the Elements Position -- #
-        Category0.ElementsY = ElementsY
-        Category0.ElementsX = ElementsX
-    if Current_Category == 1:
-        Category1.Update()
-        # -- Set the Elements Position -- #
-        Category1.ElementsY = ElementsY
-        Category1.ElementsX = ElementsX
-    if Current_Category == 2:
-        Category2.Update()
-        # -- Set the Elements Position -- #
-        Category2.ElementsX = ElementsX
-        Category2.ElementsY = ElementsY
+    # -- Update current Category -- #
+    CurrentCategoryUpdate.Update()
+    # -- Set the Elements Position -- #
+    CurrentCategoryUpdate.ElementsX = ElementsX
+    CurrentCategoryUpdate.ElementsY = ElementsY
 
     if OptionsScreen_CloseButton .ButtonState == 2:
         transition.Run()
-        gameMain.CurrentScreen = ScreenToReturn
+        gameMain.SetScreen_ByID(ScreenToReturn)
 
     OptionsScreen_CloseButton.Set_X(gameMain.DefaultDisplay.get_width() - 120)
+
+def Set_Category(CategoryID):
+    global CurrentCategoryUpdate
+
+    if CategoryID == 0:
+        CurrentCategoryUpdate = Category0
+
+    elif CategoryID == 1:
+        CurrentCategoryUpdate = Category1
+
+    elif CategoryID == 2:
+        CurrentCategoryUpdate = Category2
 
 
 def GameDraw(DISPLAY):
@@ -102,14 +108,15 @@ def GameDraw(DISPLAY):
     global ElementsY
     global ElementsX
     global OptionsScreen_UpDownCategory
+    global CurrentCategoryUpdate
 
     # -- Draw the Background -- #
     gameObjs.Draw_Panel(DISPLAY, (ElementsX, ElementsY, 558, 258))
 
     # -- Render the Title Text -- #
-    sprite.Shape_Rectangle(DISPLAY, (1, 22, 39), (ElementsX, ElementsY, 558, 22))
-    sprite.FontRender(DISPLAY, "/PressStart2P.ttf", 15, reg.ReadKey("/strings/settings/category/{0}".format(str(Current_Category))), (246, 247, 248), ElementsX + 5,
-                      ElementsY + 4, reg.ReadKey_bool("/OPTIONS/font_aa"))
+    gameMain.shape.Shape_Rectangle(DISPLAY, (1, 22, 39), (ElementsX, ElementsY, 558, 22))
+    gameMain.DefaultCnt.FontRender(DISPLAY, "/PressStart2P.ttf", 15, gameMain.DefaultCnt.Get_RegKey("/strings/settings/category/{0}".format(str(Current_Category))), (246, 247, 248), ElementsX + 5,
+                               ElementsY + 4, gameMain.DefaultCnt.Get_RegKey("/OPTIONS/font_aa"))
 
     # -- Render Close Button -- #
     OptionsScreen_CloseButton.Render(DISPLAY)
@@ -118,21 +125,14 @@ def GameDraw(DISPLAY):
     OptionsScreen_UpDownCategory.Render(DISPLAY)
 
     # -- Render Categorys -- #
-    if Current_Category == 0:
-        Category0.Render(DISPLAY)
-
-    if Current_Category == 1:
-        Category1.Render(DISPLAY)
-
-    if Current_Category == 2:
-        Category2.Render(DISPLAY)
+    CurrentCategoryUpdate.Render(DISPLAY)
 
 def Initialize():
     global OptionsScreen_CloseButton
     global OptionsScreen_UpDownCategory
 
-    OptionsScreen_CloseButton = gameObjs.Button(pygame.rect.Rect(0, 5, 0, 0), reg.ReadKey("/strings/settings/back_button"), 14)
-    OptionsScreen_UpDownCategory = gameObjs.UpDownButton(5,5,14)
+    OptionsScreen_CloseButton = gameObjs.Button(pygame.rect.Rect(0, 5, 0, 0), gameMain.DefaultCnt.Get_RegKey("/strings/settings/back_button"), 14)
+    OptionsScreen_UpDownCategory = gameObjs.UpDownButton(5, 5, 14)
 
     gameMain.ClearColor = (1, 24, 32)
 
@@ -144,12 +144,9 @@ def EventUpdate(event):
     global Current_Category
     global OptionsScreen_CloseButton
     global OptionsScreen_UpDownCategory
+    global CurrentCategoryUpdate
+
     OptionsScreen_CloseButton.Update(event)
     OptionsScreen_UpDownCategory.Update(event)
 
-    if Current_Category == 0:
-        Category0.EventUpdate(event)
-    if Current_Category == 1:
-        Category1.EventUpdate(event)
-    if Current_Category == 2:
-        Category2.EventUpdate(event)
+    CurrentCategoryUpdate.EventUpdate(event)

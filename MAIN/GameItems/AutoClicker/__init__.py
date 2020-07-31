@@ -36,7 +36,7 @@ def Run():
         DeltaTime = 0
         # -- ItemID is 0
         ItemLevel = items.GetItemLevel_ByID(0)
-        ItemClickPerSecound = reg.ReadKey_float("/ItemData/0/lv_" + str(ItemLevel) + "_click")
+        ItemClickPerSecound = gameMain.DefaultCnt.Get_RegKey("/ItemData/0/lv_{0}_click".format(ItemLevel), float)
 
         TotalValue = (ItemClickPerSecound * gameMain.save.Current_MoneyMultiplier) * items.GetItemCount_ByID(0)
         AdderText = "+{0}".format(utils.FormatNumber(TotalValue))

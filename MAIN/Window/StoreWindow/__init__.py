@@ -15,11 +15,12 @@
 #
 #
 
-from ENGINE import SPRITE as sprite
-from ENGINE import REGISTRY as reg
+from ENGINE import CONTENT_MANAGER as sprite
+from ENGINE import APPDATA as reg
 from Fogoso.MAIN.Screens import Game as GameScreen 
 from Fogoso.MAIN import ClassesUtils as gameObjs
 from Fogoso.MAIN import GameItems as gameItems
+from Fogoso import MAIN as gameMain
 from Fogoso.MAIN import GameVariables as save
 from ENGINE import UTILS as utils
 from Fogoso.MAIN.Screens.Game import IncomingLog as IncomingLog
@@ -48,9 +49,9 @@ def Initialize():
     global BuyButton
     global DrawnSurface
     global ListItems
-    WindowObject = gameObjs.Window(pygame.Rect(100,100,430,285), reg.ReadKey("/strings/window/store/window_title"), True)
+    WindowObject = gameObjs.Window(pygame.Rect(100,100,430,285), gameMain.DefaultCnt.Get_RegKey("/strings/window/store/window_title"), True)
     WindowObject.Minimizable = False
-    BuyButton = gameObjs.Button(pygame.Rect(20, 20, 50, 50), reg.ReadKey("/strings/window/store/buy_button"), 14)
+    BuyButton = gameObjs.Button(pygame.Rect(20, 20, 50, 50), gameMain.DefaultCnt.Get_RegKey("/strings/window/store/buy_button"), 14)
     BuyButton.CustomColisionRectangle = True
     DrawnSurface = pygame.Surface((WindowObject.WindowSurface_Rect[2], WindowObject.WindowSurface_Rect[3]), pygame.SRCALPHA)
     ListItems = gameObjs.VerticalListWithDescription(pygame.Rect(0, 0, 350, 250))
@@ -61,12 +62,12 @@ def ReloadItemsList():
     ListItems.ClearItems()
     gameItems.RestartItems()
     # -- Load Items -- #
-    for x in range(reg.ReadKey_int("/ItemData/minimum"), reg.ReadKey_int("/ItemData/all") + 1):
+    for x in range(gameMain.DefaultCnt.Get_RegKey("/ItemData/minimum", int), gameMain.DefaultCnt.Get_RegKey("/ItemData/all", int) + 1):
         # -- Check if item is Visible -- #
-        if reg.ReadKey_bool("/ItemData/" + str(x) + "/is_buyable"):
+        if gameMain.DefaultCnt.Get_RegKey("/ItemData/" + str(x) + "/is_buyable", bool):
             CurrentItemRoot = "/ItemData/store/" + str(x) + "_"
             ItemSprite = gameItems.GetItemSprite_ByID(x)
-            ListItems.AddItem(reg.ReadKey(CurrentItemRoot + "name"), reg.ReadKey(CurrentItemRoot + "description"), reg.ReadKey(ItemSprite))
+            ListItems.AddItem(gameMain.DefaultCnt.Get_RegKey(CurrentItemRoot + "name"), gameMain.DefaultCnt.Get_RegKey(CurrentItemRoot + "description"), gameMain.DefaultCnt.Get_RegKey(ItemSprite))
 
 def Render(DISPLAY):
     global WindowObject
@@ -90,14 +91,14 @@ def Render(DISPLAY):
         # -- Render the Selected Item Text -- #
         if ListItems.LastItemClicked != "null":
             # -- Down Panel Background -- #
-            sprite.Shape_Rectangle(DrawnSurface, (0, 0, 0, 100), (0, DrawnSurface.get_height() - DownBar_BuyPanelYOffset, DrawnSurface.get_width(), DownBar_BuyPanelYOffset))
-            sprite.Shape_Rectangle(DrawnSurface, (16, 166, 152), (0, DrawnSurface.get_height() - DownBar_BuyPanelYOffset - 1, DrawnSurface.get_width(), 1))
+            gameMain.shape.Shape_Rectangle(DrawnSurface, (0, 0, 0, 100), (0, DrawnSurface.get_height() - DownBar_BuyPanelYOffset, DrawnSurface.get_width(), DownBar_BuyPanelYOffset))
+            gameMain.shape.Shape_Rectangle(DrawnSurface, (16, 166, 152), (0, DrawnSurface.get_height() - DownBar_BuyPanelYOffset - 1, DrawnSurface.get_width(), 1))
 
             # -- Draw the Buy Button -- #
             BuyButton.Render(DrawnSurface)
 
             # -- Draw the Item Title -- #
-            sprite.FontRender(DrawnSurface, "/PressStart2P.ttf", 15, ListItems.LastItemClicked, (250, 250, 250), 10, DrawnSurface.get_height() - DownBar_BuyPanelYOffset + 5, reg.ReadKey_bool("/OPTIONS/font_aa"))
+            gameMain.DefaultCnt.FontRender(DrawnSurface, "/PressStart2P.ttf", 15, ListItems.LastItemClicked, (250, 250, 250), 10, DrawnSurface.get_height() - DownBar_BuyPanelYOffset + 5, gameMain.DefaultCnt.Get_RegKey("/OPTIONS/font_aa", bool))
 
             # -- Draw the Item Price -- #
             PriceTextOpacity = 255
@@ -107,7 +108,7 @@ def Render(DISPLAY):
                 if PriceTextOpacity <= 100:
                     PriceTextOpacity = 100
 
-            sprite.FontRender(DrawnSurface, "/PressStart2P.ttf", 8, "$" + str(utils.FormatNumber(SelectedItemPrice)), (PriceTextOpacity, PriceTextOpacity, PriceTextOpacity), 10, DrawnSurface.get_height() - DownBar_BuyPanelYOffset + 20, reg.ReadKey_bool("/OPTIONS/font_aa"), Opacity=PriceTextOpacity)
+            gameMain.DefaultCnt.FontRender(DrawnSurface, "/PressStart2P.ttf", 8, "${0}".format(utils.FormatNumber(SelectedItemPrice)), (PriceTextOpacity, PriceTextOpacity, PriceTextOpacity), 10, DrawnSurface.get_height() - DownBar_BuyPanelYOffset + 20, gameMain.DefaultCnt.Get_RegKey("/OPTIONS/font_aa", bool), Opacity=PriceTextOpacity)
 
     WindowObject.Render(DISPLAY)
     DISPLAY.blit(DrawnSurface, (WindowObject.WindowSurface_Rect[0], WindowObject.WindowSurface_Rect[1]))
@@ -126,14 +127,11 @@ def Update():
         if LastClickedItem != ListItems.LastItemClicked:
             DownBar_BuyPanelAnimEnabled = True
             DownBar_BuyPanelYOffset = 0
-        LastClickedItem = ListItems.LastItemClicked
+            LastClickedItem = ListItems.LastItemClicked
 
-    # -- Set Item Price and ID -- #
-    if not LastItemIDSelected == ListItems.LastItemOrderID:  # -- Only Update when needed
-        SelectedItemPrice = gameItems.GetItemPrice_ByID(ListItems.LastItemOrderID)
+        # -- Set Item Price and ID -- #
         SelectedItemID = ListItems.LastItemOrderID
-
-        LastItemIDSelected = ListItems.LastItemOrderID
+        SelectedItemPrice = gameItems.GetItemPrice_ByID(SelectedItemID)
 
     # -- Set the Buy Button Location -- #
     BuyButton.Set_X(WindowObject.WindowRectangle[2] - BuyButton.Rectangle[2] - 5)
@@ -144,15 +142,12 @@ def Update():
     BuyButton.Set_ColisionY(WindowObject.WindowRectangle[1] + BuyButton.Rectangle[1] + BuyButton.Rectangle[3])
 
     # -- Update Buy Button -- #
-    if BuyButton .ButtonState == 2:
-        # -- Update Item Price -- #
-        SelectedItemPrice = gameItems.GetItemPrice_ByID(ListItems.LastItemOrderID)
-
+    if BuyButton.ButtonState == 2:
         if save.Current_Money >= SelectedItemPrice:  # -- If you can buy the Item -- #
             BuyItem_ByID(SelectedItemID)
 
         else:  # -- Notify that you can't buy that item
-            IncomingLog.AddMessageText(reg.ReadKey("/strings/window/store/cant_buy_item"), False, (250, 150, 150))
+            IncomingLog.AddMessageText(gameMain.DefaultCnt.Get_RegKey("/strings/window/store/cant_buy_item"), False, (250, 150, 150))
             sound.PlaySound("/hit_2.wav", 0.5)
 
     # -- Update the Items List -- #
@@ -197,7 +192,6 @@ def BuyItem_ByID(ItemID):
             BuySucefully = True
 
     else:  # -- Buy Common Items -- #
-        # -- Increase Item Count -- #
         gameItems.IncreaseItemCount_ByID(ItemID)
 
         # -- Create Item Object -- #
@@ -213,7 +207,7 @@ def BuyItem_ByID(ItemID):
         GameScreen.ItemsView.AddItem(str(ItemID))
     else:
         # -- Subtract the Money -- #
-        IncomingLog.AddMessageText(reg.ReadKey("/strings/window/store/cant_buy_item"), False, (250, 150, 150))
+        IncomingLog.AddMessageText(gameMain.DefaultCnt.Get_RegKey("/strings/window/store/cant_buy_item"), False, (250, 150, 150))
         sound.PlaySound("/hit_2.wav", 0.5)
 
 

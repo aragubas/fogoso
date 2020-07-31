@@ -15,15 +15,16 @@
 #
 #
 import pygame, os, sys, shutil
-from ENGINE import SPRITE as sprite
+from ENGINE import CONTENT_MANAGER as sprite
 from ENGINE import SOUND as sound
 from Fogoso.MAIN import ClassesUtils as gtk
 from Fogoso import MAIN as fogosoMain
+from Fogoso import MAIN as gameMain
 import ENGINE as tge
 from ENGINE import utils
-from ENGINE import SPRITE as sprite
+from ENGINE import CONTENT_MANAGER as sprite
 from ENGINE import SOUND as sound
-from ENGINE import REGISTRY as reg
+from ENGINE import APPDATA as reg
 from Fogoso.MAIN.OverlayDialog import subscreen1
 
 DialogRectangle = pygame.Rect
@@ -87,8 +88,8 @@ def Draw(Display):
         gtk.Draw_Panel(CommonDisplay, DialogRectangle)
 
         # -- Draw the Titlebar -- #
-        sprite.Shape_Rectangle(CommonDisplay, (10, 32, 49), (0, 0, DialogRectangle[2], 25))
-        sprite.FontRender(CommonDisplay, "/PressStart2P.ttf", 18, MessageTitle, (240, 240, 240), DialogRectangle[2] / 2 - sprite.GetFont_width("/PressStart2P.ttf", 18, MessageTitle) / 2, 4)
+        gameMain.shape.Shape_Rectangle(CommonDisplay, (10, 32, 49), (0, 0, DialogRectangle[2], 25))
+        gameMain.DefaultCnt.FontRender(CommonDisplay, "/PressStart2P.ttf", 18, MessageTitle, (240, 240, 240), DialogRectangle[2] / 2 - gameMain.DefaultCnt.GetFont_width("/PressStart2P.ttf", 18, MessageTitle) / 2, 4)
 
         if Subscreen == 1:
             subscreen1.Draw(CommonDisplay)
@@ -110,20 +111,20 @@ def Draw_ScreenshotOfGameScreen(Display):
 
     # -- Blur Amount Value -- #
     if not CopyOfScreen_Last:
-        CopyOfScreen_BlurAmount = max(1.0, DialogOpctAnim_AnimOpacity / reg.ReadKey_float("/OPTIONS/UI_blur_ammount") * 2.5)
+        CopyOfScreen_BlurAmount = max(1.0, DialogOpctAnim_AnimOpacity / gameMain.DefaultCnt.Get_RegKey("/OPTIONS/UI_blur_ammount", float) * 2.5)
 
     if DialogOpctAnim_AnimEnabled:  # -- Draw the Animation -- #
         CopyOfScreen_Last = False
-        if reg.ReadKey_bool("/OPTIONS/UI_blur_enabled"):
-            Display.blit(sprite.Surface_Blur(fogosoMain.ScreenLastFrame, CopyOfScreen_BlurAmount, reg.ReadKey_bool("/OPTIONS/UI_Pixelate")), (0, 0))
+        if gameMain.DefaultCnt.Get_RegKey("/OPTIONS/UI_blur_enabled"):
+            Display.blit(gameMain.fx.Surface_Blur(fogosoMain.ScreenLastFrame, CopyOfScreen_BlurAmount, gameMain.DefaultCnt.Get_RegKey("/OPTIONS/UI_Pixelate", bool)), (0, 0))
 
         else:
             Display.blit(fogosoMain.ScreenLastFrame, (0, 0))
 
     # -- Draw the Last Frame -- #
     if not CopyOfScreen_Last and not DialogOpctAnim_AnimEnabled:
-        if reg.ReadKey_bool("/OPTIONS/UI_blur_enabled"):
-            CopyOfScreen_Result = sprite.Surface_Blur(fogosoMain.ScreenLastFrame, CopyOfScreen_BlurAmount)
+        if gameMain.DefaultCnt.Get_RegKey("/OPTIONS/UI_blur_enabled", bool):
+            CopyOfScreen_Result = gameMain.fx.Surface_Blur(fogosoMain.ScreenLastFrame, CopyOfScreen_BlurAmount)
         else:
             CopyOfScreen_Result = fogosoMain.ScreenLastFrame
 

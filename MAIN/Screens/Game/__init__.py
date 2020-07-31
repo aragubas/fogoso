@@ -16,7 +16,7 @@
 #
 
 # -- Imports -- #
-from ENGINE import REGISTRY as reg
+from ENGINE import APPDATA as reg
 from ENGINE import SOUND as sound
 from ENGINE import taiyouMain as taiyouMain
 from Fogoso.MAIN import ClassesUtils as gameObjs
@@ -25,7 +25,7 @@ from Fogoso import MAIN as gameMain
 from Fogoso.MAIN.Window import StoreWindow as storeWindow
 from Fogoso.MAIN.Window import ExperienceStore as expStoreWindow
 from Fogoso.MAIN.Window import InfosWindow as infosWindow
-from ENGINE import SPRITE as sprite
+from ENGINE import CONTENT_MANAGER as sprite
 from Fogoso.MAIN import GameVariables as save
 from Fogoso.MAIN.Screens.Game import IncomingLog
 from Fogoso.MAIN.Screens.Game import Maintenance as maintenance
@@ -117,17 +117,17 @@ def UpdateSavingScreen(DISPLAY):
         SavingScreen_DISPLAYCopied = True
 
     # -- Draw the Blurred Background -- #
-    DISPLAY.blit(sprite.Surface_Blur(SavingScreenCopyOfScreen, BackgroundAnim_Numb * 9), (0, 0))
+    DISPLAY.blit(gameMain.fx.Surface_Blur(SavingScreenCopyOfScreen, BackgroundAnim_Numb * 9), (0, 0))
 
-    SavingText = reg.ReadKey("/strings/game/save_screen/title")
-    SavingStatusText = reg.ReadKey("/strings/game/save_screen/message")
+    SavingText = gameMain.DefaultCnt.Get_RegKey("/strings/game/save_screen/title")
+    SavingStatusText = gameMain.DefaultCnt.Get_RegKey("/strings/game/save_screen/message")
     TextsOpacity = BackgroundAnim_Numb * 8.5
 
-    TextSavingX = DISPLAY.get_width() / 2 - sprite.GetFont_width("/PressStart2P.ttf", 50, SavingText) / 2
-    TextSavingY = DISPLAY.get_height() / 2 - sprite.GetFont_height("/PressStart2P.ttf", 50, SavingText) / 2 - 100
+    TextSavingX = DISPLAY.get_width() / 2 - gameMain.DefaultCnt.GetFont_width("/PressStart2P.ttf", 50, SavingText) / 2
+    TextSavingY = DISPLAY.get_height() / 2 - gameMain.DefaultCnt.GetFont_height("/PressStart2P.ttf", 50, SavingText) / 2 - 100
 
-    sprite.FontRender(DISPLAY, "/PressStart2P.ttf", 50, SavingText, (250, 250, 255), TextSavingX, TextSavingY, reg.ReadKey_bool("/OPTIONS/font_aa"), Opacity=TextsOpacity)
-    sprite.FontRender(DISPLAY, "/PressStart2P.ttf", 35, SavingStatusText, (250, 250, 255), DISPLAY.get_width() / 2 - sprite.GetFont_width("/PressStart2P.ttf", 35, SavingStatusText) / 2, TextSavingY + 100, reg.ReadKey_bool("/OPTIONS/font_aa"), Opacity=TextsOpacity)
+    gameMain.DefaultCnt.FontRender(DISPLAY, "/PressStart2P.ttf", 50, SavingText, (250, 250, 255), TextSavingX, TextSavingY, gameMain.DefaultCnt.Get_RegKey("/OPTIONS/font_aa"), Opacity=TextsOpacity)
+    gameMain.DefaultCnt.FontRender(DISPLAY, "/PressStart2P.ttf", 35, SavingStatusText, (250, 250, 255), DISPLAY.get_width() / 2 - gameMain.DefaultCnt.GetFont_width("/PressStart2P.ttf", 35, SavingStatusText) / 2, TextSavingY + 100, gameMain.DefaultCnt.Get_RegKey("/OPTIONS/font_aa", bool), Opacity=TextsOpacity)
 
     # -- Run the Animation -- #
     if BackgroundAnim_Enabled:
@@ -185,10 +185,10 @@ def Update():
         # -- Game Options Button -- #
         if GameOptionsButton .ButtonState == 2:
             transition.Run()
-            ScreenSettings.ScreenToReturn = gameMain.CurrentScreen
+            ScreenSettings.ScreenToReturn = 1
             ScreenSettings.Initialize()
             storeWindow.RestartAnimation()
-            gameMain.CurrentScreen += 1
+            gameMain.SetScreen_ByID(2)
 
         # -- Save Buttons -- #
         if SaveButton .ButtonState == 2:
@@ -204,7 +204,7 @@ def Update():
             BackToMainMenu_Delay += 1
 
             if BackToMainMenu_Delay >= 5:
-                gameMain.CurrentScreen -= 1
+                gameMain.SetScreen_ByID(0)
                 # -- Reset Variables -- #
                 BackToMainMenu_Delay = 0
                 BackToMainMenu = False
@@ -347,19 +347,19 @@ def GameDraw(DISPLAY):
             PerSecoundColor = (120, 10, 10)
 
         # -- Render Current Money, at Top -- #
-        MoneyText = reg.ReadKey("/strings/game/money") + save.Current_MoneyFormated
-        sprite.FontRender(DISPLAY, "/PressStart2P.ttf", 18, reg.ReadKey("/strings/game/money") + save.Current_MoneyFormated, (0, 0, 0), 12, 22)
-        sprite.FontRender(DISPLAY, "/PressStart2P.ttf", 18, MoneyText, MoneyColor, 10, 20)
+        MoneyText = gameMain.DefaultCnt.Get_RegKey("/strings/game/money") + save.Current_MoneyFormated
+        gameMain.DefaultCnt.FontRender(DISPLAY, "/PressStart2P.ttf", 18, gameMain.DefaultCnt.Get_RegKey("/strings/game/money") + save.Current_MoneyFormated, (0, 0, 0), 12, 22)
+        gameMain.DefaultCnt.FontRender(DISPLAY, "/PressStart2P.ttf", 18, MoneyText, MoneyColor, 10, 20)
 
         # -- Render Money per Second -- #
-        MoneyPerSecoundText = reg.ReadKey("/strings/game/money_per_secound") + save.Current_MoneyPerSecondFormatted
-        sprite.FontRender(DISPLAY, "/PressStart2P.ttf", 18, MoneyPerSecoundText, (0, 0, 0), 12, 52)
-        sprite.FontRender(DISPLAY, "/PressStart2P.ttf", 18, MoneyPerSecoundText, PerSecoundColor, 10, 50)
+        MoneyPerSecoundText = gameMain.DefaultCnt.Get_RegKey("/strings/game/money_per_secound") + save.Current_MoneyPerSecondFormatted
+        gameMain.DefaultCnt.FontRender(DISPLAY, "/PressStart2P.ttf", 18, MoneyPerSecoundText, (0, 0, 0), 12, 52)
+        gameMain.DefaultCnt.FontRender(DISPLAY, "/PressStart2P.ttf", 18, MoneyPerSecoundText, PerSecoundColor, 10, 50)
 
         # -- Render Experience -- #
-        ExperienceText = reg.ReadKey("/strings/game/experience") + str(save.Current_ExperienceFormated) + "/" + str(save.Current_TotalClicks - save.Current_TotalClicksNext) + "=" + str(save.Current_ExperiencePerEach)
-        sprite.FontRender(DISPLAY, "/PressStart2P.ttf", 18, ExperienceText, (BlinkExperienceValue, BlinkExperienceValue, BlinkExperienceValue), 12, 82)
-        sprite.FontRender(DISPLAY, "/PressStart2P.ttf", 18, ExperienceText, (140 + BlinkExperienceValue, 130 + BlinkExperienceValue, 120 + BlinkExperienceValue), 10, 80)
+        ExperienceText = gameMain.DefaultCnt.Get_RegKey("/strings/game/experience") + str(save.Current_ExperienceFormated) + "/" + str(save.Current_TotalClicks - save.Current_TotalClicksNext) + "=" + str(save.Current_ExperiencePerEach)
+        gameMain.DefaultCnt.FontRender(DISPLAY, "/PressStart2P.ttf", 18, ExperienceText, (BlinkExperienceValue, BlinkExperienceValue, BlinkExperienceValue), 12, 82)
+        gameMain.DefaultCnt.FontRender(DISPLAY, "/PressStart2P.ttf", 18, ExperienceText, (140 + BlinkExperienceValue, 130 + BlinkExperienceValue, 120 + BlinkExperienceValue), 10, 80)
 
         # -- Render the Clock -- #
         gameClock.Draw(DISPLAY)
@@ -393,12 +393,12 @@ def Initialize(DISPLAY):
     # -- Initialize Buttons -- #
     GrindButton = gameObjs.Button(pygame.rect.Rect(15, 115, 130, 150), "Lorem", 18)
     GrindButton.WhiteButton = True
-    GameOptionsButton = gameObjs.Button(pygame.rect.Rect(DISPLAY.get_width() - 120, 5, 0, 0), reg.ReadKey("/strings/button/game/options"), 12)
-    SaveButton = gameObjs.Button(pygame.rect.Rect(DISPLAY.get_width() - 120, 20, 0, 0), reg.ReadKey("/strings/button/game/save"), 12)
-    BackToMainMenuButton = gameObjs.Button(pygame.Rect(DISPLAY.get_width() - 120,35,0,0),reg.ReadKey("/strings/button/game/main_menu"),12)
-    OpenStoreButton = gameObjs.Button(pygame.Rect(5,DISPLAY.get_height() - 25,0,0),reg.ReadKey("/strings/button/game/store"),14)
-    OpenInfosWindowButton = gameObjs.Button(pygame.Rect(0, 0, 0, 0), reg.ReadKey("/strings/button/game/infos"), 14)
-    OpenExperienceWindowButton = gameObjs.Button(pygame.Rect(0,0,0,0), reg.ReadKey("/strings/button/game/experience_store"), 14)
+    GameOptionsButton = gameObjs.Button(pygame.rect.Rect(DISPLAY.get_width() - 120, 5, 0, 0), gameMain.DefaultCnt.Get_RegKey("/strings/button/game/options"), 12)
+    SaveButton = gameObjs.Button(pygame.rect.Rect(DISPLAY.get_width() - 120, 20, 0, 0), gameMain.DefaultCnt.Get_RegKey("/strings/button/game/save"), 12)
+    BackToMainMenuButton = gameObjs.Button(pygame.Rect(DISPLAY.get_width() - 120,35,0,0),gameMain.DefaultCnt.Get_RegKey("/strings/button/game/main_menu"),12)
+    OpenStoreButton = gameObjs.Button(pygame.Rect(5,DISPLAY.get_height() - 25,0,0),gameMain.DefaultCnt.Get_RegKey("/strings/button/game/store"),14)
+    OpenInfosWindowButton = gameObjs.Button(pygame.Rect(0, 0, 0, 0), gameMain.DefaultCnt.Get_RegKey("/strings/button/game/infos"), 14)
+    OpenExperienceWindowButton = gameObjs.Button(pygame.Rect(0,0,0,0), gameMain.DefaultCnt.Get_RegKey("/strings/button/game/experience_store"), 14)
     ItemsView = gameObjs.GameItemsView(pygame.Rect(5, 500, 430, 100))
 
     IncomingLog.Initialize()
@@ -412,7 +412,7 @@ def Initialize(DISPLAY):
     # -- Initialize the Screen -- #
     HUD_Surface = pygame.Surface((DISPLAY.get_width(), DISPLAY.get_height()))
 
-    # -- Load the Save Game -- #
+#    # -- Load the Save Game -- #
     LoadGame()
 
 def EventUpdate(event):

@@ -14,7 +14,7 @@
 #   limitations under the License.
 #
 #
-from ENGINE import REGISTRY as reg
+from ENGINE import APPDATA as reg
 from Fogoso.MAIN.Screens import Game as gameScr
 from Fogoso.MAIN import ClassesUtils as gameObjs
 from Fogoso.MAIN import GameItems as gameItems

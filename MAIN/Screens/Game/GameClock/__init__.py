@@ -14,9 +14,10 @@
 #   limitations under the License.
 #
 #
-from ENGINE import REGISTRY as reg
-from ENGINE import SPRITE as sprite
+from ENGINE import APPDATA as reg
+from ENGINE import CONTENT_MANAGER as sprite
 from Fogoso.MAIN import GameVariables as save
+from Fogoso import MAIN as gameMain
 from Fogoso.MAIN import ClassesUtils as gtk
 import pygame
 
@@ -47,14 +48,14 @@ def Draw(HUD_Surface):
     DayTextY = 22
 
     # -- Time -- #
-    sprite.FontRender(ClockBox, "/PressStart2P.ttf", 10, SecondsText, (0, 0, 0), ClockBox.get_width() / 2 - sprite.GetFont_width("/PressStart2P.ttf", 10, SecondsText) / 2 + 2, TimeTextY - 2, reg.ReadKey_bool("/OPTIONS/font_aa"))
-    sprite.FontRender(ClockBox, "/PressStart2P.ttf", 10, SecondsText, (230, 230, 230), ClockBox.get_width() / 2 - sprite.GetFont_width("/PressStart2P.ttf", 10, SecondsText) / 2, TimeTextY, reg.ReadKey_bool("/OPTIONS/font_aa"))
+    gameMain.DefaultCnt.FontRender(ClockBox, "/PressStart2P.ttf", 10, SecondsText, (0, 0, 0), ClockBox.get_width() / 2 - gameMain.DefaultCnt.GetFont_width("/PressStart2P.ttf", 10, SecondsText) / 2 + 2, TimeTextY - 2, gameMain.DefaultCnt.Get_RegKey("/OPTIONS/font_aa"))
+    gameMain.DefaultCnt.FontRender(ClockBox, "/PressStart2P.ttf", 10, SecondsText, (230, 230, 230), ClockBox.get_width() / 2 - gameMain.DefaultCnt.GetFont_width("/PressStart2P.ttf", 10, SecondsText) / 2, TimeTextY, gameMain.DefaultCnt.Get_RegKey("/OPTIONS/font_aa"))
 
     # -- Day -- #
-    sprite.FontRender(ClockBox, "/PressStart2P.ttf", 10, DateText, (0, 0, 0), ClockBox.get_width() / 2 - sprite.GetFont_width("/PressStart2P.ttf", 10, DateText) / 2 + 2, DayTextY - 2, reg.ReadKey_bool("/OPTIONS/font_aa"))
-    sprite.FontRender(ClockBox, "/PressStart2P.ttf", 10, DateText, (230, 230, 230), ClockBox.get_width() / 2 - sprite.GetFont_width("/PressStart2P.ttf", 10, DateText) / 2, DayTextY, reg.ReadKey_bool("/OPTIONS/font_aa"))
+    gameMain.DefaultCnt.FontRender(ClockBox, "/PressStart2P.ttf", 10, DateText, (0, 0, 0), ClockBox.get_width() / 2 - gameMain.DefaultCnt.GetFont_width("/PressStart2P.ttf", 10, DateText) / 2 + 2, DayTextY - 2, gameMain.DefaultCnt.Get_RegKey("/OPTIONS/font_aa"))
+    gameMain.DefaultCnt.FontRender(ClockBox, "/PressStart2P.ttf", 10, DateText, (230, 230, 230), ClockBox.get_width() / 2 - gameMain.DefaultCnt.GetFont_width("/PressStart2P.ttf", 10, DateText) / 2, DayTextY, gameMain.DefaultCnt.Get_RegKey("/OPTIONS/font_aa"))
 
-    sprite.Shape_Rectangle(ClockBox, (0, 0, 0), (0, 0, ClockBoxPos[2], ClockBoxPos[3]), 3, 5)
+    gameMain.shape.Shape_Rectangle(ClockBox, (0, 0, 0), (0, 0, ClockBoxPos[2], ClockBoxPos[3]), 3, 5)
 
     HUD_Surface.blit(ClockBox, (ClockBoxPos[0], ClockBoxPos[1]))
 
@@ -72,5 +73,5 @@ def Update():
     ClockBoxPos = (CommonSurface.get_width() / 2 - 300 / 2, 0, 300, 40)
     ClockBox = pygame.Surface((ClockBoxPos[2], ClockBoxPos[3]), pygame.SRCALPHA)
 
-    DateText = reg.ReadKey("/strings/game/calendar").format(str(save.CurrentDate_Day), str(save.CurrentDate_Month), str(save.CurrentDate_Year), str(save.CurrentDate_MonthLimiter), str(save.CurrentDate_YearLimiter))
-    SecondsText = reg.ReadKey("/strings/game/clock").format(str(save.CurrentDate_Minute), str(save.CurrentDate_Second), str(save.CurrentDate_DayLimiter), str(save.CurrentDate_MinuteLimiter))
+    DateText = gameMain.DefaultCnt.Get_RegKey("/strings/game/calendar").format(str(save.CurrentDate_Day), str(save.CurrentDate_Month), str(save.CurrentDate_Year), str(save.CurrentDate_MonthLimiter), str(save.CurrentDate_YearLimiter))
+    SecondsText = gameMain.DefaultCnt.Get_RegKey("/strings/game/clock").format(str(save.CurrentDate_Minute), str(save.CurrentDate_Second), str(save.CurrentDate_DayLimiter), str(save.CurrentDate_MinuteLimiter))

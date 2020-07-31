@@ -15,11 +15,12 @@
 #
 #
 
-from ENGINE import SPRITE as sprite
+from ENGINE import CONTENT_MANAGER as sprite
 from Fogoso import MAIN as mainScript
-from ENGINE import REGISTRY as reg
-from ENGINE import SOUND as sound
-from ENGINE import UTILS as utils
+from ENGINE import reg
+from ENGINE import sound
+from ENGINE import fx
+from ENGINE import utils
 import pygame
 import random
 from Fogoso.MAIN import GameItems as gameItems
@@ -40,9 +41,9 @@ def Draw_Panel(DISPLAY, Rectangle, DisableBlur=False):
     ResultPanel = pygame.Surface((Rectangle[2], Rectangle[3]), pygame.HWSURFACE | pygame.HWACCEL)
 
     if not DisableBlur:
-        if reg.ReadKey_bool("/OPTIONS/UI_blur_enabled"):  # -- If Blur is Enabled -- #
+        if mainScript.DefaultCnt.Get_RegKey("/OPTIONS/UI_blur_enabled", bool):  # -- If Blur is Enabled -- #
             DarkerBG = pygame.Surface((Rectangle[2], Rectangle[3]), pygame.HWSURFACE | pygame.HWACCEL)
-            DarkerBG.set_alpha(reg.ReadKey_int("/OPTIONS/UI_contrast"))
+            DarkerBG.set_alpha(mainScript.DefaultCnt.Get_RegKey("/OPTIONS/UI_contrast", int))
             DISPLAY.blit(DarkerBG, Rectangle)
 
             # -- Only Blur the Necessary Area -- #
@@ -51,17 +52,17 @@ def Draw_Panel(DISPLAY, Rectangle, DisableBlur=False):
 
 
             # -- Then Finnaly, blit the Blurred Result -- #
-            ResultPanel.blit(sprite.Surface_Blur(AreaToBlur, reg.ReadKey_float("/OPTIONS/UI_blur_ammount"), reg.ReadKey_bool("/OPTIONS/UI_Pixelate")), (0, 0))
+            ResultPanel.blit(fx.Surface_Blur(AreaToBlur, mainScript.DefaultCnt.Get_RegKey("/OPTIONS/UI_blur_ammount", float), mainScript.DefaultCnt.Get_RegKey("/OPTIONS/UI_Pixelate", bool)), (0, 0))
 
 
         else:  # -- If blur is Disabled -- #
             ResultPanel.fill((0, 12, 29))
 
-            sprite.Shape_Rectangle(ResultPanel, (1, 22, 39), (0, 0, Rectangle[2], Rectangle[3]), 2, 5)
+            mainScript.shape.Shape_Rectangle(ResultPanel, (1, 22, 39), (0, 0, Rectangle[2], Rectangle[3]), 2, 5)
     else:
         ResultPanel.fill((0, 12, 29))
 
-        sprite.Shape_Rectangle(ResultPanel, (1, 22, 39), (0, 0, Rectangle[2], Rectangle[3]), 2, 5)
+        mainScript.shape.Shape_Rectangle(ResultPanel, (1, 22, 39), (0, 0, Rectangle[2], Rectangle[3]), 2, 5)
 
     DISPLAY.blit(ResultPanel, (Rectangle[0], Rectangle[1]))
 
@@ -120,9 +121,9 @@ class InputBox:
         # -- Resize the Textbox -- #
         try:
             if not self.CustomWidth:
-                self.width = max(100, sprite.GetFont_width(InputBox_FontFile, self.FontSize, self.text) + 10)
+                self.width = max(100, mainScript.DefaultCnt.GetFont_width(InputBox_FontFile, self.FontSize, self.text) + 10)
             self.rect.w = self.width
-            self.rect.h = sprite.GetFont_height(InputBox_FontFile, self.FontSize, self.text)
+            self.rect.h = mainScript.DefaultCnt.GetFont_height(InputBox_FontFile, self.FontSize, self.text)
             self.LastHeight = self.rect.h
         except:
             if not self.CustomWidth:
@@ -136,15 +137,15 @@ class InputBox:
         Draw_Panel(screen, self.rect, "UP")
 
         if self.text == self.DefaultText:
-            sprite.FontRender(screen, InputBox_FontFile, self.FontSize, self.text, (140, 140, 140), self.rect[0], self.rect[1])
+            mainScript.DefaultCnt.FontRender(screen, InputBox_FontFile, self.FontSize, self.text, (140, 140, 140), self.rect[0], self.rect[1])
         else:
             if not self.text == "":
-                sprite.FontRender(screen, InputBox_FontFile, self.FontSize, self.text, (240, 240, 240), self.rect[0], self.rect[1])
+                mainScript.DefaultCnt.FontRender(screen, InputBox_FontFile, self.FontSize, self.text, (240, 240, 240), self.rect[0], self.rect[1])
 
         if not self.active:
-            sprite.Shape_Rectangle(screen, (255, 51, 102), (self.rect[0], self.rect[1] - 1, self.rect[2], 1))
+            mainScript.shape.Shape_Rectangle(screen, (255, 51, 102), (self.rect[0], self.rect[1] - 1, self.rect[2], 1))
         else:
-            sprite.Shape_Rectangle(screen, (46, 196, 182), (self.rect[0], self.rect[1] - 1, self.rect[2], 1))
+            mainScript.shape.Shape_Rectangle(screen, (46, 196, 182), (self.rect[0], self.rect[1] - 1, self.rect[2], 1))
 
 
 class SpriteButton:
@@ -159,7 +160,7 @@ class SpriteButton:
         self.ColisionRectangle = pygame.Rect(0,0,0,0)
 
     def Render(self,DISPLAY):
-        sprite.ImageRender(DISPLAY, self.SpriteList[self.ButtonState], self.Rectangle[0], self.Rectangle[1], self.Rectangle[2], self.Rectangle[3])
+        mainScript.DefaultCnt.ImageRender(DISPLAY, self.SpriteList[self.ButtonState], self.Rectangle[0], self.Rectangle[1], self.Rectangle[2], self.Rectangle[3])
 
     def EventUpdate(self, event):
         if not self.CustomColisionRectangle:
@@ -208,7 +209,7 @@ class Button:
         self.ButtonState = 0 # 0 - INACTIVE, 1 - DOWN, 2 - UP
         self.FontFile = "/PressStart2P.ttf"
         self.IsButtonEnabled = True
-        self.Rectangle = pygame.rect.Rect(self.Rectangle[0], self.Rectangle[1], sprite.GetFont_width(self.FontFile, self.TextSize, self.ButtonText) + 5, sprite.GetFont_height(self.FontFile, self.TextSize, self.ButtonText) + 6)
+        self.Rectangle = pygame.rect.Rect(self.Rectangle[0], self.Rectangle[1], mainScript.DefaultCnt.GetFont_width(self.FontFile, self.TextSize, self.ButtonText) + 5, mainScript.DefaultCnt.GetFont_height(self.FontFile, self.TextSize, self.ButtonText) + 6)
         self.LastRect = self.Rectangle
         self.CursorSettedToggle = False
         self.ButtonDowed = False
@@ -276,7 +277,7 @@ class Button:
 
     def Render(self, DISPLAY):
         # -- Update the Surface -- #
-        self.Rectangle = pygame.rect.Rect(self.Rectangle[0], self.Rectangle[1], sprite.GetFont_width(self.FontFile, self.TextSize, self.ButtonText) + 5, sprite.GetFont_height(self.FontFile, self.TextSize, self.ButtonText) + 6)
+        self.Rectangle = pygame.rect.Rect(self.Rectangle[0], self.Rectangle[1], mainScript.DefaultCnt.GetFont_width(self.FontFile, self.TextSize, self.ButtonText) + 5, mainScript.DefaultCnt.GetFont_height(self.FontFile, self.TextSize, self.ButtonText) + 6)
 
         # -- Update the Rect Wheen Needed -- #
         if self.Rectangle == self.LastRect:
@@ -302,10 +303,10 @@ class Button:
         self.Surface.fill(self.BackgroundColor)
 
         # -- Indicator Bar -- #
-        sprite.Shape_Rectangle(self.Surface, IndicatorColor, (0, 0, self.Rectangle[2], 2), 0, 0)
+        mainScript.shape.Shape_Rectangle(self.Surface, IndicatorColor, (0, 0, self.Rectangle[2], 2), 0, 0)
 
         # -- Text -- #
-        sprite.FontRender(self.Surface, self.FontFile, self.TextSize, self.ButtonText, (200, 200, 200), 3, 3, reg.ReadKey_bool("/OPTIONS/font_aa"))
+        mainScript.DefaultCnt.FontRender(self.Surface, self.FontFile, self.TextSize, self.ButtonText, (200, 200, 200), 3, 3, mainScript.DefaultCnt.Get_RegKey("/OPTIONS/font_aa"))
 
         # -- Draw the Button -- #
         DISPLAY.blit(self.Surface, (self.Rectangle[0], self.Rectangle[1]))
@@ -319,7 +320,7 @@ class UpDownButton:
         self.Y = Y
         self.TextSize = TextSize
         self.UpButton = Button(pygame.Rect(X, Y, 20, 20), "/\\", TextSize)
-        self.DownButton = Button(pygame.Rect(X + sprite.GetFont_width("/PressStart2P.ttf", TextSize, "\/") + 5, Y, 20, 20), "\/", TextSize)
+        self.DownButton = Button(pygame.Rect(X + mainScript.DefaultCnt.GetFont_width("/PressStart2P.ttf", TextSize, "\/") + 5, Y, 20, 20), "\/", TextSize)
         self.ButtonState = 0
         self.BackStateWaitLoop = 0
         print("ObjectCreation : UpDownButton created.")
@@ -345,17 +346,17 @@ class UpDownButton:
                 self.BackStateWaitLoop = 0
 
     def Get_Width(self):
-        return sprite.GetFont_width("/PressStart2P.ttf", self.TextSize, "\/") + 4 + sprite.GetFont_width(
+        return mainScript.DefaultCnt.GetFont_width("/PressStart2P.ttf", self.TextSize, "\/") + 4 + mainScript.DefaultCnt.GetFont_width(
             "/PressStart2P.ttf", self.TextSize, "/\\") + 4
 
     def Get_Height(self):
-        return sprite.GetFont_height("/PressStart2P.ttf", self.TextSize, "\/") + 4 + sprite.GetFont_height(
+        return mainScript.DefaultCnt.GetFont_height("/PressStart2P.ttf", self.TextSize, "\/") + 4 + mainScript.DefaultCnt.GetFont_height(
             "/PressStart2P.ttf", self.TextSize, "/\\") + 4
 
     def Set_X(self, NewXValue):
         self.UpButton.Set_X(NewXValue)
         self.DownButton.Set_X(
-            NewXValue + sprite.GetFont_width("/PressStart2P.ttf", self.TextSize, "\/") + 5)
+            NewXValue + mainScript.DefaultCnt.GetFont_width("/PressStart2P.ttf", self.TextSize, "\/") + 5)
 
     def Set_Y(self, NewYValue):
         self.UpButton.Set_Y(NewYValue)
@@ -367,7 +368,7 @@ class UpDownButton:
 
         self.UpButton.Set_X(self.X)
         self.DownButton.Set_X(
-            self.X + sprite.GetFont_width("/PressStart2P.ttf", self.TextSize, "\/") + 5)
+            self.X + mainScript.DefaultCnt.GetFont_width("/PressStart2P.ttf", self.TextSize, "\/") + 5)
 
 class Window:
     def __init__(self, Rectangle, Title, Resiziable):
@@ -423,10 +424,10 @@ class Window:
 
         # -- Draw the Resize Block -- #
         if self.Resiziable:
-            sprite.ImageRender(WindowSurface, "/window/resize.png", self.WindowRectangle[2] - 10, self.WindowRectangle[3], self.ResizeRectangle[2], self.ResizeRectangle[3], reg.ReadKey_bool("/OPTIONS/sprite_aa"))
+            mainScript.DefaultCnt.ImageRender(WindowSurface, "/window/resize.png", self.WindowRectangle[2] - 10, self.WindowRectangle[3], self.ResizeRectangle[2], self.ResizeRectangle[3], mainScript.DefaultCnt.Get_RegKey("/OPTIONS/sprite_aa"))
 
         # -- Draw the window title -- #
-        sprite.FontRender(WindowSurface, "/PressStart2P.ttf", 18, self.Title, (250, 250, 255), self.TitleBarRectangle[2] / 2 - sprite.GetFont_width("/PressStart2P.ttf", 18, self.Title) / 2, 1, reg.ReadKey_bool("/OPTIONS/font_aa"))
+        mainScript.DefaultCnt.FontRender(WindowSurface, "/PressStart2P.ttf", 18, self.Title, (250, 250, 255), self.TitleBarRectangle[2] / 2 - mainScript.DefaultCnt.GetFont_width("/PressStart2P.ttf", 18, self.Title) / 2, 1, mainScript.DefaultCnt.Get_RegKey("/OPTIONS/font_aa"))
 
         DISPLAY.blit(WindowSurface, (self.WindowRectangle[0], self.WindowRectangle[1]))
 
@@ -501,39 +502,39 @@ class VerticalListWithDescription:
             if not self.ItemSelected[i]:
                 if self.LastItemClicked == itemNam:
                     # -- Background -- #
-                    sprite.Shape_Rectangle(self.ListSurface, (20, 42, 59, 100), ItemRect)
+                    mainScript.shape.Shape_Rectangle(self.ListSurface, (20, 42, 59, 100), ItemRect)
                     # -- Indicator Bar -- #
-                    sprite.Shape_Rectangle(self.ListSurface, (46, 196, 182), (ItemRect[0], ItemRect[1], ItemRect[2], 1))
+                    mainScript.shape.Shape_Rectangle(self.ListSurface, (46, 196, 182), (ItemRect[0], ItemRect[1], ItemRect[2], 1))
                 else:
                     # -- Background -- #
-                    sprite.Shape_Rectangle(self.ListSurface, (20, 42, 59, 50), ItemRect)
+                    mainScript.shape.Shape_Rectangle(self.ListSurface, (20, 42, 59, 50), ItemRect)
                     # -- Indicator Bar -- #
-                    sprite.Shape_Rectangle(self.ListSurface, (32, 164, 243), (ItemRect[0], ItemRect[1], ItemRect[2], 1))
+                    mainScript.shape.Shape_Rectangle(self.ListSurface, (32, 164, 243), (ItemRect[0], ItemRect[1], ItemRect[2], 1))
 
             else:
                 # -- Background -- #
-                sprite.Shape_Rectangle(self.ListSurface, (30, 52, 69, 150), ItemRect)
+                mainScript.shape.Shape_Rectangle(self.ListSurface, (30, 52, 69, 150), ItemRect)
                 # -- Indicator Bar -- #
-                sprite.Shape_Rectangle(self.ListSurface, (255, 51, 102), (ItemRect[0], ItemRect[1], ItemRect[2], 1))
+                mainScript.shape.Shape_Rectangle(self.ListSurface, (255, 51, 102), (ItemRect[0], ItemRect[1], ItemRect[2], 1))
 
             # -- Render the Item Name and Description -- #
             if not self.ItemSelected[i]:
                 # -- Render Item Name -- #
-                sprite.FontRender(self.ListSurface, "/PressStart2P.ttf", 12, itemNam, (250, 250, 250), ItemRect[0] + 45, ItemRect[1] + 5, reg.ReadKey_bool("/OPTIONS/font_aa"))
+                mainScript.DefaultCnt.FontRender(self.ListSurface, "/PressStart2P.ttf", 12, itemNam, (250, 250, 250), ItemRect[0] + 45, ItemRect[1] + 5, mainScript.DefaultCnt.Get_RegKey("/OPTIONS/font_aa"))
 
                 # -- Render Item Description -- #
-                sprite.FontRender(self.ListSurface, "/PressStart2P.ttf", 10, self.ItemsDescription[i], (250, 250, 250), ItemRect[0] + 45, ItemRect[1] + 30, reg.ReadKey_bool("/OPTIONS/font_aa"))
+                mainScript.DefaultCnt.FontRender(self.ListSurface, "/PressStart2P.ttf", 10, self.ItemsDescription[i], (250, 250, 250), ItemRect[0] + 45, ItemRect[1] + 30, mainScript.DefaultCnt.Get_RegKey("/OPTIONS/font_aa"))
 
             else:
                 # -- Render Item Name -- #
-                sprite.FontRender(self.ListSurface, "/PressStart2P.ttf", 12, itemNam, (255, 255, 255), ItemRect[0] + 45, ItemRect[1] + 5, reg.ReadKey_bool("/OPTIONS/font_aa"))
+                mainScript.DefaultCnt.FontRender(self.ListSurface, "/PressStart2P.ttf", 12, itemNam, (255, 255, 255), ItemRect[0] + 45, ItemRect[1] + 5, mainScript.DefaultCnt.Get_RegKey("/OPTIONS/font_aa"))
 
                 # -- Render Item Description -- #
-                sprite.FontRender(self.ListSurface, "/PressStart2P.ttf", 10, self.ItemsDescription[i], (255, 255, 255), ItemRect[0] + 45, ItemRect[1] + 30, reg.ReadKey_bool("/OPTIONS/font_aa"))
+                mainScript.DefaultCnt.FontRender(self.ListSurface, "/PressStart2P.ttf", 10, self.ItemsDescription[i], (255, 255, 255), ItemRect[0] + 45, ItemRect[1] + 30, mainScript.DefaultCnt.Get_RegKey("/OPTIONS/font_aa"))
 
             # -- Render the Item Sprite -- #
             if self.ItemSprite[i] != "null":
-                sprite.ImageRender(self.ListSurface, self.ItemSprite[i], ItemRect[0] + 4, ItemRect[1] + 4, 36, 32, reg.ReadKey_bool("/OPTIONS/sprite_aa"))
+                mainScript.DefaultCnt.ImageRender(self.ListSurface, self.ItemSprite[i], ItemRect[0] + 4, ItemRect[1] + 4, 36, 32, mainScript.DefaultCnt.Get_RegKey("/OPTIONS/sprite_aa"))
 
         # -- Blit All Work to Screen -- #
         DISPLAY.blit(self.ListSurface,(self.Rectangle[0], self.Rectangle[1]))
@@ -606,13 +607,13 @@ class GameItemsView:
         # -- Recreate Surface -- #
         self.ListSurface = pygame.Surface((self.Rectangle[2], self.Rectangle[3]), pygame.SRCALPHA)
 
-        sprite.Shape_Rectangle(DISPLAY, (0, 12, 30), (self.Rectangle[0], self.Rectangle[1] - 16, self.Rectangle[2], 16), 0, 0, 2, 2)
-        sprite.FontRender(DISPLAY, "/PressStart2P.ttf", 10, reg.ReadKey("/strings/game/game_items_view"), (255, 255, 255), self.Rectangle[0] + self.Rectangle[2] / 2 - sprite.GetFont_width("/PressStart2P.ttf", 10, reg.ReadKey("/strings/game/game_items_view")) / 2, self.Rectangle[1] - 13)
+        mainScript.shape.Shape_Rectangle(DISPLAY, (0, 12, 30), (self.Rectangle[0], self.Rectangle[1] - 16, self.Rectangle[2], 16), 0, 0, 2, 2)
+        mainScript.DefaultCnt.FontRender(DISPLAY, "/PressStart2P.ttf", 10, mainScript.DefaultCnt.Get_RegKey("/strings/game/game_items_view"), (255, 255, 255), self.Rectangle[0] + self.Rectangle[2] / 2 - mainScript.DefaultCnt.GetFont_width("/PressStart2P.ttf", 10, mainScript.DefaultCnt.Get_RegKey("/strings/game/game_items_view")) / 2, self.Rectangle[1] - 13)
 
         Draw_Panel(DISPLAY, self.Rectangle)
 
         for i, itemID in enumerate(self.ItemsID):
-            ItemName = reg.ReadKey("/ItemData/name/" + str(itemID))
+            ItemName = mainScript.DefaultCnt.Get_RegKey("/ItemData/name/" + str(itemID))
             ItemWidth = 156
 
             ItemX = self.ScrollX + ItemWidth * i
@@ -622,16 +623,16 @@ class GameItemsView:
             Draw_Panel(self.ListSurface, ItemRect, True)
 
             # -- Render the Item Title -- #
-            sprite.FontRender(self.ListSurface, "/PressStart2P.ttf", 9, ItemName, (250, 250, 250), ItemRect[0] + ItemRect[2] / 2 - sprite.GetFont_width("/PressStart2P.ttf", 9, ItemName) / 2, ItemRect[1] + 2, reg.ReadKey_bool("/OPTIONS/font_aa"))
+            mainScript.DefaultCnt.FontRender(self.ListSurface, "/PressStart2P.ttf", 9, ItemName, (250, 250, 250), ItemRect[0] + ItemRect[2] / 2 - mainScript.DefaultCnt.GetFont_width("/PressStart2P.ttf", 9, ItemName) / 2, ItemRect[1] + 2, mainScript.DefaultCnt.Get_RegKey("/OPTIONS/font_aa"))
 
             # -- Render the Item Sprite -- #
-            sprite.ImageRender(self.ListSurface, reg.ReadKey(gameItems.GetItemSprite_ByID(int(itemID))), ItemRect[0] + 3, ItemRect[1] + 15, 64, 64, reg.ReadKey_bool("/OPTIONS/sprite_aa"))
+            mainScript.DefaultCnt.ImageRender(self.ListSurface, mainScript.DefaultCnt.Get_RegKey(gameItems.GetItemSprite_ByID(int(itemID))), ItemRect[0] + 3, ItemRect[1] + 15, 64, 64, mainScript.DefaultCnt.Get_RegKey("/OPTIONS/sprite_aa"))
 
             # -- Render the Item Info -- #
-            LittleInfoText = reg.ReadKey("/strings/game/items_info").format(utils.FormatNumber(gameItems.GetItemCount_ByID(self.ItemsID[i])).replace(".00", ""), str(gameItems.GetItemLevel_ByID(self.ItemsID[i])))
+            LittleInfoText = mainScript.DefaultCnt.Get_RegKey("/strings/game/items_info").format(utils.FormatNumber(gameItems.GetItemCount_ByID(self.ItemsID[i])).replace(".00", ""), str(gameItems.GetItemLevel_ByID(self.ItemsID[i])))
 
             # -- Render Item Info -- #
-            sprite.FontRender(self.ListSurface, "/PressStart2P.ttf", 10, LittleInfoText, (250, 250, 250), ItemRect[0] + 70, ItemRect[1] + 12, reg.ReadKey_bool("/OPTIONS/font_aa"))
+            mainScript.DefaultCnt.FontRender(self.ListSurface, "/PressStart2P.ttf", 10, LittleInfoText, (250, 250, 250), ItemRect[0] + 70, ItemRect[1] + 12, mainScript.DefaultCnt.Get_RegKey("/OPTIONS/font_aa"))
 
         DISPLAY.blit(self.ListSurface, (self.Rectangle[0], self.Rectangle[1]))
 
@@ -641,7 +642,7 @@ class GameItemsView:
     def Update(self, event):
         # -- Scroll the List -- #
         if event.type == pygame.MOUSEBUTTONDOWN:
-            if self.Rectangle.collidepoint(gameItems.gameMain.Cursor_Position):
+            if self.Rectangle.collidepoint(mainScript.Cursor_Position):
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if event.button == 4:
                         self.ScrollX += 5
@@ -690,7 +691,7 @@ class ValuesView:
 
         for i, ValBlock in enumerate(self.ValueBlocksList):
             ValBlock.Index = i
-            ValBlock.Ypos = sprite.GetFont_height("/PressStart2P.ttf", 13, "H") * i
+            ValBlock.Ypos = mainScript.DefaultCnt.GetFont_height("/PressStart2P.ttf", 13, "H") * i
 
             ValBlock.Draw(ValsBlockSurface)
 
@@ -705,9 +706,9 @@ class ValueBlock:
         self.Index = 0
 
     def Draw(self, DISPLAY):
-        TextXpos = sprite.GetFont_width("/PressStart2P.ttf", 10, self.Text)
-        sprite.FontRender(DISPLAY, "/PressStart2P.ttf", 10, self.Text, (200, 200, 200), 3, self.Ypos, reg.ReadKey("/OPTIONS/font_aa"))
-        sprite.FontRender(DISPLAY, "/PressStart2P.ttf", 10, self.Value, (255, 255, 255), TextXpos + 5, self.Ypos, reg.ReadKey("/OPTIONS/font_aa"))
+        TextXpos = mainScript.DefaultCnt.GetFont_width("/PressStart2P.ttf", 10, self.Text)
+        mainScript.DefaultCnt.FontRender(DISPLAY, "/PressStart2P.ttf", 10, self.Text, (200, 200, 200), 3, self.Ypos, mainScript.DefaultCnt.Get_RegKey("/OPTIONS/font_aa"))
+        mainScript.DefaultCnt.FontRender(DISPLAY, "/PressStart2P.ttf", 10, self.Value, (255, 255, 255), TextXpos + 5, self.Ypos, mainScript.DefaultCnt.Get_RegKey("/OPTIONS/font_aa"))
 
     def ChangeValue(self, Text, Value):
         self.Text = Text

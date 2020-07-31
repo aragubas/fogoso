@@ -16,8 +16,8 @@
 #
 
 # -- Imports -- #
-from ENGINE import REGISTRY as reg
-from ENGINE import SPRITE as sprite
+from ENGINE import APPDATA as reg
+from ENGINE import CONTENT_MANAGER as sprite
 from Fogoso.MAIN.Screens import MainMenu as ScreenMenu
 from Fogoso import MAIN as gameMain
 from Fogoso.MAIN import ScreenTransition as transition
@@ -54,25 +54,25 @@ def Update():
 
     if CurrentLogo_AnimEnabled:
         if CurrentLogo_AnimType == 0:
-            CurrentLogo_Opacity += reg.ReadKey_int("/props/intro_adder")
+            CurrentLogo_Opacity += gameMain.DefaultCnt.Get_RegKey("/props/intro_adder", int)
 
-            if CurrentLogo_Opacity >= 255 - reg.ReadKey_int("/props/intro_adder"):
+            if CurrentLogo_Opacity >= 255 - gameMain.DefaultCnt.Get_RegKey("/props/intro_adder", int):
                 CurrentLogo_Opacity = 255
                 CurrentLogo_DeltaBeforeNext += 1
 
-                if CurrentLogo_DeltaBeforeNext >= reg.ReadKey_int("/props/intro_delay"):
+                if CurrentLogo_DeltaBeforeNext >= gameMain.DefaultCnt.Get_RegKey("/props/intro_delay", int):
                     CurrentLogo_DeltaBeforeNext = 0
                     CurrentLogo_AnimType = 1
 
         if CurrentLogo_AnimType == 1:
-            CurrentLogo_Opacity -= reg.ReadKey_int("/props/intro_adder")
+            CurrentLogo_Opacity -= gameMain.DefaultCnt.Get_RegKey("/props/intro_adder", int)
 
             if CurrentLogo_Opacity <= 0:
                 CurrentLogo_Opacity = 0
                 CurrentLogo_Current += 1
                 CurrentLogo_DeltaBeforeNext += 1
 
-                if CurrentLogo_DeltaBeforeNext >= reg.ReadKey_int("/props/intro_delay"):
+                if CurrentLogo_DeltaBeforeNext >= gameMain.DefaultCnt.Get_RegKey("/props/intro_delay", int):
                     CurrentLogo_AnimType = 0
                     CurrentLogo_AnimEnabled = True
                     CurrentLogo_DeltaBeforeNext = 0
@@ -81,9 +81,9 @@ def Update():
     if CurrentLogo_Current >= 1:
         BlackScreenDelay += 1
 
-        if BlackScreenDelay >= reg.ReadKey_int("/props/intro_end_delay"):
+        if BlackScreenDelay >= gameMain.DefaultCnt.Get_RegKey("/props/intro_end_delay", int):
             ScreenMenu.Initialize(gameMain.DefaultDisplay)
-            gameMain.CurrentScreen += 1
+            gameMain.SetScreen_ByID(0)
             BlackScreenDelay = 0
             transition.Run()
 
@@ -103,10 +103,10 @@ def GameDraw(DISPLAY):
     BottomTextSurface.set_alpha(CurrentLogo_Opacity)
 
     if CurrentLogo_Current == 0:
-        sprite.ImageRender(LogoSurface, "/icon.png", 5, 15, 167, 145)
-        sprite.FontRender(LogoSurface, "/PressStart2P.ttf", 20, reg.ReadKey("/strings/intro/text") + "\n\n" + reg.ReadKey("/VersionStatus"), (240, 240, 240), 180, 15, True)
+        gameMain.DefaultCnt.ImageRender(LogoSurface, "/icon.png", 5, 15, 167, 145)
+        gameMain.DefaultCnt.FontRender(LogoSurface, "/PressStart2P.ttf", 20, gameMain.DefaultCnt.Get_RegKey("/strings/intro/text") + "\n\n" + gameMain.DefaultCnt.Get_RegKey("/VersionStatus"), (240, 240, 240), 180, 15, True)
 
-        sprite.FontRender(BottomTextSurface, "/PressStart2P.ttf", 10, reg.ReadKey("/strings/intro/license_text"), (250, 250, 250), 5, 5, True)
+        gameMain.DefaultCnt.FontRender(BottomTextSurface, "/PressStart2P.ttf", 10, gameMain.DefaultCnt.Get_RegKey("/strings/intro/license_text"), (250, 250, 250), 5, 5, True)
 
     DISPLAY.blit(LogoSurface, (DISPLAY.get_width() / 2 - LogoSurface.get_width() / 2, DISPLAY.get_height() / 2 - LogoSurface.get_height() / 2 - 50))
     DISPLAY.blit(BottomTextSurface, (DISPLAY.get_width() / 2 - BottomTextSurface.get_width() / 2, DISPLAY.get_height() / 2 - LogoSurface.get_height() / 2 + BottomTextSurface.get_height() * 2))

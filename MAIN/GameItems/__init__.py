@@ -77,25 +77,24 @@ def GetItemLevel_ByID(ItemID):
 def GetItem_MaintenancePrice(ItemID):
     RegDir = "/ItemData/{0}/lv_{1}_cost_maintenance".format(str(ItemID), str(GetItemLevel_ByID(int(ItemID))))
 
-    return max(reg.ReadKey_float(RegDir), reg.ReadKey_float(RegDir) * GetItemCount_ByID(ItemID))
-
+    return gameMain.DefaultCnt.Get_RegKey(RegDir, float) * GetItemCount_ByID(ItemID)
 
 # -- Item Price -- #
 def GetItemPrice_ByID(ItemID):
     RegDir = "/ItemData/{0}/lv_{1}_price".format(str(ItemID), str(GetItemLevel_ByID(int(ItemID))))
 
-    return max(reg.ReadKey_float(RegDir), reg.ReadKey_float(RegDir) * GetItemCount_ByID(ItemID))
+    return max(gameMain.DefaultCnt.Get_RegKey(RegDir, float), gameMain.DefaultCnt.Get_RegKey(RegDir, float) * GetItemCount_ByID(ItemID))
 
 # -- Item Upgrade -- #
 def GetItemUpgradePrice_ByID(ItemID):
     RegDir = "/ItemData/{0}/lv_{1}_upgrade_price".format(str(ItemID), str(GetItemLevel_ByID(int(ItemID))))
 
-    return reg.ReadKey_int(RegDir)
+    return gameMain.DefaultCnt.Get_RegKey(RegDir, float)
 
 
 # -- Item Unlocker -- #
 def GetItemIsUnlocker_ByID(ItemID):
-    return reg.ReadKey_bool("/ItemData/{0}/is_unlocker".format(str(ItemID)))
+    return gameMain.DefaultCnt.Get_RegKey("/ItemData/{0}/is_unlocker".format(str(ItemID)), bool)
 
 
 # -- Item Object -- #
@@ -279,9 +278,9 @@ class Item_ExperienceStore:
 
         # -- Item Statistics -- #
         self.ItemLevel = GetItemLevel_ByID(self.ItemID)
-        self.ItemExpPerSecound = reg.ReadKey_int("/ItemData/-1/lv_" + str(self.ItemLevel) + "_exp_click")
-        self.SecoundTimeAction = int(reg.ReadKey("/ItemData/-1/lv_" + str(self.ItemLevel) + "_activation_sec"))
-        self.maintenance_cost = reg.ReadKey_float("/ItemData/-1/lv_" + str(self.ItemLevel) + "_cost_maintenance")
+        self.ItemExpPerSecound = gameMain.DefaultCnt.Get_RegKey("/ItemData/-1/lv_" + str(self.ItemLevel) + "_exp_click", int)
+        self.SecoundTimeAction = gameMain.DefaultCnt.Get_RegKey("/ItemData/-1/lv_" + str(self.ItemLevel) + "_activation_sec", int)
+        self.maintenance_cost = gameMain.DefaultCnt.Get_RegKey("/ItemData/-1/lv_" + str(self.ItemLevel) + "_cost_maintenance", float)
 
     def Update(self):
         if self.ItemRoll == 1:
@@ -307,9 +306,9 @@ class Item_ExperienceStore:
     def ReloadStatus(self):
         # -- Item Statistics -- #
         self.ItemLevel = GetItemLevel_ByID(self.ItemID)
-        self.ItemExpPerSecound = reg.ReadKey_int("/ItemData/-1/lv_" + str(self.ItemLevel) + "_exp_click")
-        self.SecoundTimeAction = int(reg.ReadKey("/ItemData/-1/lv_" + str(self.ItemLevel) + "_activation_sec"))
-        self.maintenance_cost = reg.ReadKey_float("/ItemData/-1/lv_" + str(self.ItemLevel) + "_cost_maintenance")
+        self.ItemExpPerSecound = gameMain.DefaultCnt.Get_RegKey("/ItemData/-1/lv_" + str(self.ItemLevel) + "_exp_click", int)
+        self.SecoundTimeAction = gameMain.DefaultCnt.Get_RegKey("/ItemData/-1/lv_" + str(self.ItemLevel) + "_activation_sec", int)
+        self.maintenance_cost = gameMain.DefaultCnt.Get_RegKey("/ItemData/-1/lv_" + str(self.ItemLevel) + "_cost_maintenance", float)
 
     def ItemAction(self):
         gameMain.ScreenGame.IncomingLog.AddMessageText("€+{0}".format(str(self.ItemExpPerSecound)), False, (55, 45, 60))
@@ -323,7 +322,7 @@ class Item_Shop:
         self.InstanceID = 0
 
         self.ItemLevel = GetItemLevel_ByID(self.ItemID)
-        self.maintenance_cost = reg.ReadKey_float("/ItemData/-2/lv_" + str(self.ItemLevel) + "_cost_maintenance")
+        self.maintenance_cost = gameMain.DefaultCnt.Get_RegKey("/ItemData/-2/lv_" + str(self.ItemLevel) + "_cost_maintenance", float)
 
     def Update(self):
         pass

@@ -15,19 +15,22 @@
 #
 #
 
-from ENGINE import  sprite
+from ENGINE import  CONTENT_MANAGER
 from ENGINE import reg
 from ENGINE import utils
 # -- Category -- #
 from Fogoso.MAIN.Window.InfosWindow import category_0
 from Fogoso.MAIN.Window.InfosWindow import category_1
+from Fogoso.MAIN.Window.InfosWindow import category_2
 
 # -- ETC -- #
 from Fogoso.MAIN.Screens import Game as GameScreen
 from Fogoso.MAIN import ClassesUtils as gameObjs
 from Fogoso.MAIN import GameVariables as save
 from Fogoso.MAIN.Screens.Game import Maintenance as maintenance
+from Fogoso import MAIN as gameMain
 import pygame
+
 
 print("Fogoso Infos Window, Version 1.3")
 
@@ -48,7 +51,7 @@ def Initialize():
     global BuyAmout
     global PreviousButton
     global NextButton
-    WindowObject = gameObjs.Window(pygame.Rect(100,100,reg.ReadKey_int("/props/window/infos/last_w"),reg.ReadKey_int("/props/window/infos/last_h")), reg.ReadKey("/strings/window/infos/window_title"),True)
+    WindowObject = gameObjs.Window(pygame.Rect(100,100,gameMain.DefaultCnt.Get_RegKey("/props/window/infos/last_w", int),gameMain.DefaultCnt.Get_RegKey("/props/window/infos/last_h", int)), gameMain.DefaultCnt.Get_RegKey("/strings/window/infos/window_title"),True)
     NextButton = gameObjs.Button(pygame.Rect(0,0,0,0), ">", 12)
     PreviousButton = gameObjs.Button(pygame.Rect(0,0,0,0), "<", 12)
     NextButton.CustomColisionRectangle = True
@@ -58,10 +61,12 @@ def Initialize():
 
     category_0.Initialize()
     category_1.Initialize()
+    category_2.Initialize()
 
 
-CurrentCategory = 0 # 0 - Maintenance Info
+CurrentCategory = 0
 DrawnSurfaceGlob = None
+CurrentUpdater = category_0
 def Render(DISPLAY):
     global WindowObject
     global DrawnSurface
@@ -69,24 +74,21 @@ def Render(DISPLAY):
     global PreviousButton
     global DrawnSurfaceGlob
     global ScreenSize
+    global CurrentUpdater
 
     # -- Update the Surface -- #
     DrawnSurface = pygame.Surface((WindowObject.WindowSurface_Rect[2], WindowObject.WindowSurface_Rect[3]), pygame.SRCALPHA)
 
     # -- Draw the Top Bar -- #
-    sprite.Shape_Rectangle(DrawnSurface, (1, 22, 39, 100), (0, 0, DrawnSurface.get_width(), 20))
-    sprite.FontRender(DrawnSurface, "/PressStart2P.ttf", 15, reg.ReadKey("/strings/window/infos/category_" + str(CurrentCategory)), (240, 240, 240), 5, 3, reg.ReadKey_bool("/OPTIONS/font_aa"))
+    gameMain.shape.Shape_Rectangle(DrawnSurface, (1, 22, 39, 100), (0, 0, DrawnSurface.get_width(), 20))
+    gameMain.DefaultCnt.FontRender(DrawnSurface, "/PressStart2P.ttf", 15, gameMain.DefaultCnt.Get_RegKey("/strings/window/infos/category_" + str(CurrentCategory)), (240, 240, 240), 5, 3, gameMain.DefaultCnt.Get_RegKey("/OPTIONS/font_aa"))
 
     # -- Draw the Arrows -- #
     NextButton.Render(DrawnSurface)
     PreviousButton.Render(DrawnSurface)
 
     # -- Draw the Category -- #
-    if CurrentCategory == 0:
-        category_0.Render(DrawnSurface)
-
-    if CurrentCategory == 1:
-        category_1.Render(DrawnSurface)
+    CurrentUpdater.Render(DrawnSurface)
 
     WindowObject.Render(DISPLAY)
     DISPLAY.blit(DrawnSurface, (WindowObject.WindowSurface_Rect[0], WindowObject.WindowSurface_Rect[1]))
@@ -98,16 +100,13 @@ def Update():
     global WindowObject
     global CurrentCategory
     global DrawnSurfaceGlob
+    global CurrentUpdater
 
     if DrawnSurfaceGlob is None:
         return
 
     # -- Update the Seletectd Categorys -- #
-    if CurrentCategory == 0:
-        category_0.Update()
-
-    elif CurrentCategory == 1:
-        category_1.Update()
+    CurrentUpdater.Update()
 
     # -- Update Next Button -- #
     NextButton.Set_X(DrawnSurfaceGlob.get_width() - NextButton.Rectangle[2])
@@ -121,35 +120,48 @@ def Update():
     PreviousButton.Set_ColisionX(WindowObject.WindowRectangle[0] + PreviousButton.Rectangle[0])
     PreviousButton.Set_ColisionY(WindowObject.WindowRectangle[1] + PreviousButton.Rectangle[1] + PreviousButton.Rectangle[3])
 
+def Set_Category(CategoryID):
+    global CurrentUpdater
+
+    if CategoryID == 0:
+        CurrentUpdater = category_0
+
+    elif CategoryID == 1:
+        CurrentUpdater = category_1
+
+    elif CategoryID == 2:
+        CurrentUpdater = category_2
+
+
 def EventUpdate(event):
     global NextButton
     global PreviousButton
     global CurrentCategory
     global DrawnSurfaceGlob
     global CurrentCategory
+    global CurrentUpdater
 
     # -- Update Events -- #
     WindowObject.EventUpdate(event)
     NextButton.Update(event)
     PreviousButton.Update(event)
 
-    if CurrentCategory == 0:
-        category_0.EventUpdate(event)
-
-    elif CurrentCategory == 1:
-        category_1.EventUpdate(event)
-
+    CurrentUpdater.EventUpdate(event)
 
     # -- Go to Previus Category -- #
     if PreviousButton .ButtonState == 2:
         if CurrentCategory > 0:
             CurrentCategory -= 1
         else:
-            CurrentCategory = reg.ReadKey_int("/strings/window/infos/category_max")
+            CurrentCategory = gameMain.DefaultCnt.Get_RegKey("/strings/window/infos/category_max")
+
+        Set_Category(CurrentCategory)
 
     # -- Go to Next Category -- #
     if NextButton .ButtonState == 2:
-        if CurrentCategory < reg.ReadKey_int("/strings/window/infos/category_max"):
+        if CurrentCategory < gameMain.DefaultCnt.Get_RegKey("/strings/window/infos/category_max"):
             CurrentCategory += 1
         else:
             CurrentCategory = 0
+
+        Set_Category(CurrentCategory)

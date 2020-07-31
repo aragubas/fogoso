@@ -14,7 +14,7 @@
 #   limitations under the License.
 #
 #
-from ENGINE import REGISTRY as reg
+from ENGINE import appData
 import ENGINE as tge
 from Fogoso.MAIN.Screens import Game as gameScr
 from Fogoso.MAIN import ClassesUtils as gameObjs
@@ -26,6 +26,8 @@ from Fogoso.MAIN.Screens.Game import IncomingLog
 from ENGINE import UTILS as utils
 from random import randint
 from Fogoso.MAIN import OverlayDialog
+from Fogoso import MAIN as gameMain
+
 import os
 
 print("Fogoso Variables Management, version 1.6")
@@ -104,45 +106,45 @@ def LoadSaveData():
     print("Fogoso.SaveManager : Loading Save Data...")
 
     # -- Load Money and Click Variables -- #
-    Current_Money = reg.ReadAppData_WithTry("money", float, 0.0)
-    Current_MoneyValuePerClick = reg.ReadAppData_WithTry("money_per_click", float, 0.50)
-    Current_MoneyMinimun = reg.ReadAppData_WithTry("money_minimun", float, -5000)
-    Current_Experience = reg.ReadAppData_WithTry("experience", int, 0)
-    Current_TotalClicks = reg.ReadAppData_WithTry("total_clicks", int, 0)
-    Current_TotalClicksForEach = reg.ReadAppData_WithTry("total_clicks_for_each", int, 35)
-    Current_ExperiencePerEach = reg.ReadAppData_WithTry("total_experience_per_each", int, 15)
-    Current_MoneyPerClickBest = reg.ReadAppData_WithTry("click_last_best", float, 0)
+    Current_Money = appData.ReadAppData_WithTry("money", float, 0.0)
+    Current_MoneyValuePerClick = appData.ReadAppData_WithTry("money_per_click", float, 0.50)
+    Current_MoneyMinimun = appData.ReadAppData_WithTry("money_minimun", float, -5000)
+    Current_Experience = appData.ReadAppData_WithTry("experience", int, 0)
+    Current_TotalClicks = appData.ReadAppData_WithTry("total_clicks", int, 0)
+    Current_TotalClicksForEach = appData.ReadAppData_WithTry("total_clicks_for_each", int, 35)
+    Current_ExperiencePerEach = appData.ReadAppData_WithTry("total_experience_per_each", int, 15)
+    Current_MoneyPerClickBest = appData.ReadAppData_WithTry("click_last_best", float, 0)
 
     # -- Calculate the Total Clicks Next -- #
     Current_TotalClicksNext = Current_TotalClicks + Current_TotalClicksForEach
 
     # -- Load the Current Date -- #
-    CurrentDate_Year = reg.ReadAppData_WithTry("date/year", int, 0)
-    CurrentDate_Month = reg.ReadAppData_WithTry("date/month", int, 0)
-    CurrentDate_Day = reg.ReadAppData_WithTry("date/day", int, 0)
-    CurrentDate_Second = reg.ReadAppData_WithTry("date/second", int, 0)
-    CurrentDate_Minute = reg.ReadAppData_WithTry("date/minute", int, 0)
-    CurrentDate_Microseconds = reg.ReadAppData_WithTry("date/microsecond", int, 0)
+    CurrentDate_Year = appData.ReadAppData_WithTry("date/year", int, 0)
+    CurrentDate_Month = appData.ReadAppData_WithTry("date/month", int, 0)
+    CurrentDate_Day = appData.ReadAppData_WithTry("date/day", int, 0)
+    CurrentDate_Second = appData.ReadAppData_WithTry("date/second", int, 0)
+    CurrentDate_Minute = appData.ReadAppData_WithTry("date/minute", int, 0)
+    CurrentDate_Microseconds = appData.ReadAppData_WithTry("date/microsecond", int, 0)
 
     # -- Load the Date Limiters -- #
-    CurrentDate_MinuteLimiter = reg.ReadAppData_WithTry("date/limiter/minute", int, 60)
-    CurrentDate_SecondLimiter = reg.ReadAppData_WithTry("date/limiter/second", int, 50)
-    CurrentDate_DayLimiter = reg.ReadAppData_WithTry("date/limiter/day", int, 5)
-    CurrentDate_MonthLimiter = reg.ReadAppData_WithTry("date/limiter/month", int, 7)
-    CurrentDate_YearLimiter = reg.ReadAppData_WithTry("date/limiter/year", int, 5)
+    CurrentDate_MinuteLimiter = appData.ReadAppData_WithTry("date/limiter/minute", int, 60)
+    CurrentDate_SecondLimiter = appData.ReadAppData_WithTry("date/limiter/second", int, 50)
+    CurrentDate_DayLimiter = appData.ReadAppData_WithTry("date/limiter/day", int, 5)
+    CurrentDate_MonthLimiter = appData.ReadAppData_WithTry("date/limiter/month", int, 7)
+    CurrentDate_YearLimiter = appData.ReadAppData_WithTry("date/limiter/year", int, 5)
 
     # -- Load Last Maintenance -- #
-    maintenance.DayTrigger = reg.ReadAppData_WithTry("maintenance_day_trigger", int, 1)
-    maintenance.PerDayValue = reg.ReadAppData_WithTry("maintenance_per_day_value", int, 1)
-    maintenance.BaseMaintenance = reg.ReadAppData_WithTry("maintenance_base_price", float, 15.0)
+    maintenance.DayTrigger = appData.ReadAppData_WithTry("maintenance_day_trigger", int, 1)
+    maintenance.PerDayValue = appData.ReadAppData_WithTry("maintenance_per_day_value", int, 1)
+    maintenance.BaseMaintenance = appData.ReadAppData_WithTry("maintenance_base_price", float, 15.0)
 
     # -- ETC -- #
-    WelcomeMessageTriggered = reg.ReadAppData_WithTry("welcome_message_triggered",bool, False)
-    LowerMoneyWarning = reg.ReadKeyWithTry_bool("lower_money_warning", False)
+    WelcomeMessageTriggered = appData.ReadAppData_WithTry("welcome_message_triggered",bool, False)
+    LowerMoneyWarning = appData.ReadAppData_WithTry("lower_money_warning", bool, False)
 
     # -- Load Passed Tutorials -- #
     try:
-        FileData = reg.ReadAppData_WithTry("tutorials_triggered", str, "")
+        FileData = appData.ReadAppData_WithTry("tutorials_triggered", str, "")
         SplitedData = FileData.split('%n')
         for tutorial in SplitedData:
             try:
@@ -151,7 +153,7 @@ def LoadSaveData():
             except ValueError:
                 triggered_tutorials.append(str(tutorial))
     except AttributeError:
-        reg.WriteAppData("tutorials_triggered", "")
+        appData.WriteAppData("tutorials_triggered", "")
 
     gameItems.LoadItems()
     print("Fogoso.SaveManager : Loading Store Items...")
@@ -247,38 +249,38 @@ def SaveData():
     global LowerMoneyWarning
 
     # -- Money and Click Vars -- #
-    reg.WriteAppData("money", Current_Money)
-    reg.WriteAppData("experience", Current_Experience)
-    reg.WriteAppData("money_per_click", Current_MoneyValuePerClick)
-    reg.WriteAppData("total_clicks", Current_TotalClicks)
-    reg.WriteAppData("total_clicks_for_each", Current_TotalClicksForEach)
-    reg.WriteAppData("total_experience_per_each", Current_ExperiencePerEach)
-    reg.WriteAppData("money_minimun", Current_MoneyMinimun)
-    reg.WriteAppData("click_last_best", Current_MoneyPerClickBest)
+    appData.WriteAppData("money", Current_Money)
+    appData.WriteAppData("experience", Current_Experience)
+    appData.WriteAppData("money_per_click", Current_MoneyValuePerClick)
+    appData.WriteAppData("total_clicks", Current_TotalClicks)
+    appData.WriteAppData("total_clicks_for_each", Current_TotalClicksForEach)
+    appData.WriteAppData("total_experience_per_each", Current_ExperiencePerEach)
+    appData.WriteAppData("money_minimun", Current_MoneyMinimun)
+    appData.WriteAppData("click_last_best", Current_MoneyPerClickBest)
 
     # -- ETC -- #
-    reg.WriteAppData("welcome_message_triggered", WelcomeMessageTriggered)
-    reg.WriteAppData("lower_money_warning", LowerMoneyWarning)
+    appData.WriteAppData("welcome_message_triggered", WelcomeMessageTriggered)
+    appData.WriteAppData("lower_money_warning", LowerMoneyWarning)
 
     # -- Maintenance Variables -- #
-    reg.WriteAppData("maintenance_day_trigger", maintenance.DayTrigger)
-    reg.WriteAppData("maintenance_per_day_value", maintenance.PerDayValue)
-    reg.WriteAppData("maintenance_base_price", maintenance.BaseMaintenance)
+    appData.WriteAppData("maintenance_day_trigger", maintenance.DayTrigger)
+    appData.WriteAppData("maintenance_per_day_value", maintenance.PerDayValue)
+    appData.WriteAppData("maintenance_base_price", maintenance.BaseMaintenance)
 
     # -- Save Date -- #
-    reg.WriteAppData("date/day", CurrentDate_Day)
-    reg.WriteAppData("date/month", CurrentDate_Month)
-    reg.WriteAppData("date/year", CurrentDate_Year)
-    reg.WriteAppData("date/minute", CurrentDate_Minute)
-    reg.WriteAppData("date/second", CurrentDate_Second)
-    reg.WriteAppData("date/microseconds", CurrentDate_Microseconds)
+    appData.WriteAppData("date/day", CurrentDate_Day)
+    appData.WriteAppData("date/month", CurrentDate_Month)
+    appData.WriteAppData("date/year", CurrentDate_Year)
+    appData.WriteAppData("date/minute", CurrentDate_Minute)
+    appData.WriteAppData("date/second", CurrentDate_Second)
+    appData.WriteAppData("date/microseconds", CurrentDate_Microseconds)
 
     # -- Save Date Limiter -- #
-    reg.WriteAppData("date/limiter/day", CurrentDate_DayLimiter)
-    reg.WriteAppData("date/limiter/month", CurrentDate_MonthLimiter)
-    reg.WriteAppData("date/limiter/year", CurrentDate_YearLimiter)
-    reg.WriteAppData("date/limiter/minute", CurrentDate_MinuteLimiter)
-    reg.WriteAppData("date/limiter/second", CurrentDate_SecondLimiter)
+    appData.WriteAppData("date/limiter/day", CurrentDate_DayLimiter)
+    appData.WriteAppData("date/limiter/month", CurrentDate_MonthLimiter)
+    appData.WriteAppData("date/limiter/year", CurrentDate_YearLimiter)
+    appData.WriteAppData("date/limiter/minute", CurrentDate_MinuteLimiter)
+    appData.WriteAppData("date/limiter/second", CurrentDate_SecondLimiter)
 
     # -- Save Passed Tutorials -- #
     FileData = ""
@@ -286,7 +288,7 @@ def SaveData():
         if not tutorial == "":
             FileData += "%n" + str(tutorial)
 
-    reg.WriteAppData("tutorials_triggered", FileData)
+    appData.WriteAppData("tutorials_triggered", FileData)
 
     # -- Save Items Data -- #
     gameItems.SaveItems()
@@ -349,7 +351,7 @@ def Update():
             TutorialTrigger("new_savegame")
 
         # -- Updated Formated Strings -- #
-        if reg.ReadKey_bool("/OPTIONS/format_numbers"):
+        if gameMain.DefaultCnt.Get_RegKey("/OPTIONS/format_numbers"):
             Current_MoneyFormated = utils.FormatNumber(Current_Money, 2)
             Current_MoneyPerSecondFormatted = utils.FormatNumber(Current_MoneyPerSecond, 2)
             Current_ExperienceFormated = utils.FormatNumber(Current_Experience, 2)
@@ -400,12 +402,12 @@ def TriggerBankrupt():
     if Current_Money <= Current_MoneyMinimun and not BankruptWarning:
         BankruptWarning = True
         LowerMoneyWarning = False
-        OverlayDialog.subscreen1.SetMessage(reg.ReadKey("/strings/game/bankrupt_1_title"), reg.ReadKey("/strings/game/bankrupt_1_text").format(utils.FormatNumber(Current_Money)), typeDelay=0)
+        OverlayDialog.subscreen1.SetMessage(gameMain.DefaultCnt.Get_RegKey("/strings/game/bankrupt_1_title"), gameMain.DefaultCnt.Get_RegKey("/strings/game/bankrupt_1_text").format(utils.FormatNumber(Current_Money)), typeDelay=0)
 
     # -- Lower Money Warning -- #
     elif not LowerMoneyWarning and Current_Money <= -10.00 and not BankruptWarning:
         LowerMoneyWarning = True
-        OverlayDialog.subscreen1.SetMessage(reg.ReadKey("/strings/game/bankrupt_0_title"), reg.ReadKey("/strings/game/bankrupt_0_text").format(utils.FormatNumber(Current_MoneyMinimun)), typeDelay=0)
+        OverlayDialog.subscreen1.SetMessage(gameMain.DefaultCnt.Get_RegKey("/strings/game/bankrupt_0_title"), gameMain.DefaultCnt.Get_RegKey("/strings/game/bankrupt_0_text").format(utils.FormatNumber(Current_MoneyMinimun)), typeDelay=0)
 
     if LowerMoneyWarning:
         if Current_Money >= 0.1:
@@ -417,7 +419,7 @@ def TriggerBankrupt():
         RestartSaveGame()
 
 def TutorialTrigger(Action):
-    if not reg.ReadKeyWithTry_bool("/OPTIONS/tutorial_enabled", True):
+    if not gameMain.DefaultCnt.Get_RegKey("/OPTIONS/tutorial_enabled", bool):
         return
     global triggered_tutorials
 
@@ -427,7 +429,7 @@ def TutorialTrigger(Action):
 
     except ValueError:
         triggered_tutorials.append(Action)
-        OverlayDialog.subscreen1.SetMessage(reg.ReadKey("/strings/tutorial/title_{0}".format(str(Action))), reg.ReadKey("/strings/tutorial/{0}".format(str(Action))), typeDelay=0, wordStep=2)
+        OverlayDialog.subscreen1.SetMessage(gameMain.DefaultCnt.Get_RegKey("/strings/tutorial/title_{0}".format(str(Action))), gameMain.DefaultCnt.Get_RegKey("/strings/tutorial/{0}".format(str(Action))), typeDelay=0, wordStep=2)
 
 # -- Action when grinding -- #
 def GrindClick():

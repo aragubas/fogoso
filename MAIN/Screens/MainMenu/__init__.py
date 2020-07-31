@@ -16,17 +16,18 @@
 #
 
 # -- Imports -- #
-from ENGINE import REGISTRY as reg
+from ENGINE import APPDATA as reg
 from ENGINE import UTILS as utils
 import ENGINE as tge
 from ENGINE import SOUND as sound
+from Fogoso import MAIN as gameMain
 from Fogoso.MAIN import ClassesUtils as gameObjs
 from Fogoso.MAIN.Screens import Game as ScreenGame
 from Fogoso.MAIN.Screens import Settings as ScreenSettings
 from Fogoso.MAIN.Screens import Intro as ScreenIntro
 from Fogoso.MAIN import ScreenTransition as transition
 from Fogoso import MAIN as gameMainObj
-from ENGINE import SPRITE as sprite
+from ENGINE import CONTENT_MANAGER as sprite
 from Fogoso.MAIN.Window import Tips as tipsWindow
 import pygame, sys
 import importlib
@@ -52,8 +53,8 @@ def Initialize(DISPLAY):
     global PlayButton
     global SettingsButton
     global IntroSpriteButton
-    PlayButton = gameObjs.Button(pygame.Rect(50, 50, 0, 0), reg.ReadKey("/strings/main_menu/play_button"), 18)
-    SettingsButton = gameObjs.Button(pygame.Rect(50 ,50 ,0 ,0), reg.ReadKey("/strings/main_menu/settings_button"), 18)
+    PlayButton = gameObjs.Button(pygame.Rect(50, 50, 0, 0), gameMain.DefaultCnt.Get_RegKey("/strings/main_menu/play_button"), 18)
+    SettingsButton = gameObjs.Button(pygame.Rect(50 ,50 ,0 ,0), gameMain.DefaultCnt.Get_RegKey("/strings/main_menu/settings_button"), 18)
     gameMainObj.ClearColor = (1, 20, 30)
     IntroSpriteButton = gameObjs.SpriteButton(pygame.Rect(0,0,47, 45), ("/icon.png","/icon.png","/icon.png"))
 
@@ -84,13 +85,13 @@ def GameDraw(DISPLAY):
     if ControlsInitialized:
         gameObjs.Draw_Panel(DISPLAY, (Animation_Value, 0, 300, DISPLAY.get_height()))
 
-        sprite.FontRender(DISPLAY, "/PressStart2P.ttf", 18, reg.ReadKeyWithTry("/strings/main_menu/game_title", "title"), (240, 250, 250), Animation_Value + 15, 20, reg.ReadKey_bool("/OPTIONS/font_aa"))
+        gameMain.DefaultCnt.FontRender(DISPLAY, "/PressStart2P.ttf", 18, gameMain.DefaultCnt.Get_RegKey("/strings/main_menu/game_title"), (240, 250, 250), Animation_Value + 15, 20, gameMain.DefaultCnt.Get_RegKey("/OPTIONS/font_aa"))
 
         PlayButton.Render(DISPLAY)
         SettingsButton.Render(DISPLAY)
 
         IntroSpriteButton.Render(DISPLAY)
-        sprite.FontRender(DISPLAY, "/PressStart2P.ttf", 10, reg.ReadKey("/strings/main_menu/about"), (240, 250, 250), IntroSpriteButton.Rectangle[0] + IntroSpriteButton.Rectangle[2] + 5, IntroSpriteButton.Rectangle[1] + 3, reg.ReadKey_bool("/OPTIONS/font_aa"))
+        gameMain.DefaultCnt.FontRender(DISPLAY, "/PressStart2P.ttf", 10, gameMain.DefaultCnt.Get_RegKey("/strings/main_menu/about"), (240, 250, 250), IntroSpriteButton.Rectangle[0] + IntroSpriteButton.Rectangle[2] + 5, IntroSpriteButton.Rectangle[1] + 3, gameMain.DefaultCnt.Get_RegKey("/OPTIONS/font_aa"))
 
         tipsWindow.Draw(DISPLAY)
 
@@ -172,15 +173,7 @@ def UpdateAnimation():
                 Animation_CurrentAnim = 0
                 Animation_ValueAdder = 1
 
-                if Animation_NextScreen == -1:
-                    ScreenIntro.Initialize(CommonScreenObj)
-
-                if Animation_NextScreen == 1:
-                    ScreenGame.Initialize(CommonScreenObj)
-
-                if Animation_NextScreen == 2:
-                    ScreenSettings.ScreenToReturn = 0
-                    ScreenSettings.Initialize()
+                ScreenSettings.ScreenToReturn = 0
 
                 transition.Run()
-                gameMainObj.CurrentScreen = Animation_NextScreen
+                gameMain.SetScreen_ByID(Animation_NextScreen)

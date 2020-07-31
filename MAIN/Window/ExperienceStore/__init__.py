@@ -15,13 +15,14 @@
 #
 #
 
-from ENGINE import SPRITE as sprite
-from ENGINE import REGISTRY as reg
+from ENGINE import CONTENT_MANAGER as sprite
+from ENGINE import APPDATA as reg
 from ENGINE import UTILS as utils
 from Fogoso.MAIN.Screens.Game import IncomingLog as IncomingLog
 from Fogoso.MAIN import ClassesUtils as gameObjs
 from Fogoso.MAIN import GameVariables as save
 import pygame
+from Fogoso import MAIN as gameMain
 from Fogoso.MAIN import GameItems as gameItems
 
 print("Fogoso Experience Store Window, Version 1.0")
@@ -46,9 +47,9 @@ def Initialize():
     global DrawnSurface
     global ListItems
     global BuyAmout
-    WindowObject = gameObjs.Window(pygame.Rect(100,100,reg.ReadKey_int("/props/window/expecience_store/last_w"),reg.ReadKey_int("/props/window/expecience_store/last_h")), reg.ReadKey("/strings/window/expecience_store/window_title"),True)
+    WindowObject = gameObjs.Window(pygame.Rect(100,100,gameMain.DefaultCnt.Get_RegKey("/props/window/expecience_store/last_w", int), gameMain.DefaultCnt.Get_RegKey("/props/window/expecience_store/last_h", int)), gameMain.DefaultCnt.Get_RegKey("/strings/window/expecience_store/window_title"),True)
     WindowObject.Minimizable = False
-    BuyButton = gameObjs.Button(pygame.Rect(20, 20, 50, 50), reg.ReadKey("/strings/window/expecience_store/buy_button"), 14)
+    BuyButton = gameObjs.Button(pygame.Rect(20, 20, 50, 50), gameMain.DefaultCnt.Get_RegKey("/strings/window/expecience_store/buy_button"), 14)
     BuyButton.CustomColisionRectangle = True
     DrawnSurface = pygame.Surface((WindowObject.WindowSurface_Rect[2], WindowObject.WindowSurface_Rect[3]), pygame.SRCALPHA)
 
@@ -84,14 +85,14 @@ def Render(DISPLAY):
             SelectedItemPrice = gameItems.GetItemUpgradePrice_ByID(SelectedItemID)
 
             # -- Down Panel Background -- #
-            sprite.Shape_Rectangle(DrawnSurface, (0, 0, 0, 100), (0, DrawnSurface.get_height() - DownBar_BuyPanelYOffset, DrawnSurface.get_width(), DownBar_BuyPanelYOffset))
-            sprite.Shape_Rectangle(DrawnSurface, (16, 166, 152), (0, DrawnSurface.get_height() - DownBar_BuyPanelYOffset - 1, DrawnSurface.get_width(), 1))
+            CONTENT_MANAGER.Shape_Rectangle(DrawnSurface, (0, 0, 0, 100), (0, DrawnSurface.get_height() - DownBar_BuyPanelYOffset, DrawnSurface.get_width(), DownBar_BuyPanelYOffset))
+            CONTENT_MANAGER.Shape_Rectangle(DrawnSurface, (16, 166, 152), (0, DrawnSurface.get_height() - DownBar_BuyPanelYOffset - 1, DrawnSurface.get_width(), 1))
 
             # -- Draw the Buy Button -- #
             BuyButton.Render(DrawnSurface)
 
             # -- Draw the Item Title -- #
-            sprite.FontRender(DrawnSurface, "/PressStart2P.ttf", 15, ListItems.LastItemClicked, (250, 250, 250), 10, DrawnSurface.get_height() - DownBar_BuyPanelYOffset + 5, reg.ReadKey_bool("/OPTIONS/font_aa"))
+            CONTENT_MANAGER.FontRender(DrawnSurface, "/PressStart2P.ttf", 15, ListItems.LastItemClicked, (250, 250, 250), 10, DrawnSurface.get_height() - DownBar_BuyPanelYOffset + 5, gameMain.DefaultCnt.Get_RegKey("/OPTIONS/font_aa"))
 
             # -- Draw the Item Price -- #
             PriceTextOpacity = 255
@@ -101,7 +102,7 @@ def Render(DISPLAY):
                 if PriceTextOpacity <= 100:
                     PriceTextOpacity = 100
 
-            sprite.FontRender(DrawnSurface, "/PressStart2P.ttf", 8, "€xp" + str(utils.FormatNumber(SelectedItemPrice)), (PriceTextOpacity, PriceTextOpacity, PriceTextOpacity), 10, DrawnSurface.get_height() - DownBar_BuyPanelYOffset + 20, reg.ReadKey_bool("/OPTIONS/font_aa"), Opacity=PriceTextOpacity)
+            CONTENT_MANAGER.FontRender(DrawnSurface, "/PressStart2P.ttf", 8, "€xp" + str(utils.FormatNumber(SelectedItemPrice)), (PriceTextOpacity, PriceTextOpacity, PriceTextOpacity), 10, DrawnSurface.get_height() - DownBar_BuyPanelYOffset + 20, gameMain.DefaultCnt.Get_RegKey("/OPTIONS/font_aa"), Opacity=PriceTextOpacity)
 
     WindowObject.Render(DISPLAY) # -- Render Window Border
     DISPLAY.blit(DrawnSurface, (WindowObject.WindowSurface_Rect[0], WindowObject.WindowSurface_Rect[1]))  # -- Render Window Objects
@@ -156,7 +157,7 @@ def BuyItem_ByID(ItemID):
 
     if save.Current_Experience >= Price:
         save.Current_Experience -= Price
-        IncomingLog.AddMessageText(reg.ReadKey("/strings/window/expecience_store/item_upgrade"), False, (140, 240, 140))
+        IncomingLog.AddMessageText(gameMain.DefaultCnt.Get_RegKey("/strings/window/expecience_store/item_upgrade"), False, (140, 240, 140))
 
         # -- Write item level Information -- #
         gameItems.IncreaseItemLevel_ByID(ItemID)
@@ -175,9 +176,9 @@ def ReloadItemsList():
 
     ListItems.ClearItems()
     print("ReloadItemsList : Add Store Items")
-    for x in range(reg.ReadKey_int("/ItemData/minimum"), reg.ReadKey_int("/ItemData/all") + 1):
+    for x in range(gameMain.DefaultCnt.Get_RegKey("/ItemData/minimum", int), gameMain.DefaultCnt.Get_RegKey("/ItemData/all", int) + 1):
         # -- Check if item is Visible -- #
-        if reg.ReadKey_bool("/ItemData/" + str(x) + "/is_upgradeable"):
+        if gameMain.DefaultCnt.Get_RegKey("/ItemData/" + str(x) + "/is_upgradeable"):
 
             # -- Reg Keys Locations -- #
             CurrentItemRoot = "/ItemData/upgrade/" + str(x) + "_"
@@ -187,7 +188,7 @@ def ReloadItemsList():
             CurrentItemName = CurrentItemRoot + "name_" + str(CurrentItemLevel)
 
             print("ReloadItemsList : CurrentItem[" + CurrentItemRoot + "]")
-            ListItems.AddItem(reg.ReadKey(CurrentItemName), reg.ReadKey(CurrentItemDescription), reg.ReadKey(CurrentItemSprite))
+            ListItems.AddItem(gameMain.DefaultCnt.Get_RegKey(CurrentItemName), gameMain.DefaultCnt.Get_RegKey(CurrentItemDescription), gameMain.DefaultCnt.Get_RegKey(CurrentItemSprite))
 
     print("ReloadItemsList : Add Store Items")
 

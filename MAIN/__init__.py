@@ -17,8 +17,13 @@
 # -- ENGINE imports -- #
 from ENGINE import utils
 from ENGINE import reg
-from ENGINE import sprite
+from ENGINE import CONTENT_MANAGER
 from ENGINE import taiyouMain
+from ENGINE import sound
+from ENGINE import fx
+from ENGINE import appData
+from ENGINE import shape
+import ENGINE as tge
 
 # -- Fogoso Module Imports -- #
 from Fogoso.MAIN import ClassesUtils as gameObjs
@@ -32,6 +37,7 @@ from Fogoso.MAIN.Screens.Game import MapRender as ScreenMap
 from Fogoso.MAIN import GameVariables as save
 from Fogoso.MAIN import ScreenTransition as transition
 from Fogoso.MAIN import OverlayDialog as dialog
+from Fogoso import MAIN as gameMain
 
 # -- MISC Imports -- #
 from random import randint
@@ -46,8 +52,8 @@ CursorH = 0
 
 # -- Engine Options -- #
 Engine_MaxFPS = 0
-Engine_ResW = 1024
-Engine_ResH = 720
+Engine_ResW = 800
+Engine_ResH = 600
 
 # -- Last Error Overlay -- #
 LastErrorText = ""
@@ -58,7 +64,7 @@ LastErrorTextDeltaTime = 0
 DefaultDisplay = pygame.Surface((0, 0))
 
 # -- Screens -- #
-CurrentScreen = 3
+CurrentUpdate = ScreenIntro
 ClearColor = (0, 0, 0)
 
 # -- Error Message -- #
@@ -71,6 +77,9 @@ CursorY = 0
 
 OverlayDialogEnabled = False
 ScreenLastFrame = pygame.Surface((0, 0))
+
+# -- Content Managers -- #
+DefaultCnt = CONTENT_MANAGER.ContentManager
 
 def GameDraw(DISPLAY):  # -- Engine Required Function
     global DefaultDisplay
@@ -86,15 +95,17 @@ def GameDraw(DISPLAY):  # -- Engine Required Function
     global ErrorMessageDelay
     global OverlayDialogEnabled
     global ScreenLastFrame
+    global CurrentUpdate
+    global DefaultCnt
 
     # -- Clear the Surface -- #
     DefaultDisplay = DISPLAY
     DISPLAY.fill(ClearColor)
 
-    if not reg.ReadKey_bool("/OPTIONS/debug_enabled"):
+    if not DefaultCnt.Get_RegKey("/OPTIONS/debug_enabled"):
         try:
             if not OverlayDialogEnabled:
-                ScreenDraw(DefaultDisplay)
+                CurrentUpdate.GameDraw(DefaultDisplay)
 
                 ScreenLastFrame = DefaultDisplay.copy()
 
@@ -105,7 +116,7 @@ def GameDraw(DISPLAY):  # -- Engine Required Function
             WriteErrorLog(ex, "GameDraw", False)
     else:
         if not OverlayDialogEnabled:
-            ScreenDraw(DefaultDisplay)
+            CurrentUpdate.GameDraw(DefaultDisplay)
 
             ScreenLastFrame = DefaultDisplay.copy()
         else:
@@ -115,28 +126,27 @@ def GameDraw(DISPLAY):  # -- Engine Required Function
     if ErrorMessageEnabled:
         ErrorMessageDelay += 1
 
-        gameObjs.Draw_Panel(DISPLAY, (0,5,DISPLAY.get_width(), sprite.GetFont_height("/PressStart2P.ttf", reg.ReadKey_int("/props/error_message_text_size"), ErrorMessage)))
-        sprite.FontRender(DISPLAY, "/PressStart2P.ttf", reg.ReadKey_int("/props/error_message_text_size"), ErrorMessage, (150, 50, 50), 0, 5, False)
+        gameObjs.Draw_Panel(DISPLAY, (0, 5, DISPLAY.get_width(), gameMain.DefaultCnt.GetFont_height("/PressStart2P.ttf", gameMain.DefaultCnt.Get_RegKey("/props/error_message_text_size"), ErrorMessage)))
+        CONTENT_MANAGER.FontRender(DISPLAY, "/PressStart2P.ttf", gameMain.DefaultCnt.Get_RegKey("/props/error_message_text_size", int), ErrorMessage, (150, 50, 50), 0, 5, False)
 
-        if ErrorMessageDelay >= reg.ReadKey_int("/props/error_message_delay_max"):
+        if ErrorMessageDelay >= gameMain.DefaultCnt.Get_RegKey("/props/error_message_delay_max", int):
             ErrorMessageDelay = 0
             ErrorMessageEnabled = False
 
     # -- Render Cursor -- #
-    sprite.ImageRender(DefaultDisplay, "/cursors/{0}.png".format(str(Cursor_CurrentLevel)), Cursor_Position[0], Cursor_Position[1])
+    gameMain.DefaultCnt.ImageRender(DefaultDisplay, "/cursors/{0}.png".format(str(Cursor_CurrentLevel)), Cursor_Position[0], Cursor_Position[1])
 
     # -- Render the Transition -- #
     transition.Render(DefaultDisplay)
 
-    if reg.ReadKey_bool("/OPTIONS/debug_enabled"):
-        sprite.FontRender(DefaultDisplay, "/PressStart2P.ttf", 10, "FPS: {0}".format(utils.FormatNumber(taiyouMain.clock.get_fps())), (240, 240, 240), 5, 5, backgroundColor=(5, 8, 13))
-
+    if DefaultCnt.Get_RegKey("/OPTIONS/debug_enabled"):
+        gameMain.DefaultCnt.FontRender(DefaultDisplay, "/PressStart2P.ttf", 10, "FPS: {0}".format(utils.FormatNumber(taiyouMain.clock.get_fps())), (240, 240, 240), 5, 5, backgroundColor=(5, 8, 13))
 
     # -- Render the Error Overlay -- #
     if LastErrorTextEnabled:
         LastErrorTextDeltaTime += 1
 
-        sprite.FontRender(DISPLAY, "/PressStart2P.ttf", 9, LastErrorText, (200, 0, 0), 5, 5, False, (10, 20, 27))
+        CONTENT_MANAGER.FontRender(DISPLAY, "/PressStart2P.ttf", 9, LastErrorText, (200, 0, 0), 5, 5, False, (10, 20, 27))
 
         if LastErrorTextDeltaTime >= 1500:
             LastErrorTextDeltaTime = 0
@@ -145,25 +155,27 @@ def GameDraw(DISPLAY):  # -- Engine Required Function
 
 
 def GeneratedWindowTitle():
-    if reg.ReadKey_bool("/OPTIONS/random_title"):
-        NumberMax = reg.ReadKey_int("/strings/gme_wt/all")
+    if DefaultCnt.Get_RegKey("/OPTIONS/random_title", bool):
+        NumberMax = DefaultCnt.Get_RegKey("/strings/gme_wt/all", int)
         Current = randint(0, NumberMax)
 
-        taiyouMain.ReceiveCommand(5, "Fogoso : {0}".format(reg.ReadKey("/strings/gme_wt/{0}".format(Current))))
+        taiyouMain.ReceiveCommand(5, "Fogoso : {0}".format(DefaultCnt.Get_RegKey("/strings/gme_wt/{0}".format(Current))))
 
 def Update():  # -- Engine Required Function
     global CursorW
     global CursorH
     global OverlayDialogEnabled
+    global CurrentUpdate
+    global DefaultCnt
 
     # -- Set the Cursor Size -- #
-    CursorW = reg.ReadKey_int("/CursorSize/" + str(Cursor_CurrentLevel) + "/w")
-    CursorH = reg.ReadKey_int("/CursorSize/" + str(Cursor_CurrentLevel) + "/h")
+    CursorW = DefaultCnt.Get_RegKey("/CursorSize/" + str(Cursor_CurrentLevel) + "/w")
+    CursorH = DefaultCnt.Get_RegKey("/CursorSize/" + str(Cursor_CurrentLevel) + "/h")
 
-    if not reg.ReadKey_bool("/OPTIONS/debug_enabled"):
+    if not DefaultCnt.Get_RegKey("/OPTIONS/debug_enabled"):
         try:
             if not OverlayDialogEnabled:
-                ScreensUpdate()
+                CurrentUpdate.Update()
             else:
                 dialog.Update()
 
@@ -171,7 +183,7 @@ def Update():  # -- Engine Required Function
             WriteErrorLog(ex, "Update", True)
     else:
         if not OverlayDialogEnabled:
-            ScreensUpdate()
+            CurrentUpdate.Update()
         else:
             dialog.Update()
 
@@ -190,81 +202,6 @@ def SendErrorMessage(Message):
     ErrorMessageEnabled = True
     ErrorMessageDelay = 0
 
-def ScreensUpdate():
-    if CurrentScreen == -2:
-        ScreenTest.Update()
-        return
-
-    elif CurrentScreen == -1:
-        ScreenIntro.Update()
-        return
-
-    elif CurrentScreen == 0:
-        ScreenMenu.Update()
-        return
-
-    elif CurrentScreen == 1:
-        ScreenGame.Update()
-        return
-
-    elif CurrentScreen == 2:
-        ScreenSettings.Update()
-        return
-
-    elif CurrentScreen == 3:
-        ScreenMap.Update()
-        return
-
-def ScreenDraw(DefaultDisplay):
-    if CurrentScreen == -2:
-        ScreenTest.GameDraw(DefaultDisplay)
-        return
-
-    elif CurrentScreen == -1:
-        ScreenIntro.GameDraw(DefaultDisplay)
-        return
-
-    elif CurrentScreen == 0:
-        ScreenMenu.GameDraw(DefaultDisplay)
-        return
-
-    elif CurrentScreen == 1:
-        ScreenGame.GameDraw(DefaultDisplay)
-        return
-
-    elif CurrentScreen == 2:
-        ScreenSettings.GameDraw(DefaultDisplay)
-        return
-
-    elif CurrentScreen == 3:
-        ScreenMap.GameDraw(DefaultDisplay)
-        return
-
-def ScreenEventUpdate(event):
-    if CurrentScreen == -2:
-        ScreenTest.EventUpdate(event)
-        return
-
-    elif CurrentScreen == -1:
-        ScreenIntro.EventUpdate(event)
-        return
-
-    elif CurrentScreen == 0:
-        ScreenMenu.EventUpdate(event)
-        return
-
-    elif CurrentScreen == 1:
-        ScreenGame.EventUpdate(event)
-        return
-
-    elif CurrentScreen == 2:
-        ScreenSettings.EventUpdate(event)
-        return
-
-    elif CurrentScreen == 3:
-        ScreenMap.EventUpdate(event)
-        return
-
 def ScreensInitialize(DISPLAY):
     ScreenTest.Initialize(DISPLAY)
     ScreenIntro.Initialize(DISPLAY)
@@ -272,6 +209,27 @@ def ScreensInitialize(DISPLAY):
     ScreenGame.Initialize(DISPLAY)
     ScreenSettings.Initialize()
     ScreenMap.Initialize()
+
+def SetScreen_ByID(ScreenID):
+    global CurrentUpdate
+
+    if ScreenID == -2:
+        CurrentUpdate = ScreenTest
+
+    elif ScreenID == -1:
+        CurrentUpdate = ScreenIntro
+
+    elif ScreenID == 0:
+        CurrentUpdate = ScreenMenu
+
+    elif ScreenID == 1:
+        CurrentUpdate = ScreenGame
+
+    elif ScreenID == 2:
+        CurrentUpdate = ScreenSettings
+
+    elif ScreenID == 3:
+        CurrentUpdate = ScreenMap
 
 def EventUpdate(event):  # -- Engine Required Function
     global Cursor_Position
@@ -285,10 +243,10 @@ def EventUpdate(event):  # -- Engine Required Function
     if event.type == pygame.MOUSEMOTION:
         Cursor_Position = pygame.mouse.get_pos()
 
-    if not reg.ReadKey_bool("/OPTIONS/debug_enabled"):
+    if not DefaultCnt.Get_RegKey("/OPTIONS/debug_enabled"):
         try:
             if not OverlayDialogEnabled:
-                ScreenEventUpdate(event)
+                CurrentUpdate.EventUpdate(event)
             else:
                 dialog.EventUpdate(event)
 
@@ -296,7 +254,7 @@ def EventUpdate(event):  # -- Engine Required Function
             WriteErrorLog(ex, "EventUpdate", False)
     else:
         if not OverlayDialogEnabled:
-            ScreenEventUpdate(event)
+            CurrentUpdate.EventUpdate(event)
         else:
             dialog.EventUpdate(event)
 
@@ -306,10 +264,11 @@ def LoadOptions():
     global Engine_ResW
     global Engine_MaxFPS
     global Cursor_CurrentLevel
+    global DefaultCnt
     print("LoadOptions : Init")
 
     # -- Engine Flags -- #
-    Engine_MaxFPS = reg.ReadKey_int("/OPTIONS/maxFPS")
+    Engine_MaxFPS = DefaultCnt.Get_RegKey("/OPTIONS/maxFPS", int)
 
     # -- Fade Effect -- #
     transition.Initialize()
@@ -318,8 +277,21 @@ def LoadOptions():
 
     
 def Initialize(DISPLAY):  # -- Engine Required Function
-    global CurrentScreen
+    global DefaultCnt
     print("Fogoso : Game Initialization Called")
+
+    DefaultCnt = CONTENT_MANAGER.ContentManager()
+
+    # -- Load All Fonts -- #
+    DefaultCnt.LoadFonts(tge.TaiyouPath_CorrectAssetsFolder)
+
+    # -- Load Default SpriteSet -- #
+    DefaultCnt.LoadSpritesInFolder(tge.TaiyouPath_CorrectAssetsFolder)
+
+    # -- Load Default RegKeys Set -- #
+    DefaultCnt.LoadRegKeysInFolder(tge.TaiyouPath_CorrectAssetsFolder)
+
+    sound.LoadAllSounds(tge.TaiyouPath_CorrectAssetsFolder)
 
     # -- Load Engine Options -- #
     LoadOptions()
@@ -329,9 +301,9 @@ def Initialize(DISPLAY):  # -- Engine Required Function
     GeneratedWindowTitle()
 
     # -- Set the Default Screen -- #
-    CurrentScreen = reg.ReadKey_int("/props/CurrentScreen")
+    SetScreen_ByID(DefaultCnt.Get_RegKey("/props/CurrentScreen", int))
 
-    if not reg.ReadKey_bool("/OPTIONS/debug_enabled"):
+    if not DefaultCnt.Get_RegKey("/OPTIONS/debug_enabled"):
         try:
             ScreensInitialize(DISPLAY)
 
@@ -350,9 +322,9 @@ def SetWindowParameters():
     global DefaultDisplay
     global Engine_MaxFPS
 
-    DefaultDisplay = pygame.Surface((reg.ReadKey_int("/props/default_resW"), reg.ReadKey_int("/props/default_resH")))
+    DefaultDisplay = pygame.Surface((DefaultCnt.Get_RegKey("/props/default_resW", int), DefaultCnt.Get_RegKey("/props/default_resH", int)))
 
-    taiyouMain.ReceiveCommand(1, "{0}x{1}".format(str(reg.ReadKey_int("/props/default_resW")), str(reg.ReadKey_int("/props/default_resH"))))
+    taiyouMain.ReceiveCommand(1, "{0}x{1}".format(str(DefaultCnt.Get_RegKey("/props/default_resW", int)), str(DefaultCnt.Get_RegKey("/props/default_resH", int))))
     taiyouMain.ReceiveCommand(0, Engine_MaxFPS)
 
     pygame.mouse.set_visible(False)
@@ -374,4 +346,4 @@ def WriteErrorLog(ex, func, ExitWhenFinished=False):
 
         print("WriteErrorLog ; Exception Traceback:\n\n" + ExcTraceback + "\n\n")
 
-        reg.WriteKey(ErrorLogName, ExcTraceback)
+        gameMain.DefaultCnt.Write_RegKey(ErrorLogName, ExcTraceback)

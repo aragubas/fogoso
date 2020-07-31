@@ -14,7 +14,7 @@
 #   limitations under the License.
 #
 #
-from ENGINE import SPRITE as sprite
+from ENGINE import CONTENT_MANAGER as sprite
 import pygame, math
 from random import randint
 from ENGINE import UTILS as utils
@@ -62,7 +62,7 @@ def GameDraw(DISPLAY):
                 NextX = ScrollX + NextIndex * GraphPointSpace
                 NextY = GraphPoints[NextIndex] / GraphSurface.get_height()
 
-                sprite.Shape_Line(GraphSurface, (255, 0, 50), ScrollX + X, Y, NextX, NextY, 2)
+                CONTENT_MANAGER.Shape_Line(GraphSurface, (255, 0, 50), ScrollX + X, Y, NextX, NextY, 2)
 
             except IndexError:
                 pass
@@ -71,7 +71,7 @@ def GameDraw(DISPLAY):
             if HightestPoint == point:
                 pygame.draw.circle(GraphSurface, (255, 0, 255), (ScrollX + X, Y), 5)
             else:
-                sprite.Shape_Rectangle(GraphSurface, (255, 255, 255), (ScrollX + X, Y, 5, 5), BorderRadius=5)
+                CONTENT_MANAGER.Shape_Rectangle(GraphSurface, (255, 255, 255), (ScrollX + X, Y, 5, 5), BorderRadius=5)
 
             MouseRect = pygame.Rect(MouseX, MouseY, 12, 12)
             PointRect = (ScrollX + X, Y, 5, 5)
@@ -79,13 +79,13 @@ def GameDraw(DISPLAY):
             if MouseRect.colliderect(PointRect):
                 CurrentSelectedIndex = i
 
-        sprite.Shape_Rectangle(GraphSurface, (150, 150, 150), (ScrollX + X, 0, 2, GraphSurface.get_height() - 5))
+        CONTENT_MANAGER.Shape_Rectangle(GraphSurface, (150, 150, 150), (ScrollX + X, 0, 2, GraphSurface.get_height() - 5))
 
     # -- Draw the Graph Peak -- #
     peakY = HightestPoint / GraphSurface.get_height()
 
-    sprite.Shape_Rectangle(GraphSurface, (100, 100, 100), (0, peakY, GraphSurface.get_width(), 2))
-    sprite.FontRender(GraphSurface, "/PressStart2P.ttf", 10, "Peak: {0}".format(str(HightestPoint)), (220, 220, 220), 5, peakY - 10, backgroundColor=(0, 0, 0))
+    CONTENT_MANAGER.Shape_Rectangle(GraphSurface, (100, 100, 100), (0, peakY, GraphSurface.get_width(), 2))
+    CONTENT_MANAGER.FontRender(GraphSurface, "/PressStart2P.ttf", 10, "Peak: {0}".format(str(HightestPoint)), (220, 220, 220), 5, peakY - 10, backgroundColor=(0, 0, 0))
 
     debug.Set_Parameter("HightestPoint", HightestPoint)
 
@@ -94,7 +94,7 @@ def GameDraw(DISPLAY):
     if not CurrentSelectedIndex == None:
         point = GraphPoints[CurrentSelectedIndex]
 
-        sprite.FontRender(DISPLAY, "/PressStart2P.ttf", 8, "Data: " + str(point), (255, 255, 255), MouseX + 15, MouseY, backgroundColor=(0, 0, 0))
+        CONTENT_MANAGER.FontRender(DISPLAY, "/PressStart2P.ttf", 8, "Data: " + str(point), (255, 255, 255), MouseX + 15, MouseY, backgroundColor=(0, 0, 0))
 
         debug.Set_Parameter("point", point)
         debug.Set_Parameter("MouseX", MouseX)

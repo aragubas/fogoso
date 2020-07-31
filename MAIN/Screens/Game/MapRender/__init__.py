@@ -16,7 +16,7 @@
 #
 
 # -- Imports -- #
-from ENGINE import REGISTRY as reg
+from ENGINE import APPDATA as reg
 from ENGINE import UTILS as utils
 import ENGINE as tge
 from ENGINE import SOUND as sound
@@ -27,7 +27,7 @@ from Fogoso import MAIN as gameMain
 from Fogoso.MAIN.Window import StoreWindow as storeWindow
 from Fogoso.MAIN.Window import ExperienceStore as expStoreWindow
 from Fogoso.MAIN.Window import InfosWindow as infosWindow
-from ENGINE import SPRITE as sprite
+from ENGINE import CONTENT_MANAGER as sprite
 from random import randint
 import pygame, os
 import importlib
@@ -55,7 +55,7 @@ class Player:
         self.MoveDelayLimit = 1
 
     def Draw(self, DISPLAY):
-        sprite.Shape_Rectangle(DISPLAY, (255, 0, 0), pygame.Rect(MapCamX + self.Rectangle[0], MapCamY + self.Rectangle[1], self.Rectangle[2], self.Rectangle[3]))
+        CONTENT_MANAGER.Shape_Rectangle(DISPLAY, (255, 0, 0), pygame.Rect(MapCamX + self.Rectangle[0], MapCamY + self.Rectangle[1], self.Rectangle[2], self.Rectangle[3]))
 
     def Update(self):
         PlayerMovA = False
@@ -210,7 +210,7 @@ def GameDraw(DISPLAY):
     global PlayerObj
     for x, row in enumerate(MapData):
         for y, data in enumerate(row):
-            sprite.ImageRender(DISPLAY, "/map/{0}/{1}.png".format(str(MapTileset), data), MapCamX + x * MapTileSize, MapCamY + y * MapTileSize, MapTileSize, MapTileSize)
+            CONTENT_MANAGER.ImageRender(DISPLAY, "/map/{0}/{1}.png".format(str(MapTileset), data), MapCamX + x * MapTileSize, MapCamY + y * MapTileSize, MapTileSize, MapTileSize)
 
     PlayerObj.Draw(DISPLAY)
 

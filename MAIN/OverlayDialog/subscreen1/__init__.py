@@ -15,14 +15,15 @@
 #
 #
 import pygame, os, sys, shutil
-from ENGINE import SPRITE as sprite
+from ENGINE import CONTENT_MANAGER as sprite
 from ENGINE import SOUND as sound
 from Fogoso.MAIN import ClassesUtils as gtk
 import ENGINE as tge
+from Fogoso import MAIN as gameMain
 from ENGINE import utils
-from ENGINE import SPRITE as sprite
+from ENGINE import CONTENT_MANAGER as sprite
 from ENGINE import SOUND as sound
-from ENGINE import REGISTRY as reg
+from ENGINE import APPDATA as reg
 from Fogoso.MAIN import OverlayDialog as Handler
 from Fogoso import MAIN as fogosoMain
 
@@ -44,13 +45,13 @@ def Initialize():
     global InputBox
     global OK_Button
 
-    Yes_Button = gtk.Button(pygame.Rect(0,0,0,0), reg.ReadKey("/strings/dialog/yes_button"), 18)
+    Yes_Button = gtk.Button(pygame.Rect(0,0,0,0), gameMain.DefaultCnt.Get_RegKey("/strings/dialog/yes_button"), 18)
     Yes_Button.CustomColisionRectangle = True
 
-    No_Button = gtk.Button(pygame.Rect(0,0,0,0), reg.ReadKey("/strings/dialog/no_button"), 18)
+    No_Button = gtk.Button(pygame.Rect(0,0,0,0), gameMain.DefaultCnt.Get_RegKey("/strings/dialog/no_button"), 18)
     No_Button.CustomColisionRectangle = True
 
-    OK_Button = gtk.Button(pygame.Rect(0, 0, 0, 0), reg.ReadKey("/strings/dialog/ok_button"), 18)
+    OK_Button = gtk.Button(pygame.Rect(0, 0, 0, 0), gameMain.DefaultCnt.Get_RegKey("/strings/dialog/ok_button"), 18)
     OK_Button.CustomColisionRectangle = True
 
     InputBox = gtk.InputBox(0, 0, 0, 0, "Default", 20)
@@ -87,7 +88,7 @@ def Draw(DISPLAY):
             OK_Button.Render(DISPLAY)
 
     # -- Render Message -- #
-    sprite.FontRender(DISPLAY, "/PressStart2P.ttf", 10, TextCurrentPhase, (230, 230, 230), 5, 26)
+    gameMain.DefaultCnt.FontRender(DISPLAY, "/PressStart2P.ttf", 10, TextCurrentPhase, (230, 230, 230), 5, 26)
 
 def Update():
     global MessageTitle

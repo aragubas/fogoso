@@ -17,9 +17,10 @@
 # -- Window Test
 from Fogoso.MAIN import ClassesUtils as gameObjs
 import pygame
-from ENGINE import REGISTRY as reg
+from Fogoso import MAIN as gameMain
+from ENGINE import APPDATA as reg
 from random import randint
-from ENGINE import SPRITE as sprite
+from ENGINE import CONTENT_MANAGER as sprite
 from Fogoso.MAIN.Screens import MainMenu as mainMenu
 
 WindowObj = gameObjs.Window
@@ -33,8 +34,8 @@ def Initialize(DISPLAY):
     global WindowObj
     global WindowObj_RefreshButton
 
-    WindowObj = gameObjs.Window(pygame.Rect(350, 50, 550, 200), reg.ReadKey("/strings/main_menu/message_window/window_title"), True)
-    WindowObj_RefreshButton = gameObjs.Button(pygame.Rect(0, 0, 0, 0), reg.ReadKey("/strings/main_menu/message_window/next_button"), 18)
+    WindowObj = gameObjs.Window(pygame.Rect(350, 50, 550, 200), gameMain.DefaultCnt.Get_RegKey("/strings/main_menu/message_window/window_title"), True)
+    WindowObj_RefreshButton = gameObjs.Button(pygame.Rect(0, 0, 0, 0), gameMain.DefaultCnt.Get_RegKey("/strings/main_menu/message_window/next_button"), 18)
     WindowObj_RefreshButton.CustomColisionRectangle = True
 
 def Draw(DISPLAY):
@@ -51,13 +52,13 @@ def Draw(DISPLAY):
     WindowSurface = pygame.Surface((WindowObj.WindowSurface_Rect[2], WindowObj.WindowSurface_Rect[3]), pygame.SRCALPHA)
 
     # -- Render Title Background -- #
-    sprite.Shape_Rectangle(WindowSurface, (56, 65, 74), (0, 0, WindowSurface.get_width(), 30))
+    gameMain.shape.Shape_Rectangle(WindowSurface, (56, 65, 74), (0, 0, WindowSurface.get_width(), 30))
 
     # -- Render the Title -- #
-    sprite.FontRender(WindowSurface, "/PressStart2P.ttf", 18, WindowObj_Title, (255, 255, 255), 5, 7, reg.ReadKey_bool("/OPTIONS/font_aa"))
+    gameMain.DefaultCnt.FontRender(WindowSurface, "/PressStart2P.ttf", 18, WindowObj_Title, (255, 255, 255), 5, 7, gameMain.DefaultCnt.Get_RegKey("/OPTIONS/font_aa"))
 
     # -- Render the Text -- #
-    sprite.FontRender(WindowSurface, "/PressStart2P.ttf", 10, WindowObj_Text, (255, 255, 255), 5, 37, reg.ReadKey_bool("/OPTIONS/font_aa"))
+    gameMain.DefaultCnt.FontRender(WindowSurface, "/PressStart2P.ttf", 10, WindowObj_Text, (255, 255, 255), 5, 37, gameMain.DefaultCnt.Get_RegKey("/OPTIONS/font_aa"))
 
     # -- Render Next Button -- ##
     WindowObj_RefreshButton.Render(WindowSurface)
@@ -74,17 +75,17 @@ def Update():
 
     if WindowObj_UpdateMessage:
         WindowObj_UpdateMessage = False
-        if reg.ReadKeyWithTry_bool("/strings/main_menu/EMW/first_message", True):
+        if gameMain.DefaultCnt.Get_RegKey("/strings/main_menu/EMW/first_message", True):
             WindowObj_Title = "Welcome!"
-            WindowObj_Text = reg.ReadKey("/strings/main_menu/EMW/first")
-            reg.WriteKey("/strings/main_menu/EMW/first_message", "False")
+            WindowObj_Text = gameMain.DefaultCnt.Get_RegKey("/strings/main_menu/EMW/first")
+            gameMain.DefaultCnt.Write_RegKey("/strings/main_menu/EMW/first_message", "False")
 
-        MessageID = randint(0, reg.ReadKey_int("/strings/main_menu/EMW/total_messages"))
+        MessageID = randint(0, gameMain.DefaultCnt.Get_RegKey("/strings/main_menu/EMW/total_messages", int))
         if WindowObj_LastMessageID == MessageID:
-            MessageID = randint(MessageID, reg.ReadKey_int("/strings/main_menu/EMW/total_messages"))
+            MessageID = randint(MessageID, gameMain.DefaultCnt.Get_RegKey("/strings/main_menu/EMW/total_messages", int))
 
-        WindowObj_Title = reg.ReadKey("/strings/main_menu/EMW/" + str(MessageID) + "_title")
-        WindowObj_Text = reg.ReadKey("/strings/main_menu/EMW/" + str(MessageID))
+        WindowObj_Title = gameMain.DefaultCnt.Get_RegKey("/strings/main_menu/EMW/" + str(MessageID) + "_title")
+        WindowObj_Text = gameMain.DefaultCnt.Get_RegKey("/strings/main_menu/EMW/" + str(MessageID))
         print("EverdayMessage_UpdateMessage : MessageID[" + str(MessageID) + "]")
 
     if WindowObj.TitleBarRectangle[0] <= 300:

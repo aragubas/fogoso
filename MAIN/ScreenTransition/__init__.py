@@ -14,11 +14,12 @@
 #   limitations under the License.
 #
 #
-from ENGINE import REGISTRY as reg
+from ENGINE import reg
 from Fogoso.MAIN.Screens import Game as gameScr
 from Fogoso.MAIN import ClassesUtils as gameObjs
 from Fogoso.MAIN import GameItems as gameItems
-from ENGINE import UTILS as utils
+from ENGINE import utils
+from ENGINE import fx
 from Fogoso import MAIN as gameMain
 from ENGINE import *
 import pygame
@@ -50,17 +51,20 @@ def Update():
 def Render(DISPLAY):
     if FadeEffectValue > 0:
         FadeEffect = pygame.Surface((DISPLAY.get_width(), DISPLAY.get_height()))
-        if reg.ReadKey_bool("/OPTIONS/random_title"):
+        if gameMain.DefaultCnt.Get_RegKey("/OPTIONS/random_title"):
             gameMain.GeneratedWindowTitle()
 
         if FadeEffectStyle == 0:
-            FadeEffect.blit(sprite.Surface_Blur(DISPLAY, FadeEffectValue), (0,0))
-        if FadeEffectStyle == 1:
-            FadeEffect.blit(sprite.Surface_Blur(DISPLAY, FadeEffectValue, True), (0,0))
-        if FadeEffectStyle == 2:
-            FadeEffect.blit(sprite.Surface_Blur(sprite.Surface_Blur(DISPLAY, FadeEffectValue), FadeEffectValue, True), (0,0))
-        if FadeEffectStyle == 3:
-            FadeEffect.blit(sprite.Surface_Blur(sprite.Surface_Blur(DISPLAY, FadeEffectValue), FadeEffectValue, True), (0, 0))
+            FadeEffect.blit(fx.Surface_Blur(DISPLAY, FadeEffectValue), (0, 0))
+
+        elif FadeEffectStyle == 1:
+            FadeEffect.blit(fx.Surface_Blur(DISPLAY, FadeEffectValue, True), (0, 0))
+
+        elif FadeEffectStyle == 2:
+            FadeEffect.blit(fx.Surface_Blur(fx.Surface_Blur(DISPLAY, FadeEffectValue), FadeEffectValue, True), (0, 0))
+
+        elif FadeEffectStyle == 3:
+            FadeEffect.blit(fx.Surface_Blur(fx.Surface_Blur(DISPLAY, FadeEffectValue), FadeEffectValue, True), (0, 0))
 
         DISPLAY.blit(FadeEffect, (0, 0))
 
@@ -77,9 +81,9 @@ def Initialize():
     global FadeEffectSpeed
     global FadeEffectStyle
     # -- Fade Effect -- #
-    FadeEffectSpeed = reg.ReadKey_int("/OPTIONS/fade_flash_speed")
+    FadeEffectSpeed = gameMain.DefaultCnt.Get_RegKey("/OPTIONS/fade_flash_speed", int)
 
     # -- Fade Style -- #
-    FadeEffectStyle = reg.ReadKey_int("/OPTIONS/fade_flash_style")
+    FadeEffectStyle = gameMain.DefaultCnt.Get_RegKey("/OPTIONS/fade_flash_style", int)
 
     Run()
