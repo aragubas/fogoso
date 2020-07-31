@@ -211,7 +211,7 @@ def Update():
 
                 SaveGame()
 
-        # -- Open Store Button -- #
+        # -- Store Button -- #
         if OpenStoreButton .ButtonState == 2:
             save.TutorialTrigger("store_window_button")
 
@@ -223,25 +223,24 @@ def Update():
                 InfosWindow_Enabled = False
                 ExperienceStore_Enabled = False
 
-        # -- Open Infos Button -- #
+        # -- Infos Button -- #
         elif OpenInfosWindowButton .ButtonState == 2:
             save.TutorialTrigger("infos_window_button")
 
             if InfosWindow_Enabled:
                 InfosWindow_Enabled = False
-                storeWindow.RestartAnimation()
             else:
                 InfosWindow_Enabled = True
                 StoreWindow_Enabled = False
                 ExperienceStore_Enabled = False
 
-        # -- Open Experience Store Button -- #
+        # -- Experience Store Button -- #
         elif OpenExperienceWindowButton .ButtonState == 2 and gameItems.GetItemCount_ByID(-1) >= 1:
             save.TutorialTrigger("expstore_window_button")
 
             if ExperienceStore_Enabled:
                 ExperienceStore_Enabled = False
-                storeWindow.RestartAnimation()
+                expStoreWindow.RestartAnimation()
 
             else:
                 ExperienceStore_Enabled = True
@@ -258,15 +257,25 @@ def Update():
         OpenStoreButton.Set_Y(gameMain.DefaultDisplay.get_height() - OpenStoreButton.Rectangle[3] - 5)
         OpenInfosWindowButton.Set_X(OpenStoreButton.Rectangle[0] + OpenStoreButton.Rectangle[2] + 5)
         OpenInfosWindowButton.Set_Y(OpenStoreButton.Rectangle[1])
+        OpenExperienceWindowButton.Set_X(OpenInfosWindowButton.Rectangle[0] + OpenInfosWindowButton.Rectangle[2] + 5)
+        OpenExperienceWindowButton.Set_Y(OpenInfosWindowButton.Rectangle[1])
 
-        if gameItems.GetItemCount_ByID(-1) >= 1:
-            OpenExperienceWindowButton.Set_X(OpenInfosWindowButton.Rectangle[0] + OpenInfosWindowButton.Rectangle[2] + 5)
-            OpenExperienceWindowButton.Set_Y(OpenInfosWindowButton.Rectangle[1])
+        # -- Update Windows -- #
+        WindowsUpdate()
 
         # -- Update Objects -- #
         IncomingLog.Update()
         gameClock.Update()
 
+def WindowsUpdate():
+    if StoreWindow_Enabled:
+        storeWindow.Update()
+
+    elif ExperienceStore_Enabled:
+        expStoreWindow.Update()
+
+    elif InfosWindow_Enabled:
+        infosWindow.Update()
 
 BlinkExperienceEnabled = False
 BlinkExperienceValue = 0
@@ -305,8 +314,6 @@ def GameDraw(DISPLAY):
         UpdateSavingScreen(DISPLAY)
 
     if not SavingScreenEnabled:
-        #DISPLAY.fill((5, 13, 17))
-
         # -- Draw the Grind Text -- #
         IncomingLog.Draw(DISPLAY)
         # -- Draw the Grind Button -- #
@@ -452,11 +459,4 @@ def EventUpdate(event):
 
     if event.type == pygame.KEYUP and event.key == pygame.K_m:
         save.GrindClick()
-
-    if event.type == pygame.KEYUP and event.key == pygame.K_l:
-        for i in range(1000000):
-            gameItems.AutoClicker.Count += i
-
-    if event.type == pygame.KEYUP and event.key == pygame.K_k:
-        save.Current_Money = save.Current_MoneyMinimun
 

@@ -194,6 +194,9 @@ def LoadItems():
         # -- Increase item Count -- #
         IncreaseItemCount_ByID(int(x))
 
+        # -- Create the Item Object -- #
+        CreateItemObject(int(x))
+
         # -- Add item to the Items View -- #
         gameMain.ScreenGame.ItemsView.AddItem(int(x))
 
@@ -216,29 +219,29 @@ def LoadItems():
 # -- Save Items Data -- #
 def SaveItems():
     global ItemsList
+    SaveItemsLevel()
+    print("SaveItem : Saving Items Data...")
 
+    print(ItemsList)
     AllItemsData = ""
-    for i in range(len(ItemsList)):
+    for i in range(0, len(ItemsList)):
         print("SaveItem : id:" + str(i))
         if i >= 1:
             AllItemsData += "\n" + str(ItemsList[i].ItemID)
         else:
             AllItemsData += str(ItemsList[i].ItemID)
-        print("SaveItem : Item saved.")
 
-    # -- Write Files -- #
+    # -- Write Items1 File -- #
     reg.WriteAppData("Items", AllItemsData)
 
-    # -- Save AutoClicker Instance -- #
+    # -- Write Items2 File -- #
     Items2List = ""
 
-    if GetItemCount_ByID(0) > 1:
+    if GetItemCount_ByID(0) >= 1:
         Items2List += "0:{0}".format(GetItemCount_ByID(0))
 
     # -- Write Save File -- #
     reg.WriteAppData("Items2", Items2List)
-
-    SaveItemsLevel()
 
 def UpdateItems():
     global ItemsList
@@ -249,7 +252,8 @@ def UpdateItems():
             x.InstanceID = i
             x.Update()
 
-    if GetItemCount_ByID(0) > 1:
+    # -- Update AutoClicker Instance -- #
+    if GetItemCount_ByID(0) >= 1:
         AutoClicker.Run()
 
 # -- Restart Items Data -- #

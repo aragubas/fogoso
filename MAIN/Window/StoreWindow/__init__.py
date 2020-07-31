@@ -84,19 +84,11 @@ def Render(DISPLAY):
         # -- Update the Surface -- #
         DrawnSurface = pygame.Surface((WindowObject.WindowSurface_Rect[2], WindowObject.WindowSurface_Rect[3]), pygame.SRCALPHA)
 
-        # -- Update Controls -- #
-        UpdateControls()
-
         # -- Draw the List -- #
         ListItems.Render(DrawnSurface)
 
         # -- Render the Selected Item Text -- #
         if ListItems.LastItemClicked != "null":
-            if LastClickedItem != ListItems.LastItemClicked:
-                DownBar_BuyPanelAnimEnabled = True
-                DownBar_BuyPanelYOffset = 0
-            LastClickedItem = ListItems.LastItemClicked
-
             # -- Down Panel Background -- #
             sprite.Shape_Rectangle(DrawnSurface, (0, 0, 0, 100), (0, DrawnSurface.get_height() - DownBar_BuyPanelYOffset, DrawnSurface.get_width(), DownBar_BuyPanelYOffset))
             sprite.Shape_Rectangle(DrawnSurface, (16, 166, 152), (0, DrawnSurface.get_height() - DownBar_BuyPanelYOffset - 1, DrawnSurface.get_width(), 1))
@@ -120,8 +112,7 @@ def Render(DISPLAY):
     WindowObject.Render(DISPLAY)
     DISPLAY.blit(DrawnSurface, (WindowObject.WindowSurface_Rect[0], WindowObject.WindowSurface_Rect[1]))
 
-
-def UpdateControls():
+def Update():
     global DownBar_BuyPanelYOffset
     global DownBar_BuyPanelAnimEnabled
     global DownBar_BuyPanelYOffsetAdder
@@ -129,6 +120,13 @@ def UpdateControls():
     global LastItemIDSelected
     global SelectedItemPrice
     global SelectedItemID
+    global LastClickedItem
+
+    if ListItems.LastItemClicked != "null":
+        if LastClickedItem != ListItems.LastItemClicked:
+            DownBar_BuyPanelAnimEnabled = True
+            DownBar_BuyPanelYOffset = 0
+        LastClickedItem = ListItems.LastItemClicked
 
     # -- Set Item Price and ID -- #
     if not LastItemIDSelected == ListItems.LastItemOrderID:  # -- Only Update when needed

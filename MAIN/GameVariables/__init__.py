@@ -99,6 +99,7 @@ def LoadSaveData():
     global SaveDataLoaded
     global triggered_tutorials
     global WelcomeMessageTriggered
+    global LowerMoneyWarning
 
     print("Fogoso.SaveManager : Loading Save Data...")
 
@@ -137,6 +138,7 @@ def LoadSaveData():
 
     # -- ETC -- #
     WelcomeMessageTriggered = reg.ReadAppData_WithTry("welcome_message_triggered",bool, False)
+    LowerMoneyWarning = reg.ReadKeyWithTry_bool("lower_money_warning", False)
 
     # -- Load Passed Tutorials -- #
     try:
@@ -184,6 +186,8 @@ def Unload():
     global SaveDataLoaded
     global triggered_tutorials
     global WelcomeMessageTriggered
+    global LowerMoneyWarning
+    global BankruptWarning
 
     CurrentDate_Day = None
     CurrentDate_Month = None
@@ -208,6 +212,8 @@ def Unload():
     SaveDataLoaded = None
     triggered_tutorials = list()
     WelcomeMessageTriggered = None
+    BankruptWarning = None
+    LowerMoneyWarning = None
 
     storeWindow.ReloadItemsList()
     expStoreWindow.ReloadItemsList()
@@ -238,6 +244,7 @@ def SaveData():
     global triggered_tutorials
     global Current_MoneyPerClickBest
     global WelcomeMessageTriggered
+    global LowerMoneyWarning
 
     # -- Money and Click Vars -- #
     reg.WriteAppData("money", Current_Money)
@@ -251,6 +258,7 @@ def SaveData():
 
     # -- ETC -- #
     reg.WriteAppData("welcome_message_triggered", WelcomeMessageTriggered)
+    reg.WriteAppData("lower_money_warning", LowerMoneyWarning)
 
     # -- Maintenance Variables -- #
     reg.WriteAppData("maintenance_day_trigger", maintenance.DayTrigger)
@@ -382,35 +390,35 @@ def RestartSaveGame():
     print("RestartSaveGame : Done!")
 
 LowerMoneyWarning = False
-BankruptWarningType = 0
+BankruptWarning = False
 def TriggerBankrupt():
     global LowerMoneyWarning
     global Current_MoneyMinimun
-    global BankruptWarningType
+    global BankruptWarning
 
-    # -- Bankrupt Warning 0 -- #
-    if not LowerMoneyWarning and Current_Money <= -10.00 and not Current_Money <= Current_MoneyMinimun:
-        BankruptWarningType = 0
+    # -- Bankrupt Warning -- #
+    if Current_Money <= Current_MoneyMinimun and not BankruptWarning:
+        BankruptWarning = True
+        LowerMoneyWarning = False
+        OverlayDialog.subscreen1.SetMessage(reg.ReadKey("/strings/game/bankrupt_1_title"), reg.ReadKey("/strings/game/bankrupt_1_text").format(utils.FormatNumber(Current_Money)), typeDelay=0)
+
+    # -- Lower Money Warning -- #
+    elif not LowerMoneyWarning and Current_Money <= -10.00 and not BankruptWarning:
         LowerMoneyWarning = True
         OverlayDialog.subscreen1.SetMessage(reg.ReadKey("/strings/game/bankrupt_0_title"), reg.ReadKey("/strings/game/bankrupt_0_text").format(utils.FormatNumber(Current_MoneyMinimun)), typeDelay=0)
 
-    # -- Bankrupt Warning 1 -- #
-    if Current_Money <= Current_MoneyMinimun and not LowerMoneyWarning:
-        BankruptWarningType = 1
-        LowerMoneyWarning = True
-        OverlayDialog.subscreen1.SetMessage(reg.ReadKey("/strings/game/bankrupt_1_title"), reg.ReadKey("/strings/game/bankrupt_1_text").format(utils.FormatNumber(Current_Money)), typeDelay=0)
-
-    if LowerMoneyWarning and Current_Money >= 1 and BankruptWarningType == 0:
-        if OverlayDialog.subscreen1.ResponseTrigger:
+    if LowerMoneyWarning:
+        if Current_Money >= 0.1:
             LowerMoneyWarning = False
-            OverlayDialog.subscreen1.ResponseTrigger = False
 
     # -- Go Bankrupt -- #
-    if LowerMoneyWarning and BankruptWarningType == 1:
-        LowerMoneyWarning = False
+    if BankruptWarning:
+        BankruptWarning = False
         RestartSaveGame()
 
 def TutorialTrigger(Action):
+    if not reg.ReadKeyWithTry_bool("/OPTIONS/tutorial_enabled", True):
+        return
     global triggered_tutorials
 
     try:

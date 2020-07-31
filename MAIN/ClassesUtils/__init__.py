@@ -667,3 +667,48 @@ class GameItemsView:
             return
         except ValueError:
             self.ItemsID.append(int(ItemID))
+
+class ValuesView:
+    def __init__(self, Rectangle, Active):
+        self.Rectangle = Rectangle
+        self.Active = Active
+        self.ValueBlocksList = list()
+
+    def ChangeValue(self, BlockText, NewValue):
+        Index = -1
+        for i, ValBlock in enumerate(self.ValueBlocksList):
+            if ValBlock.Text == BlockText:
+                Index = i
+
+        self.ValueBlocksList[Index].Value = NewValue
+
+    def AddValue(self, Text, Value):
+        self.ValueBlocksList.append(ValueBlock(Text, Value))
+
+    def Draw(self, DISPLAY):
+        ValsBlockSurface = pygame.Surface((self.Rectangle[2], self.Rectangle[3]), pygame.SRCALPHA)
+
+        for i, ValBlock in enumerate(self.ValueBlocksList):
+            ValBlock.Index = i
+            ValBlock.Ypos = sprite.GetFont_height("/PressStart2P.ttf", 13, "H") * i
+
+            ValBlock.Draw(ValsBlockSurface)
+
+        DISPLAY.blit(ValsBlockSurface, (self.Rectangle[0], self.Rectangle[1]))
+
+
+class ValueBlock:
+    def __init__(self, Text, Value):
+        self.Text = Text
+        self.Value = Value
+        self.Ypos = 0
+        self.Index = 0
+
+    def Draw(self, DISPLAY):
+        TextXpos = sprite.GetFont_width("/PressStart2P.ttf", 10, self.Text)
+        sprite.FontRender(DISPLAY, "/PressStart2P.ttf", 10, self.Text, (200, 200, 200), 3, self.Ypos, reg.ReadKey("/OPTIONS/font_aa"))
+        sprite.FontRender(DISPLAY, "/PressStart2P.ttf", 10, self.Value, (255, 255, 255), TextXpos + 5, self.Ypos, reg.ReadKey("/OPTIONS/font_aa"))
+
+    def ChangeValue(self, Text, Value):
+        self.Text = Text
+        self.Value = Value

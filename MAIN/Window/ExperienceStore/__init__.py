@@ -68,9 +68,6 @@ def Render(DISPLAY):
     DrawnSurface = pygame.Surface((WindowObject.WindowSurface_Rect[2], WindowObject.WindowSurface_Rect[3]), pygame.SRCALPHA)
 
     if not StoreLocked:
-        # -- Update Controls -- #
-        UpdateControls()
-
         # -- Draw the List -- #
         ListItems.Render(DrawnSurface)
 
@@ -109,8 +106,7 @@ def Render(DISPLAY):
     WindowObject.Render(DISPLAY) # -- Render Window Border
     DISPLAY.blit(DrawnSurface, (WindowObject.WindowSurface_Rect[0], WindowObject.WindowSurface_Rect[1]))  # -- Render Window Objects
 
-
-def UpdateControls():
+def Update():
     global DownBar_BuyPanelYOffset
     global DownBar_BuyPanelAnimEnabled
     global DownBar_BuyPanelYOffsetAdder

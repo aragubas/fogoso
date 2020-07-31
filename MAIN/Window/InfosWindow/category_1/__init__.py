@@ -20,18 +20,61 @@ from ENGINE import utils
 
 # -- Fogoso Imports -- #
 from Fogoso.MAIN import GameVariables as save
+from Fogoso.MAIN.Screens.Game import Maintenance as maintenance
+from Fogoso.MAIN.Window import InfosWindow as handler
+from Fogoso.MAIN import ClassesUtils as gameObjs
 
 import pygame
 
+DeltaTime = 0
+DeltaMax = 50
+
+ValuesViewer = gameObjs.ValuesView
+
 def Initialize():
-    pass
+    global ValuesViewer
+
+    ValuesViewer = gameObjs.ValuesView(pygame.Rect(0, 25, 5, 5), True)
+
+    UpdateValues()
 
 def Render(DISPLAY):
-    sprite.FontRender(DISPLAY, "/PressStart2P.ttf", 10, reg.ReadKey("/strings/window/infos/txt_money_per_click") + utils.FormatNumber(save.Current_MoneyValuePerClick), (240, 240, 240), 5, 30, reg.ReadKey_bool("/OPTIONS/font_aa"))
-    sprite.FontRender(DISPLAY, "/PressStart2P.ttf", 10, reg.ReadKey("/strings/window/infos/txt_previuos_best") + utils.FormatNumber(save.Current_MoneyPerClickBest), (220, 220, 220), 5, 45, reg.ReadKey_bool("/OPTIONS/font_aa"))
+    global ValuesViewer
+
+    if handler.DrawnSurfaceGlob is None:
+        return
+
+    # -- Set the Correct Size -- #
+    ValuesViewer.Rectangle[2] = handler.DrawnSurfaceGlob.get_width()
+    ValuesViewer.Rectangle[3] = handler.DrawnSurfaceGlob.get_height()
+
+    ValuesViewer.Draw(DISPLAY)
 
 def Update():
-    pass
+    global DeltaTime
+    global DeltaMax
+
+    DeltaTime += 1
+
+    if DeltaTime >= DeltaMax:
+        DeltaTime = 0
+        UpdateValues()
+
+def UpdateValues():
+    global ValuesViewer
+
+    if len(ValuesViewer.ValueBlocksList) > 1:
+        ValuesViewer.ChangeValue(reg.ReadKey("/strings/window/infos/txt_money_per_click"), utils.FormatNumber(save.Current_MoneyValuePerClick))
+        ValuesViewer.ChangeValue(reg.ReadKey("/strings/window/infos/txt_previuos_best"), utils.FormatNumber(save.Current_MoneyPerClickBest))
+        ValuesViewer.ChangeValue(reg.ReadKey("/strings/window/infos/txt_money_per_click"), utils.FormatNumber(save.Current_MoneyValuePerClick))
+        ValuesViewer.ChangeValue(reg.ReadKey("/strings/window/infos/txt_money_minimum"), utils.FormatNumber(save.Current_MoneyMinimun))
+
+    else:
+        ValuesViewer.AddValue(reg.ReadKey("/strings/window/infos/txt_money_per_click"), utils.FormatNumber(save.Current_MoneyValuePerClick))
+        ValuesViewer.AddValue(reg.ReadKey("/strings/window/infos/txt_previuos_best"), utils.FormatNumber(save.Current_MoneyPerClickBest))
+        ValuesViewer.AddValue(reg.ReadKey("/strings/window/infos/txt_money_per_click"), utils.FormatNumber(save.Current_MoneyValuePerClick))
+        ValuesViewer.AddValue(reg.ReadKey("/strings/window/infos/txt_money_minimum"), utils.FormatNumber(save.Current_MoneyMinimun))
+
 
 def EventUpdate(event):
     pass

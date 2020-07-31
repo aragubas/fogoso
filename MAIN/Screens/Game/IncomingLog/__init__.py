@@ -33,10 +33,10 @@ ReceiveLog_Y_AnimType = 0
 TextGrind_Text = list()
 TextGrind_X = list()
 TextGrind_Y = list()
-TextGrind_AliveTime = list()
 TextGrind_IsGrindText = list()
 TextGrind_TextColor = list()
 TextGrind_Value = list()
+TextGrind_FontSize = list()
 ResultSurface = pygame.Surface
 ReceiveLog_CloseButton = gameObjs.Button
 IncomingLogPos = (0, 0)
@@ -55,12 +55,11 @@ def EventUpdate(event):
 def Unload():
     TextGrind_Y.clear()
     TextGrind_X.clear()
-    TextGrind_AliveTime.clear()
     TextGrind_IsGrindText.clear()
     TextGrind_Value.clear()
     TextGrind_Text.clear()
     TextGrind_TextColor.clear()
-
+    TextGrind_FontSize.clear()
 
 def Update():
     global ReceiveLog_CloseButton
@@ -68,7 +67,6 @@ def Update():
     global ReceiveLog_Y_OffsetAdder
     global ReceiveLog_Y_Offset
     global ReceiveLog_Y_AnimEnabled
-    global ObjsDeletionTime
 
     if ReceiveLog_CloseButton .ButtonState == 2:
         ReceiveLog_Y_AnimEnabled = True
@@ -110,7 +108,6 @@ def Update():
             TextGrind_Text.pop(x)
             TextGrind_X.pop(x)
             TextGrind_Y.pop(x)
-            TextGrind_AliveTime.pop(x)
             TextGrind_IsGrindText.pop(x)
             TextGrind_TextColor.pop(x)
             TextGrind_Value.pop(x)
@@ -118,10 +115,14 @@ def Update():
         else:
             # -- Move the Text -- #
             if TextGrind_IsGrindText[x]:
-                TextGrind_Y[x] -= sprite.GetFont_height("/PressStart2P.ttf", 18, TextGrind_TxT) / max(1, 1.05 - x)
+                TextGrind_Y[x] -= sprite.GetFont_height("/PressStart2P.ttf", TextGrind_FontSize[x], TextGrind_TxT) / max(1, 1.05 - x)
+
+                if TextGrind_Value[x] < 0:
+                    TextGrind_X[x] = 350 / 2 - sprite.GetFont_width("/PressStart2P.ttf", TextGrind_FontSize[x], TextGrind_TxT) / 2
 
             else:
-                TextGrind_Y[x] -= sprite.GetFont_height("/PressStart2P.ttf", 18, TextGrind_TxT) / 5.5
+                TextGrind_Y[x] -= sprite.GetFont_height("/PressStart2P.ttf", TextGrind_FontSize[x], TextGrind_TxT) / 5.5
+                TextGrind_X[x] = 345 - sprite.GetFont_width("/PressStart2P.ttf", TextGrind_FontSize[x], TextGrind_TxT)
 
 def AddMoney(Value, WithSound=True):
     # -- Increase Money -- #
@@ -139,12 +140,12 @@ def AddMessageText(Text, IsGrindText, TextColor, Value=0):
     global TextGrind_Text
     global TextGrind_X
     global TextGrind_Y
-    global TextGrind_AliveTime
     global TextGrind_IsGrindText
     global TextGrind_TextColor
     global TextGrind_Value
+    global TextGrind_FontSize
 
-    if len(TextGrind_Text) >= 24:  # -- Limit the Input of Items
+    if len(TextGrind_Text) >= 32:  # -- Limit the Input of Items
         if IsGrindText:
             AddMoney(Value, False)
 
@@ -153,11 +154,14 @@ def AddMessageText(Text, IsGrindText, TextColor, Value=0):
         TextGrind_Text.append(Text)
         TextGrind_X.append(5)
         TextGrind_Y.append(350 + sprite.GetFont_height("/PressStart2P.ttf", 20, Text) * len(TextGrind_Text))
-        TextGrind_AliveTime.append(0)
         TextGrind_IsGrindText.append(IsGrindText)
         TextGrind_TextColor.append(TextColor)
         TextGrind_Value.append(Value)
 
+        if not Value == 0:
+            TextGrind_FontSize.append(18)
+        else:
+            TextGrind_FontSize.append(9)
 
 def Draw(DISPLAY):
     global ResultSurface
@@ -176,11 +180,11 @@ def Draw(DISPLAY):
     for x, TextGrind_TxT in enumerate(TextGrind_Text):
         # -- Render Object -- #
         ObjOpacity = TextGrind_Y[x] * 2
-        sprite.FontRender(ResultSurface, "/PressStart2P.ttf", 18, TextGrind_TxT, TextGrind_TextColor[x], TextGrind_X[x], TextGrind_Y[x], Opacity=ObjOpacity, antialias=reg.ReadKey_bool("/OPTIONS/font_aa"))
+        sprite.FontRender(ResultSurface, "/PressStart2P.ttf", TextGrind_FontSize[x], TextGrind_TxT, TextGrind_TextColor[x], TextGrind_X[x], TextGrind_Y[x], Opacity=ObjOpacity, antialias=reg.ReadKey_bool("/OPTIONS/font_aa"))
 
     if reg.ReadKey_bool("/OPTIONS/scanline_effect"):
         for y in range(0, 175):
-            sprite.Shape_Rectangle(ResultSurface, (0, 0, 0), (0, 4 + y * 2, ResultSurface.get_width(), 1))
+            sprite.Shape_Line(ResultSurface, (0, 0, 0), 3, 4 + y * 2, ResultSurface.get_width() - 3, 4 + y * 2, 1)
 
         sprite.Shape_Rectangle(ResultSurface, (0, 0, 0), (0, 24, ResultSurface.get_width(), ResultSurface.get_height() - 24), 5, 8)
 

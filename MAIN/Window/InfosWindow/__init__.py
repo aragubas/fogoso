@@ -38,7 +38,7 @@ DrawnSurface = pygame.Surface((0,0))
 # -- Buttons Declaration -- #
 NextButton = gameObjs.Button
 PreviousButton = gameObjs.Button
-
+ScreenSize = (0, 0)
 
 def Initialize():
     global WindowObject
@@ -59,15 +59,16 @@ def Initialize():
     category_0.Initialize()
     category_1.Initialize()
 
-CurrentCategory = 0 # 0 - Maintenance Info
-DrawnSurfaceGlob = pygame.Surface
 
+CurrentCategory = 0 # 0 - Maintenance Info
+DrawnSurfaceGlob = None
 def Render(DISPLAY):
     global WindowObject
     global DrawnSurface
     global NextButton
     global PreviousButton
     global DrawnSurfaceGlob
+    global ScreenSize
 
     # -- Update the Surface -- #
     DrawnSurface = pygame.Surface((WindowObject.WindowSurface_Rect[2], WindowObject.WindowSurface_Rect[3]), pygame.SRCALPHA)
@@ -87,46 +88,66 @@ def Render(DISPLAY):
     if CurrentCategory == 1:
         category_1.Render(DrawnSurface)
 
-    # -- Update Controls -- #
-    UpdateControls(DrawnSurface)
-
     WindowObject.Render(DISPLAY)
     DISPLAY.blit(DrawnSurface, (WindowObject.WindowSurface_Rect[0], WindowObject.WindowSurface_Rect[1]))
     DrawnSurfaceGlob = DrawnSurface
 
-def UpdateControls(DISPLAY):
+def Update():
     global NextButton
     global PreviousButton
     global WindowObject
     global CurrentCategory
+    global DrawnSurfaceGlob
+
+    if DrawnSurfaceGlob is None:
+        return
+
+    # -- Update the Seletectd Categorys -- #
+    if CurrentCategory == 0:
+        category_0.Update()
+
+    elif CurrentCategory == 1:
+        category_1.Update()
+
     # -- Update Next Button -- #
-    NextButton.Set_X(DISPLAY.get_width() - NextButton.Rectangle[2])
+    NextButton.Set_X(DrawnSurfaceGlob.get_width() - NextButton.Rectangle[2])
     NextButton.Set_Y(2)
     NextButton.Set_ColisionX(WindowObject.WindowRectangle[0] + NextButton.Rectangle[0])
     NextButton.Set_ColisionY(WindowObject.WindowRectangle[1] + NextButton.Rectangle[1] + NextButton.Rectangle[3])
 
-    # -- Update Previous Button -- #    
+    # -- Update Previous Button -- #
     PreviousButton.Set_X(NextButton.Rectangle[0] - PreviousButton.Rectangle[2] - 5)
     PreviousButton.Set_Y(NextButton.Rectangle[1])
     PreviousButton.Set_ColisionX(WindowObject.WindowRectangle[0] + PreviousButton.Rectangle[0])
     PreviousButton.Set_ColisionY(WindowObject.WindowRectangle[1] + PreviousButton.Rectangle[1] + PreviousButton.Rectangle[3])
-    
 
 def EventUpdate(event):
     global NextButton
     global PreviousButton
     global CurrentCategory
     global DrawnSurfaceGlob
+    global CurrentCategory
+
+    # -- Update Events -- #
     WindowObject.EventUpdate(event)
     NextButton.Update(event)
     PreviousButton.Update(event)
 
+    if CurrentCategory == 0:
+        category_0.EventUpdate(event)
+
+    elif CurrentCategory == 1:
+        category_1.EventUpdate(event)
+
+
+    # -- Go to Previus Category -- #
     if PreviousButton .ButtonState == 2:
         if CurrentCategory > 0:
             CurrentCategory -= 1
         else:
             CurrentCategory = reg.ReadKey_int("/strings/window/infos/category_max")
 
+    # -- Go to Next Category -- #
     if NextButton .ButtonState == 2:
         if CurrentCategory < reg.ReadKey_int("/strings/window/infos/category_max"):
             CurrentCategory += 1

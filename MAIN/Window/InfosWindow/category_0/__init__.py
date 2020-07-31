@@ -21,23 +21,60 @@ from ENGINE import utils
 # -- Fogoso Imports -- #
 from Fogoso.MAIN import GameVariables as save
 from Fogoso.MAIN.Screens.Game import Maintenance as maintenance
-
+from Fogoso.MAIN.Window import InfosWindow as handler
+from Fogoso.MAIN import ClassesUtils as gameObjs
 
 import pygame
 
+DeltaTime = 0
+DeltaMax = 50
+
+ValuesViewer = gameObjs.ValuesView
 
 def Initialize():
-    pass
+    global ValuesViewer
+
+    ValuesViewer = gameObjs.ValuesView(pygame.Rect(0, 25, 5, 5), True)
+
+    UpdateValues()
 
 def Render(DISPLAY):
-    sprite.FontRender(DISPLAY, "/PressStart2P.ttf", 10, reg.ReadKey("/strings/window/infos/txt_maintenance") + utils.FormatNumber(maintenance.LastMaintenancePrice), (240, 240, 240), 5, 30, reg.ReadKey_bool("/OPTIONS/font_aa"))
-    sprite.FontRender(DISPLAY, "/PressStart2P.ttf", 10, reg.ReadKey("/strings/window/infos/txt_maintenance_delay") + str(maintenance.DayTrigger), (220, 220, 220), 5, 45, reg.ReadKey_bool("/OPTIONS/font_aa"))
-    sprite.FontRender(DISPLAY, "/PressStart2P.ttf", 10, reg.ReadKey("/strings/window/infos/txt_maintenance_base") + utils.FormatNumber(maintenance.BaseMaintenance), (200, 200, 200), 5, 60, reg.ReadKey_bool("/OPTIONS/font_aa"))
-    sprite.FontRender(DISPLAY, "/PressStart2P.ttf", 10, reg.ReadKey("/strings/window/infos/txt_items_maintenance") + utils.FormatNumber(maintenance.ItemsMaintenance), (200, 200, 200), 5, 75, reg.ReadKey_bool("/OPTIONS/font_aa"))
+    global ValuesViewer
 
+    if handler.DrawnSurfaceGlob is None:
+        return
+
+    # -- Set the Correct Size -- #
+    ValuesViewer.Rectangle[2] = handler.DrawnSurfaceGlob.get_width()
+    ValuesViewer.Rectangle[3] = handler.DrawnSurfaceGlob.get_height()
+
+    ValuesViewer.Draw(DISPLAY)
 
 def Update():
-    pass
+    global DeltaTime
+    global DeltaMax
+
+    DeltaTime += 1
+
+    if DeltaTime >= DeltaMax:
+        DeltaTime = 0
+        UpdateValues()
+
+def UpdateValues():
+    global ValuesViewer
+
+    if len(ValuesViewer.ValueBlocksList) > 1:
+        ValuesViewer.ChangeValue(reg.ReadKey("/strings/window/infos/txt_maintenance"), utils.FormatNumber(maintenance.LastMaintenancePrice))
+        ValuesViewer.ChangeValue(reg.ReadKey("/strings/window/infos/txt_maintenance_delay"), utils.FormatNumber(maintenance.DayTrigger).replace(".00", ""))
+        ValuesViewer.ChangeValue(reg.ReadKey("/strings/window/infos/txt_maintenance_base"), utils.FormatNumber(maintenance.BaseMaintenance))
+        ValuesViewer.ChangeValue(reg.ReadKey("/strings/window/infos/txt_items_maintenance"), utils.FormatNumber(maintenance.ItemsMaintenance))
+
+    else:
+        ValuesViewer.AddValue(reg.ReadKey("/strings/window/infos/txt_items_maintenance"), utils.FormatNumber(maintenance.ItemsMaintenance))
+        ValuesViewer.AddValue(reg.ReadKey("/strings/window/infos/txt_maintenance_delay"), utils.FormatNumber(maintenance.DayTrigger).replace(".00", ""))
+        ValuesViewer.AddValue(reg.ReadKey("/strings/window/infos/txt_maintenance_base"), utils.FormatNumber(maintenance.BaseMaintenance))
+        ValuesViewer.AddValue(reg.ReadKey("/strings/window/infos/txt_items_maintenance"), utils.FormatNumber(maintenance.ItemsMaintenance))
+
 
 def EventUpdate(event):
     pass
