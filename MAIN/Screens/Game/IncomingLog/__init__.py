@@ -17,7 +17,7 @@
 
 # -- Imports -- #
 from ENGINE import APPDATA as reg
-from ENGINE import SOUND as sound
+
 from Fogoso.MAIN import ClassesUtils as gameObjs
 from Fogoso import MAIN as gameMain
 from ENGINE import CONTENT_MANAGER as sprite
@@ -132,9 +132,9 @@ def AddMoney(Value, WithSound=True):
     # -- Play the Hit Sound -- #
     if WithSound:
         if float(Value) > 0:
-            sound.PlaySound("/hit_1.wav", 0.35)
+            gameMain.DefaultCnt.PlaySound("/hit_1.wav", 0.35)
         if float(Value) < 0:
-            sound.PlaySound("/hit_2.wav", 0.7)
+            gameMain.DefaultCnt.PlaySound("/hit_2.wav", 0.7)
 
 
 def AddMessageText(Text, IsGrindText, TextColor, Value=0):

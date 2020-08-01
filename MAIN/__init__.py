@@ -16,10 +16,8 @@
 #
 # -- ENGINE imports -- #
 from ENGINE import utils
-from ENGINE import reg
 from ENGINE import CONTENT_MANAGER
-from ENGINE import taiyouMain
-from ENGINE import sound
+from ENGINE import MAIN
 from ENGINE import fx
 from ENGINE import appData
 from ENGINE import shape
@@ -102,7 +100,7 @@ def GameDraw(DISPLAY):  # -- Engine Required Function
     DefaultDisplay = DISPLAY
     DISPLAY.fill(ClearColor)
 
-    if not DefaultCnt.Get_RegKey("/OPTIONS/debug_enabled"):
+    if not DefaultCnt.Get_RegKey("/OPTIONS/debug_enabled", bool):
         try:
             if not OverlayDialogEnabled:
                 CurrentUpdate.GameDraw(DefaultDisplay)
@@ -139,8 +137,8 @@ def GameDraw(DISPLAY):  # -- Engine Required Function
     # -- Render the Transition -- #
     transition.Render(DefaultDisplay)
 
-    if DefaultCnt.Get_RegKey("/OPTIONS/debug_enabled"):
-        gameMain.DefaultCnt.FontRender(DefaultDisplay, "/PressStart2P.ttf", 10, "FPS: {0}".format(utils.FormatNumber(taiyouMain.clock.get_fps())), (240, 240, 240), 5, 5, backgroundColor=(5, 8, 13))
+    if DefaultCnt.Get_RegKey("/OPTIONS/debug_enabled", bool):
+        gameMain.DefaultCnt.FontRender(DefaultDisplay, "/PressStart2P.ttf", 10, "FPS: {0}".format(utils.FormatNumber(MAIN.clock.get_fps())), (240, 240, 240), 5, 5, backgroundColor=(5, 8, 13))
 
     # -- Render the Error Overlay -- #
     if LastErrorTextEnabled:
@@ -159,7 +157,7 @@ def GeneratedWindowTitle():
         NumberMax = DefaultCnt.Get_RegKey("/strings/gme_wt/all", int)
         Current = randint(0, NumberMax)
 
-        taiyouMain.ReceiveCommand(5, "Fogoso : {0}".format(DefaultCnt.Get_RegKey("/strings/gme_wt/{0}".format(Current))))
+        MAIN.ReceiveCommand(5, "Fogoso : {0}".format(DefaultCnt.Get_RegKey("/strings/gme_wt/{0}".format(Current))))
 
 def Update():  # -- Engine Required Function
     global CursorW
@@ -172,7 +170,7 @@ def Update():  # -- Engine Required Function
     CursorW = DefaultCnt.Get_RegKey("/CursorSize/" + str(Cursor_CurrentLevel) + "/w")
     CursorH = DefaultCnt.Get_RegKey("/CursorSize/" + str(Cursor_CurrentLevel) + "/h")
 
-    if not DefaultCnt.Get_RegKey("/OPTIONS/debug_enabled"):
+    if not DefaultCnt.Get_RegKey("/OPTIONS/debug_enabled", bool):
         try:
             if not OverlayDialogEnabled:
                 CurrentUpdate.Update()
@@ -243,7 +241,7 @@ def EventUpdate(event):  # -- Engine Required Function
     if event.type == pygame.MOUSEMOTION:
         Cursor_Position = pygame.mouse.get_pos()
 
-    if not DefaultCnt.Get_RegKey("/OPTIONS/debug_enabled"):
+    if not DefaultCnt.Get_RegKey("/OPTIONS/debug_enabled", bool):
         try:
             if not OverlayDialogEnabled:
                 CurrentUpdate.EventUpdate(event)
@@ -291,7 +289,8 @@ def Initialize(DISPLAY):  # -- Engine Required Function
     # -- Load Default RegKeys Set -- #
     DefaultCnt.LoadRegKeysInFolder(tge.TaiyouPath_CorrectAssetsFolder)
 
-    sound.LoadAllSounds(tge.TaiyouPath_CorrectAssetsFolder)
+    # -- Load Default Sounds -- #
+    DefaultCnt.LoadSoundsInFolder(tge.TaiyouPath_CorrectAssetsFolder)
 
     # -- Load Engine Options -- #
     LoadOptions()
@@ -303,7 +302,7 @@ def Initialize(DISPLAY):  # -- Engine Required Function
     # -- Set the Default Screen -- #
     SetScreen_ByID(DefaultCnt.Get_RegKey("/props/CurrentScreen", int))
 
-    if not DefaultCnt.Get_RegKey("/OPTIONS/debug_enabled"):
+    if not DefaultCnt.Get_RegKey("/OPTIONS/debug_enabled", bool):
         try:
             ScreensInitialize(DISPLAY)
 
@@ -324,8 +323,8 @@ def SetWindowParameters():
 
     DefaultDisplay = pygame.Surface((DefaultCnt.Get_RegKey("/props/default_resW", int), DefaultCnt.Get_RegKey("/props/default_resH", int)))
 
-    taiyouMain.ReceiveCommand(1, "{0}x{1}".format(str(DefaultCnt.Get_RegKey("/props/default_resW", int)), str(DefaultCnt.Get_RegKey("/props/default_resH", int))))
-    taiyouMain.ReceiveCommand(0, Engine_MaxFPS)
+    MAIN.ReceiveCommand(1, "{0}x{1}".format(str(DefaultCnt.Get_RegKey("/props/default_resW", int)), str(DefaultCnt.Get_RegKey("/props/default_resH", int))))
+    MAIN.ReceiveCommand(0, Engine_MaxFPS)
 
     pygame.mouse.set_visible(False)
 

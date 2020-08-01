@@ -16,7 +16,6 @@
 #
 # -- Import -- #
 from Fogoso.MAIN import GameItems as items
-from ENGINE import reg
 from ENGINE import utils
 from Fogoso import MAIN as gameMain
 

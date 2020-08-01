@@ -17,8 +17,6 @@
 
 from ENGINE import CONTENT_MANAGER as sprite
 from Fogoso import MAIN as mainScript
-from ENGINE import reg
-from ENGINE import sound
 from ENGINE import fx
 from ENGINE import utils
 import pygame

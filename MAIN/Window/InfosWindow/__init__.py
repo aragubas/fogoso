@@ -16,7 +16,7 @@
 #
 
 from ENGINE import  CONTENT_MANAGER
-from ENGINE import reg
+
 from ENGINE import utils
 # -- Category -- #
 from Fogoso.MAIN.Window.InfosWindow import category_0
@@ -153,13 +153,13 @@ def EventUpdate(event):
         if CurrentCategory > 0:
             CurrentCategory -= 1
         else:
-            CurrentCategory = gameMain.DefaultCnt.Get_RegKey("/strings/window/infos/category_max")
+            CurrentCategory = gameMain.DefaultCnt.Get_RegKey("/strings/window/infos/category_max", int)
 
         Set_Category(CurrentCategory)
 
     # -- Go to Next Category -- #
     if NextButton .ButtonState == 2:
-        if CurrentCategory < gameMain.DefaultCnt.Get_RegKey("/strings/window/infos/category_max"):
+        if CurrentCategory < gameMain.DefaultCnt.Get_RegKey("/strings/window/infos/category_max", int):
             CurrentCategory += 1
         else:
             CurrentCategory = 0

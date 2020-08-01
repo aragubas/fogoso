@@ -24,7 +24,7 @@ from Fogoso import MAIN as gameMain
 from Fogoso.MAIN import GameVariables as save
 from ENGINE import UTILS as utils
 from Fogoso.MAIN.Screens.Game import IncomingLog as IncomingLog
-from ENGINE import SOUND as sound
+
 import pygame
 
 print("Fogoso Store Window, Version 1.2")
@@ -148,7 +148,7 @@ def Update():
 
         else:  # -- Notify that you can't buy that item
             IncomingLog.AddMessageText(gameMain.DefaultCnt.Get_RegKey("/strings/window/store/cant_buy_item"), False, (250, 150, 150))
-            sound.PlaySound("/hit_2.wav", 0.5)
+            gameMain.DefaultCnt.PlaySound("/hit_2.wav", 0.5)
 
     # -- Update the Items List -- #
     ListItems.Set_W(DrawnSurface.get_width())

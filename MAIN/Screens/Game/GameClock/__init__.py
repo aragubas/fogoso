@@ -69,6 +69,7 @@ def Update():
 
     if CommonSurface == None:
         return
+    print(0 / 0)
 
     ClockBoxPos = (CommonSurface.get_width() / 2 - 300 / 2, 0, 300, 40)
     ClockBox = pygame.Surface((ClockBoxPos[2], ClockBoxPos[3]), pygame.SRCALPHA)

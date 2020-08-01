@@ -1,0 +1,21 @@
+Traceback (most recent call last):
+  File "/home/abacate/Projetos/Python/Taiyou Game Engine/ENGINE/CONTENT_MANAGER/__init__.py", line 415, in GetFont_object
+    return self.CurrentLoadedFonts_Contents[self.CurrentLoadedFonts_Name.index(FontCacheName)]
+ValueError: tuple.index(x): x not in tuple
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/abacate/Projetos/Python/Taiyou Game Engine/Fogoso/MAIN/__init__.py", line 307, in Initialize
+    ScreensInitialize(DISPLAY)
+  File "/home/abacate/Projetos/Python/Taiyou Game Engine/Fogoso/MAIN/__init__.py", line 206, in ScreensInitialize
+    ScreenMenu.Initialize(DISPLAY)
+  File "/home/abacate/Projetos/Python/Taiyou Game Engine/Fogoso/MAIN/Screens/MainMenu/__init__.py", line 56, in Initialize
+    PlayButton = gameObjs.Button(pygame.Rect(50, 50, 0, 0), gameMain.DefaultCnt.Get_RegKey("/strings/main_menu/play_button"), 18)
+  File "/home/abacate/Projetos/Python/Taiyou Game Engine/Fogoso/MAIN/ClassesUtils/__init__.py", line 210, in __init__
+    self.Rectangle = pygame.rect.Rect(self.Rectangle[0], self.Rectangle[1], mainScript.DefaultCnt.GetFont_width(self.FontFile, self.TextSize, self.ButtonText) + 5, mainScript.DefaultCnt.GetFont_height(self.FontFile, self.TextSize, self.ButtonText) + 6)
+  File "/home/abacate/Projetos/Python/Taiyou Game Engine/ENGINE/CONTENT_MANAGER/__init__.py", line 442, in GetFont_width
+    CurrentSize += self.GetFont_object(FontFileLocation, FontSize).render(l, True, (255, 255, 255)).get_width()
+  File "/home/abacate/Projetos/Python/Taiyou Game Engine/ENGINE/CONTENT_MANAGER/__init__.py", line 424, in GetFont_object
+    self.CurrentLoadedFonts_Contents += (pygame.font.Font(FontPath + FontFileLocation, Size),)
+NotADirectoryError: [Errno 20] Not a directory: 'Fogoso/Data/FONT/PressStart2P.ttf/PressStart2P.ttf'

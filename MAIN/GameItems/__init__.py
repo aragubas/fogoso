@@ -15,10 +15,10 @@
 #
 #
 
-from ENGINE import reg
 from random import randint
 from ENGINE import utils
 from Fogoso import MAIN as gameMain
+from ENGINE import appData
 from Fogoso.MAIN.GameItems import AutoClicker
 
 # -- Game Items Variables -- #
@@ -37,9 +37,9 @@ def LoadItemsLevels():
     global Item_ExperienceStore_LastLevel
     global Item_Shop_LastLevel
 
-    AutoClicker.LastLevel = reg.ReadAppData_WithTry("item_level/0_level", int, "0")
-    Item_ExperienceStore_LastLevel = reg.ReadAppData_WithTry("item_level/-1_level", int, "0")
-    Item_Shop_LastLevel = reg.ReadAppData_WithTry("item_level/-2_level", int, "0")
+    AutoClicker.LastLevel = appData.ReadAppData_WithTry("item_level/0_level", int, "0")
+    Item_ExperienceStore_LastLevel = appData.ReadAppData_WithTry("item_level/-1_level", int, "0")
+    Item_Shop_LastLevel = appData.ReadAppData_WithTry("item_level/-2_level", int, "0")
 
 
 # -- Get Item Sprite Name -- #
@@ -51,9 +51,9 @@ def SaveItemsLevel():
     global Item_ExperienceStore_LastLevel
     global Item_Shop_LastLevel
 
-    reg.WriteAppData("item_level/0_level", AutoClicker.LastLevel)
-    reg.WriteAppData("item_level/-1_level", Item_ExperienceStore_LastLevel)
-    reg.WriteAppData("item_level/-2_level", Item_Shop_LastLevel)
+    appData.WriteAppData("item_level/0_level", AutoClicker.LastLevel)
+    appData.WriteAppData("item_level/-1_level", Item_ExperienceStore_LastLevel)
+    appData.WriteAppData("item_level/-2_level", Item_Shop_LastLevel)
 
 # -- Get Item Level -- #
 def GetItemLevel_ByID(ItemID):
@@ -85,7 +85,7 @@ def GetItemPrice_ByID(ItemID):
 
     return max(gameMain.DefaultCnt.Get_RegKey(RegDir, float), gameMain.DefaultCnt.Get_RegKey(RegDir, float) * GetItemCount_ByID(ItemID))
 
-# -- Item Upgrade -- #
+# -- Item Upgrade -- #ura
 def GetItemUpgradePrice_ByID(ItemID):
     RegDir = "/ItemData/{0}/lv_{1}_upgrade_price".format(str(ItemID), str(GetItemLevel_ByID(int(ItemID))))
 
@@ -182,7 +182,7 @@ def LoadItems():
     global ItemsList
     global ItemsInitialized
     AllKeys = 0
-    SavedItemsData = reg.ReadAppData_WithTry("Items", str, "-2").splitlines()
+    SavedItemsData = appData.ReadAppData_WithTry("Items", str, "-2").splitlines()
 
     # -- Load Items Level -- #
     LoadItemsLevels()
@@ -203,7 +203,7 @@ def LoadItems():
     print("LoadItems ; AllItemsLoaded: " + str(AllKeys))
 
     # -- Load the Items2 List --
-    Items2List = reg.ReadAppData_WithTry("Items2", str, "").splitlines()
+    Items2List = appData.ReadAppData_WithTry("Items2", str, "").splitlines()
 
     for i, x in enumerate(Items2List):
         x = x.rstrip()
@@ -231,7 +231,7 @@ def SaveItems():
             AllItemsData += str(ItemsList[i].ItemID)
 
     # -- Write Items1 File -- #
-    reg.WriteAppData("Items", AllItemsData)
+    appData.WriteAppData("Items", AllItemsData)
 
     # -- Write Items2 File -- #
     Items2List = ""
@@ -240,7 +240,7 @@ def SaveItems():
         Items2List += "0:{0}".format(GetItemCount_ByID(0))
 
     # -- Write Save File -- #
-    reg.WriteAppData("Items2", Items2List)
+    appData.WriteAppData("Items2", Items2List)
 
 def UpdateItems():
     global ItemsList

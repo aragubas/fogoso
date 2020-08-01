@@ -16,13 +16,13 @@
 #
 import pygame, os, sys, shutil
 from ENGINE import CONTENT_MANAGER as sprite
-from ENGINE import SOUND as sound
+
 from Fogoso.MAIN import ClassesUtils as gtk
 import ENGINE as tge
 from Fogoso import MAIN as gameMain
 from ENGINE import utils
 from ENGINE import CONTENT_MANAGER as sprite
-from ENGINE import SOUND as sound
+
 from ENGINE import APPDATA as reg
 from Fogoso.MAIN import OverlayDialog as Handler
 from Fogoso import MAIN as fogosoMain
@@ -166,7 +166,7 @@ def UpdateMessageAnim():
                     TextCurrentPhase += TextAnimWordList[TextAnimLoopIndex]
                     TextAnimLoopIndex += 1
                     TextAnimLoopDelay = 0
-                    sound.PlaySound("/hit_1.wav", Volume=0.3)
+                    gameMain.DefaultCnt.PlaySound("/hit_1.wav", Volume=0.3)
                 else:
                     TextAnimEnded = True
                     ResponseEnabled = True
