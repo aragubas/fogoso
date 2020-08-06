@@ -25,7 +25,6 @@ from Fogoso import MAIN as gameMain
 from Fogoso.MAIN.Window import StoreWindow as storeWindow
 from Fogoso.MAIN.Window import ExperienceStore as expStoreWindow
 from Fogoso.MAIN.Window import InfosWindow as infosWindow
-from ENGINE import CONTENT_MANAGER as sprite
 from Fogoso.MAIN import GameVariables as save
 from Fogoso.MAIN.Screens.Game import IncomingLog
 from Fogoso.MAIN.Screens.Game import Maintenance as maintenance

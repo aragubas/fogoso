@@ -154,7 +154,6 @@ def Update():
             gameMain.DefaultCnt.Write_RegKey("/OPTIONS/scanline_effect", "True")
 
 
-
 def EventUpdate(event):
     global OptionsScreen_UI_Blur_Enabled
     global OptionsScreen_UI_Blur_Ammount

@@ -144,7 +144,7 @@ def GameDraw(DISPLAY):  # -- Engine Required Function
     if LastErrorTextEnabled:
         LastErrorTextDeltaTime += 1
 
-        CONTENT_MANAGER.FontRender(DISPLAY, "/PressStart2P.ttf", 9, LastErrorText, (200, 0, 0), 5, 5, False, (10, 20, 27))
+        gameMain.DefaultCnt.FontRender(DISPLAY, "/PressStart2P.ttf", 9, LastErrorText, (200, 0, 0), 5, 5, False, (10, 20, 27))
 
         if LastErrorTextDeltaTime >= 1500:
             LastErrorTextDeltaTime = 0
@@ -281,16 +281,16 @@ def Initialize(DISPLAY):  # -- Engine Required Function
     DefaultCnt = CONTENT_MANAGER.ContentManager()
 
     # -- Load All Fonts -- #
-    DefaultCnt.LoadFonts(tge.TaiyouPath_CorrectAssetsFolder)
+    DefaultCnt.SetFontPath("Data/FONT")
 
     # -- Load Default SpriteSet -- #
-    DefaultCnt.LoadSpritesInFolder(tge.TaiyouPath_CorrectAssetsFolder)
+    DefaultCnt.LoadSpritesInFolder("Data/SPRITE")
 
     # -- Load Default RegKeys Set -- #
-    DefaultCnt.LoadRegKeysInFolder(tge.TaiyouPath_CorrectAssetsFolder)
+    DefaultCnt.LoadRegKeysInFolder("Data/REG")
 
     # -- Load Default Sounds -- #
-    DefaultCnt.LoadSoundsInFolder(tge.TaiyouPath_CorrectAssetsFolder)
+    DefaultCnt.LoadSoundsInFolder("Data/SOUND")
 
     # -- Load Engine Options -- #
     LoadOptions()

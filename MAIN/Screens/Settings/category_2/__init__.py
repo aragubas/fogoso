@@ -54,11 +54,10 @@ def Update():
 
     if OptionsScreen_DebugModeEnabled .ButtonState == 2 or OptionsScreen_DebugModeEnabled.ButtonState == 1:
         current_val = gameMain.DefaultCnt.Get_RegKey("/OPTIONS/debug_enabled", bool)
-        if not current_val:
-            gameMain.DefaultCnt.Write_RegKey("/OPTIONS/debug_enabled", "True")
-
         if current_val:
             gameMain.DefaultCnt.Write_RegKey("/OPTIONS/debug_enabled", "False")
+        if not current_val:
+            gameMain.DefaultCnt.Write_RegKey("/OPTIONS/debug_enabled", "True")
 
     if OptionsScreen_RandomWindowTitle .ButtonState == 2 or OptionsScreen_RandomWindowTitle.ButtonState == 1:
         current_val = gameMain.DefaultCnt.Get_RegKey("/OPTIONS/random_title", bool)

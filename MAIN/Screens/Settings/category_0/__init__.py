@@ -73,7 +73,7 @@ def Update():
         if gameMain.Engine_MaxFPS >= 75:
             gameMain.Engine_MaxFPS = 50
 
-        MAIN.ReceiveCommand(0, gameMain.Engine_MaxFPS)
+        taiyouMain.ReceiveCommand(0, gameMain.Engine_MaxFPS)
         gameMain.DefaultCnt.Write_RegKey("/OPTIONS/maxFPS", str(gameMain.Engine_MaxFPS))
         print("MaxFPS is now set to[" + str(gameMain.Engine_MaxFPS) + "]")
 
@@ -84,7 +84,7 @@ def Update():
         if gameMain.Engine_MaxFPS <= 45:
             gameMain.Engine_MaxFPS = 70
 
-        MAIN.ReceiveCommand(0, gameMain.Engine_MaxFPS)
+        taiyouMain.ReceiveCommand(0, gameMain.Engine_MaxFPS)
         gameMain.DefaultCnt.Write_RegKey("/OPTIONS/maxFPS", str(gameMain.Engine_MaxFPS))
         print("MaxFPS is now set to[" + str(gameMain.Engine_MaxFPS) + "]")
 
