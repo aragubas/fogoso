@@ -15,7 +15,6 @@
 #
 #
 
-from ENGINE import CONTENT_MANAGER as sprite
 from ENGINE import APPDATA as reg
 from ENGINE import UTILS as utils
 from Fogoso.MAIN.Screens.Game import IncomingLog as IncomingLog

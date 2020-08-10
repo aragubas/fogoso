@@ -19,7 +19,6 @@ import pygame
 from Fogoso.MAIN import ClassesUtils as gameObjs
 from Fogoso import MAIN as gameMain
 from ENGINE import APPDATA as reg
-from ENGINE import CONTENT_MANAGER as sprite
 
 # -- Objects Definition -- #
 OptionsScreen_UI_Blur_Enabled = gameObjs.UpDownButton

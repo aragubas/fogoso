@@ -14,7 +14,6 @@
 #   limitations under the License.
 #
 #
-from ENGINE import CONTENT_MANAGER
 
 from ENGINE import utils
 
@@ -64,18 +63,10 @@ def Update():
 def UpdateValues():
     global ValuesViewer
 
-    if len(ValuesViewer.ValueBlocksList) > 1:
-        ValuesViewer.ChangeValue(gameMain.DefaultCnt.Get_RegKey("/strings/window/infos/txt_maintenance"), utils.FormatNumber(maintenance.LastMaintenancePrice))
-        ValuesViewer.ChangeValue(gameMain.DefaultCnt.Get_RegKey("/strings/window/infos/txt_maintenance_delay"), utils.FormatNumber(maintenance.DayTrigger).replace(".00", ""))
-        ValuesViewer.ChangeValue(gameMain.DefaultCnt.Get_RegKey("/strings/window/infos/txt_maintenance_base"), utils.FormatNumber(maintenance.BaseMaintenance))
-        ValuesViewer.ChangeValue(gameMain.DefaultCnt.Get_RegKey("/strings/window/infos/txt_items_maintenance"), utils.FormatNumber(maintenance.ItemsMaintenance))
-
-    else:
-        ValuesViewer.AddValue(gameMain.DefaultCnt.Get_RegKey("/strings/window/infos/txt_items_maintenance"), utils.FormatNumber(maintenance.ItemsMaintenance))
-        ValuesViewer.AddValue(gameMain.DefaultCnt.Get_RegKey("/strings/window/infos/txt_maintenance_delay"), utils.FormatNumber(maintenance.DayTrigger).replace(".00", ""))
-        ValuesViewer.AddValue(gameMain.DefaultCnt.Get_RegKey("/strings/window/infos/txt_maintenance_base"), utils.FormatNumber(maintenance.BaseMaintenance))
-        ValuesViewer.AddValue(gameMain.DefaultCnt.Get_RegKey("/strings/window/infos/txt_items_maintenance"), utils.FormatNumber(maintenance.ItemsMaintenance))
-
+    ValuesViewer.ChangeValue(gameMain.DefaultCnt.Get_RegKey("/strings/window/infos/txt_maintenance"), utils.FormatNumber(maintenance.LastMaintenancePrice))
+    ValuesViewer.ChangeValue(gameMain.DefaultCnt.Get_RegKey("/strings/window/infos/txt_maintenance_delay"), utils.FormatNumber(maintenance.DayTrigger).replace(".00", ""))
+    ValuesViewer.ChangeValue(gameMain.DefaultCnt.Get_RegKey("/strings/window/infos/txt_maintenance_base"), utils.FormatNumber(maintenance.BaseMaintenance))
+    ValuesViewer.ChangeValue(gameMain.DefaultCnt.Get_RegKey("/strings/window/infos/txt_items_maintenance"), utils.FormatNumber(maintenance.ItemsMaintenance))
 
 def EventUpdate(event):
     pass

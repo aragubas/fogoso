@@ -15,13 +15,12 @@
 #
 #
 
-from ENGINE import  CONTENT_MANAGER
-
 from ENGINE import utils
 # -- Category -- #
 from Fogoso.MAIN.Window.InfosWindow import category_0
 from Fogoso.MAIN.Window.InfosWindow import category_1
 from Fogoso.MAIN.Window.InfosWindow import category_2
+from Fogoso.MAIN.Window.InfosWindow import category_3
 
 # -- ETC -- #
 from Fogoso.MAIN.Screens import Game as GameScreen
@@ -32,7 +31,7 @@ from Fogoso import MAIN as gameMain
 import pygame
 
 
-print("Fogoso Infos Window, Version 1.3")
+print("Fogoso Infos Window, Version 1.4")
 
 # -- Field -- #
 WindowObject = gameObjs.Window
@@ -62,9 +61,11 @@ def Initialize():
     category_0.Initialize()
     category_1.Initialize()
     category_2.Initialize()
+    category_3.Initialize()
 
+    Set_Category(3)
 
-CurrentCategory = 0
+CurrentCategory = 3
 DrawnSurfaceGlob = None
 CurrentUpdater = category_0
 def Render(DISPLAY):
@@ -132,6 +133,8 @@ def Set_Category(CategoryID):
     elif CategoryID == 2:
         CurrentUpdater = category_2
 
+    elif CategoryID == 3:
+        CurrentUpdater = category_3
 
 def EventUpdate(event):
     global NextButton

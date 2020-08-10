@@ -20,7 +20,6 @@ import pygame
 from Fogoso import MAIN as gameMain
 from ENGINE import APPDATA as reg
 from random import randint
-from ENGINE import CONTENT_MANAGER as sprite
 from Fogoso.MAIN.Screens import MainMenu as mainMenu
 
 WindowObj = gameObjs.Window

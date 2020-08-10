@@ -27,10 +27,11 @@ from ENGINE import UTILS as utils
 from random import randint
 from Fogoso.MAIN import OverlayDialog
 from Fogoso import MAIN as gameMain
+from Fogoso.MAIN import PlanetData as planets
 
 import os
 
-print("Fogoso Variables Management, version 1.6")
+print("Fogoso Variables Management, version 1.7")
 
 # -- Money -- #
 Current_Money = 0.0
@@ -76,6 +77,10 @@ CurrentDate_YearLimiter = 0
 # -- Tutoriais -- #
 triggered_tutorials = list()
 
+# -- Planet Data -- #
+PlanetName = "Aragubas"
+PlanetID = 0
+
 # -- Load Saved Data -- #
 def LoadSaveData():
     global CurrentDate_Day
@@ -102,6 +107,8 @@ def LoadSaveData():
     global triggered_tutorials
     global WelcomeMessageTriggered
     global LowerMoneyWarning
+    global PlanetID
+    global PlanetName
 
     print("Fogoso.SaveManager : Loading Save Data...")
 
@@ -161,6 +168,12 @@ def LoadSaveData():
     storeWindow.ReloadItemsList()
     expStoreWindow.ReloadItemsList()
 
+    # -- Load the Planet Data -- #
+    PlanetName = appData.ReadAppData_WithTry("planet_name", str, "Aragubas")
+    PlanetID = appData.ReadAppData_WithTry("planet_id", int, 0)
+
+    planets.LoadPlanetsData()
+
     print("Fogoso.SaveManager : Operation Completed!")
     SaveDataLoaded = True
 
@@ -190,6 +203,8 @@ def Unload():
     global WelcomeMessageTriggered
     global LowerMoneyWarning
     global BankruptWarning
+    global PlanetID
+    global PlanetName
 
     CurrentDate_Day = None
     CurrentDate_Month = None
@@ -216,6 +231,8 @@ def Unload():
     WelcomeMessageTriggered = None
     BankruptWarning = None
     LowerMoneyWarning = None
+    PlanetID = None
+    PlanetName = None
 
     storeWindow.ReloadItemsList()
     expStoreWindow.ReloadItemsList()
@@ -247,6 +264,8 @@ def SaveData():
     global Current_MoneyPerClickBest
     global WelcomeMessageTriggered
     global LowerMoneyWarning
+    global PlanetID
+    global PlanetName
 
     # -- Money and Click Vars -- #
     appData.WriteAppData("money", Current_Money)
@@ -289,6 +308,10 @@ def SaveData():
             FileData += "%n" + str(tutorial)
 
     appData.WriteAppData("tutorials_triggered", FileData)
+
+    # -- Planet Data -- #
+    appData.WriteAppData("planet_name", PlanetName)
+    appData.WriteAppData("planet_id", PlanetID)
 
     # -- Save Items Data -- #
     gameItems.SaveItems()

@@ -22,7 +22,6 @@ import ENGINE as tge
 
 from Fogoso.MAIN import ClassesUtils as gameObjs
 from Fogoso import MAIN as gameMain
-from ENGINE import CONTENT_MANAGER as sprite
 
 import pygame, sys
 

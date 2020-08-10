@@ -14,7 +14,6 @@
 #   limitations under the License.
 #
 #
-from ENGINE import CONTENT_MANAGER
 
 from ENGINE import utils
 
@@ -64,17 +63,10 @@ def Update():
 def UpdateValues():
     global ValuesViewer
 
-    if len(ValuesViewer.ValueBlocksList) > 1:
-        ValuesViewer.ChangeValue(gameMain.DefaultCnt.Get_RegKey("/strings/window/infos/txt_money_per_click"), utils.FormatNumber(save.Current_MoneyValuePerClick))
-        ValuesViewer.ChangeValue(gameMain.DefaultCnt.Get_RegKey("/strings/window/infos/txt_previuos_best"), utils.FormatNumber(save.Current_MoneyPerClickBest))
-        ValuesViewer.ChangeValue(gameMain.DefaultCnt.Get_RegKey("/strings/window/infos/txt_money_per_click"), utils.FormatNumber(save.Current_MoneyValuePerClick))
-        ValuesViewer.ChangeValue(gameMain.DefaultCnt.Get_RegKey("/strings/window/infos/txt_money_minimum"), utils.FormatNumber(save.Current_MoneyMinimun))
-
-    else:
-        ValuesViewer.AddValue(gameMain.DefaultCnt.Get_RegKey("/strings/window/infos/txt_money_per_click"), utils.FormatNumber(save.Current_MoneyValuePerClick))
-        ValuesViewer.AddValue(gameMain.DefaultCnt.Get_RegKey("/strings/window/infos/txt_previuos_best"), utils.FormatNumber(save.Current_MoneyPerClickBest))
-        ValuesViewer.AddValue(gameMain.DefaultCnt.Get_RegKey("/strings/window/infos/txt_money_per_click"), utils.FormatNumber(save.Current_MoneyValuePerClick))
-        ValuesViewer.AddValue(gameMain.DefaultCnt.Get_RegKey("/strings/window/infos/txt_money_minimum"), utils.FormatNumber(save.Current_MoneyMinimun))
+    ValuesViewer.ChangeValue(gameMain.DefaultCnt.Get_RegKey("/strings/window/infos/txt_money_per_click"), utils.FormatNumber(save.Current_MoneyValuePerClick))
+    ValuesViewer.ChangeValue(gameMain.DefaultCnt.Get_RegKey("/strings/window/infos/txt_previuos_best"), utils.FormatNumber(save.Current_MoneyPerClickBest))
+    ValuesViewer.ChangeValue(gameMain.DefaultCnt.Get_RegKey("/strings/window/infos/txt_money_per_click"), utils.FormatNumber(save.Current_MoneyValuePerClick))
+    ValuesViewer.ChangeValue(gameMain.DefaultCnt.Get_RegKey("/strings/window/infos/txt_money_minimum"), utils.FormatNumber(save.Current_MoneyMinimun))
 
 
 def EventUpdate(event):

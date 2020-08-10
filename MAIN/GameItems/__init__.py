@@ -20,6 +20,7 @@ from ENGINE import utils
 from Fogoso import MAIN as gameMain
 from ENGINE import appData
 from Fogoso.MAIN.GameItems import AutoClicker
+from Fogoso.MAIN import PlanetData as planets
 
 # -- Game Items Variables -- #
 ItemsList = list()
@@ -83,7 +84,7 @@ def GetItem_MaintenancePrice(ItemID):
 def GetItemPrice_ByID(ItemID):
     RegDir = "/ItemData/{0}/lv_{1}_price".format(str(ItemID), str(GetItemLevel_ByID(int(ItemID))))
 
-    return max(gameMain.DefaultCnt.Get_RegKey(RegDir, float), gameMain.DefaultCnt.Get_RegKey(RegDir, float) * GetItemCount_ByID(ItemID))
+    return max(gameMain.DefaultCnt.Get_RegKey(RegDir, float), gameMain.DefaultCnt.Get_RegKey(RegDir, float) * GetItemCount_ByID(ItemID) + planets.GetPlanetInflation_ByID(gameMain.save.PlanetID))
 
 # -- Item Upgrade -- #ura
 def GetItemUpgradePrice_ByID(ItemID):

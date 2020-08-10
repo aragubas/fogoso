@@ -15,7 +15,6 @@
 #
 #
 
-from ENGINE import CONTENT_MANAGER as sprite
 from Fogoso import MAIN as mainScript
 from ENGINE import fx
 from ENGINE import utils
@@ -31,6 +30,9 @@ Button_Inactive_IndicatorColor = (255, 51, 102)
 Button_Inactive_BackgroundColor = (1, 22, 39, 150)
 Button_BackgroundColor = (12, 22, 14)
 
+# Value View Color #
+ValueView_TextColor = (155, 155, 155)
+ValueView_ValueColor = (235, 235, 235)
 
 print("Game : Classes Utils v1.1")
 
@@ -676,10 +678,15 @@ class ValuesView:
     def ChangeValue(self, BlockText, NewValue):
         Index = -1
         for i, ValBlock in enumerate(self.ValueBlocksList):
-            if ValBlock.Text == BlockText:
+            if ValBlock.Text == str(BlockText):
                 Index = i
 
-        self.ValueBlocksList[Index].Value = NewValue
+        # -- If item was not found, add it -- #
+        if Index == -1:
+            self.AddValue(BlockText, NewValue)
+            return
+
+        self.ValueBlocksList[Index].Value = str(NewValue)
 
     def AddValue(self, Text, Value):
         self.ValueBlocksList.append(ValueBlock(Text, Value))
@@ -698,16 +705,18 @@ class ValuesView:
 
 class ValueBlock:
     def __init__(self, Text, Value):
-        self.Text = Text
-        self.Value = Value
+        self.Text = str(Text)
+        self.Value = str(Value)
         self.Ypos = 0
         self.Index = 0
 
     def Draw(self, DISPLAY):
         TextXpos = mainScript.DefaultCnt.GetFont_width("/PressStart2P.ttf", 10, self.Text)
-        mainScript.DefaultCnt.FontRender(DISPLAY, "/PressStart2P.ttf", 10, self.Text, (200, 200, 200), 3, self.Ypos, mainScript.DefaultCnt.Get_RegKey("/OPTIONS/font_aa"))
-        mainScript.DefaultCnt.FontRender(DISPLAY, "/PressStart2P.ttf", 10, self.Value, (255, 255, 255), TextXpos + 5, self.Ypos, mainScript.DefaultCnt.Get_RegKey("/OPTIONS/font_aa"))
+        #  Render Block Text
+        mainScript.DefaultCnt.FontRender(DISPLAY, "/PressStart2P.ttf", 10, self.Text, ValueView_TextColor, 3, self.Ypos, mainScript.DefaultCnt.Get_RegKey("/OPTIONS/font_aa"))
+        # Render Block Value
+        mainScript.DefaultCnt.FontRender(DISPLAY, "/PressStart2P.ttf", 10, self.Value, ValueView_ValueColor, TextXpos + 5, self.Ypos, mainScript.DefaultCnt.Get_RegKey("/OPTIONS/font_aa"))
 
     def ChangeValue(self, Text, Value):
-        self.Text = Text
-        self.Value = Value
+        self.Text = str(Text)
+        self.Value = str(Value)

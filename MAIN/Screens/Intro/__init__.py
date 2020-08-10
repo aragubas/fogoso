@@ -17,7 +17,6 @@
 
 # -- Imports -- #
 from ENGINE import APPDATA as reg
-from ENGINE import CONTENT_MANAGER as sprite
 from Fogoso.MAIN.Screens import MainMenu as ScreenMenu
 from Fogoso import MAIN as gameMain
 from Fogoso.MAIN import ScreenTransition as transition

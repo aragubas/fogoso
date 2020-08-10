@@ -27,7 +27,6 @@ from Fogoso.MAIN.Screens import Settings as ScreenSettings
 from Fogoso.MAIN.Screens import Intro as ScreenIntro
 from Fogoso.MAIN import ScreenTransition as transition
 from Fogoso import MAIN as gameMainObj
-from ENGINE import CONTENT_MANAGER as sprite
 from Fogoso.MAIN.Window import Tips as tipsWindow
 import pygame, sys
 import importlib

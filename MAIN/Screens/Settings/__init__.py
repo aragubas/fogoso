@@ -22,7 +22,6 @@ import ENGINE as tge
 
 from Fogoso.MAIN import ClassesUtils as gameObjs
 from Fogoso import MAIN as gameMain
-from ENGINE import CONTENT_MANAGER as sprite
 from Fogoso.MAIN.Screens.Settings import category_0 as Category0
 from Fogoso.MAIN.Screens.Settings import category_1 as Category1
 from Fogoso.MAIN.Screens.Settings import category_2 as Category2

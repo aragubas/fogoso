@@ -15,14 +15,12 @@
 #
 #
 import pygame, os, sys, shutil
-from ENGINE import CONTENT_MANAGER as sprite
 
 from Fogoso.MAIN import ClassesUtils as gtk
 from Fogoso import MAIN as fogosoMain
 from Fogoso import MAIN as gameMain
 import ENGINE as tge
 from ENGINE import utils
-from ENGINE import CONTENT_MANAGER as sprite
 
 from ENGINE import APPDATA as reg
 from Fogoso.MAIN.OverlayDialog import subscreen1

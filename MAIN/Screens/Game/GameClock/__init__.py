@@ -15,7 +15,6 @@
 #
 #
 from ENGINE import APPDATA as reg
-from ENGINE import CONTENT_MANAGER as sprite
 from Fogoso.MAIN import GameVariables as save
 from Fogoso import MAIN as gameMain
 from Fogoso.MAIN import ClassesUtils as gtk

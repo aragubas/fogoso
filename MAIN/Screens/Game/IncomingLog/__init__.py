@@ -20,7 +20,6 @@ from ENGINE import APPDATA as reg
 
 from Fogoso.MAIN import ClassesUtils as gameObjs
 from Fogoso import MAIN as gameMain
-from ENGINE import CONTENT_MANAGER as sprite
 from Fogoso.MAIN.Screens import Game as gameScr
 from Fogoso.MAIN import GameVariables as save
 import pygame, os

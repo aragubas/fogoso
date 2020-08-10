@@ -14,7 +14,6 @@
 #   limitations under the License.
 #
 #
-from ENGINE import CONTENT_MANAGER as sprite
 import pygame, math
 from random import randint
 from ENGINE import UTILS as utils

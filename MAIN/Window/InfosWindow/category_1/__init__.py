@@ -14,7 +14,6 @@
 #   limitations under the License.
 #
 #
-from ENGINE import CONTENT_MANAGER
 
 from ENGINE import utils
 

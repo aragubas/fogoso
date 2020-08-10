@@ -27,7 +27,6 @@ from Fogoso import MAIN as gameMain
 from Fogoso.MAIN.Window import StoreWindow as storeWindow
 from Fogoso.MAIN.Window import ExperienceStore as expStoreWindow
 from Fogoso.MAIN.Window import InfosWindow as infosWindow
-from ENGINE import CONTENT_MANAGER as sprite
 from random import randint
 import pygame, os
 import importlib

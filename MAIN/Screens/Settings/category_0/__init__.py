@@ -19,7 +19,6 @@ import pygame
 from Fogoso.MAIN import ClassesUtils as gameObjs
 from Fogoso import MAIN as gameMain
 from ENGINE import APPDATA as reg
-from ENGINE import CONTENT_MANAGER as sprite
 from Fogoso.MAIN import ScreenTransition as transition
 from ENGINE import MAIN as taiyouMain
 

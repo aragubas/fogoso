@@ -16,11 +16,11 @@
 #
 # -- ENGINE imports -- #
 from ENGINE import utils
-from ENGINE import CONTENT_MANAGER
 from ENGINE import MAIN
 from ENGINE import fx
 from ENGINE import appData
 from ENGINE import shape
+from ENGINE import cntMng
 import ENGINE as tge
 
 # -- Fogoso Module Imports -- #
@@ -77,7 +77,7 @@ OverlayDialogEnabled = False
 ScreenLastFrame = pygame.Surface((0, 0))
 
 # -- Content Managers -- #
-DefaultCnt = CONTENT_MANAGER.ContentManager
+DefaultCnt = cntMng.ContentManager
 
 def GameDraw(DISPLAY):  # -- Engine Required Function
     global DefaultDisplay
@@ -125,7 +125,7 @@ def GameDraw(DISPLAY):  # -- Engine Required Function
         ErrorMessageDelay += 1
 
         gameObjs.Draw_Panel(DISPLAY, (0, 5, DISPLAY.get_width(), gameMain.DefaultCnt.GetFont_height("/PressStart2P.ttf", gameMain.DefaultCnt.Get_RegKey("/props/error_message_text_size"), ErrorMessage)))
-        CONTENT_MANAGER.FontRender(DISPLAY, "/PressStart2P.ttf", gameMain.DefaultCnt.Get_RegKey("/props/error_message_text_size", int), ErrorMessage, (150, 50, 50), 0, 5, False)
+        SPRITE.FontRender(DISPLAY, "/PressStart2P.ttf", gameMain.DefaultCnt.Get_RegKey("/props/error_message_text_size", int), ErrorMessage, (150, 50, 50), 0, 5, False)
 
         if ErrorMessageDelay >= gameMain.DefaultCnt.Get_RegKey("/props/error_message_delay_max", int):
             ErrorMessageDelay = 0
@@ -278,7 +278,7 @@ def Initialize(DISPLAY):  # -- Engine Required Function
     global DefaultCnt
     print("Fogoso : Game Initialization Called")
 
-    DefaultCnt = CONTENT_MANAGER.ContentManager()
+    DefaultCnt = cntMng.ContentManager()
 
     # -- Load All Fonts -- #
     DefaultCnt.SetFontPath("Data/FONT")

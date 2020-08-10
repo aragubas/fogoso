@@ -15,7 +15,6 @@
 #
 #
 
-from ENGINE import CONTENT_MANAGER as sprite
 from ENGINE import APPDATA as reg
 from Fogoso.MAIN.Screens import Game as GameScreen 
 from Fogoso.MAIN import ClassesUtils as gameObjs
