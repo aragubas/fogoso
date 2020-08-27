@@ -20,7 +20,7 @@ from ENGINE import utils
 from Fogoso.MAIN.Window.InfosWindow import category_0
 from Fogoso.MAIN.Window.InfosWindow import category_1
 from Fogoso.MAIN.Window.InfosWindow import category_2
-from Fogoso.MAIN.Window.InfosWindow import category_3
+from Fogoso.MAIN.Window.InfosWindow import category_2
 
 # -- ETC -- #
 from Fogoso.MAIN.Screens import Game as GameScreen
@@ -61,11 +61,11 @@ def Initialize():
     category_0.Initialize()
     category_1.Initialize()
     category_2.Initialize()
-    category_3.Initialize()
 
-    Set_Category(3)
+    Set_Category(0)
 
-CurrentCategory = 3
+
+CurrentCategory = 0
 DrawnSurfaceGlob = None
 CurrentUpdater = category_0
 def Render(DISPLAY):
@@ -126,15 +126,15 @@ def Set_Category(CategoryID):
 
     if CategoryID == 0:
         CurrentUpdater = category_0
+        CurrentUpdater.Reset()
 
     elif CategoryID == 1:
         CurrentUpdater = category_1
+        CurrentUpdater.Reset()
 
     elif CategoryID == 2:
         CurrentUpdater = category_2
-
-    elif CategoryID == 3:
-        CurrentUpdater = category_3
+        CurrentUpdater.Reset()
 
 def EventUpdate(event):
     global NextButton

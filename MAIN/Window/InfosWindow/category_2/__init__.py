@@ -23,50 +23,58 @@ from Fogoso.MAIN.Screens.Game import Maintenance as maintenance
 from Fogoso.MAIN.Window import InfosWindow as handler
 from Fogoso.MAIN import ClassesUtils as gameObjs
 from Fogoso import MAIN as gameMain
+from Fogoso.MAIN import PlanetData as planets
 
 import pygame
-
-DeltaTime = 0
-DeltaMax = 50
-
-ValuesViewer = gameObjs.ValuesView
+PlanetAnimation = utils.AnimationController
+AnimationValue = 1
+InfosList = gameObjs.ValueBlock
 
 def Initialize():
-    global ValuesViewer
+    global PlanetAnimation
+    global InfosList
 
-    ValuesViewer = gameObjs.ValuesView(pygame.Rect(0, 25, 5, 5), True)
+    InfosList = gameObjs.ValuesView(pygame.Rect(0, 0, 320, 200), "ceira")
+    PlanetAnimation = utils.AnimationController(1.2)
+
+def Render(DISPLAY):
+    global AnimationValue
+    global InfosList
+
+    # -- Render Planet Icon -- #
+    gameMain.DefaultCnt.ImageRender(DISPLAY, "/icons/planet/id_{0}.png".format(save.PlanetID), (DISPLAY.get_width() / 2 - 123 / 2) - (AnimationValue - 255) / 2, 25 - (AnimationValue - 255), 123 + (AnimationValue - 255), 123 + (AnimationValue - 255), Opacity=AnimationValue)
+
+    # -- Render Planet Name -- #
+    gameMain.DefaultCnt.FontRender(DISPLAY, "/PressStart2P.ttf", 13, planets.GetPlanetName_ByID(save.PlanetID), (230, 230, 230), DISPLAY.get_width() / 2 - gameMain.DefaultCnt.GetFont_width("/PressStart2P.ttf", 13, planets.GetPlanetName_ByID(save.PlanetID)) / 2, 157 - (AnimationValue - 255), Opacity=AnimationValue)
+
+    # -- Render the Value Block -- #
+    InfosList.Draw(DISPLAY)
+
+    InfosList.Rectangle[1] = DISPLAY.get_height() - InfosList.Rectangle[3] + 120 - (AnimationValue - 255)
+
+def Reset():
+    PlanetAnimation.Enabled = True
+    PlanetAnimation.CurrentMode = True
+    PlanetAnimation.Value = 0
+    PlanetAnimation.ValueMultiplier = 0
+
+
+def Update():
+    global PlanetAnimation
+    global AnimationValue
+    global InfosList
+
+    PlanetAnimation.Update()
 
     UpdateValues()
 
-def Render(DISPLAY):
-    global ValuesViewer
+    AnimationValue = int(PlanetAnimation.Value + 1)
 
-    if handler.DrawnSurfaceGlob is None:
-        return
-
-    # -- Set the Correct Size -- #
-    ValuesViewer.Rectangle[2] = handler.DrawnSurfaceGlob.get_width()
-    ValuesViewer.Rectangle[3] = handler.DrawnSurfaceGlob.get_height()
-
-    ValuesViewer.Draw(DISPLAY)
-
-def Update():
-    global DeltaTime
-    global DeltaMax
-
-    DeltaTime += 1
-
-    if DeltaTime >= DeltaMax:
-        DeltaTime = 0
-        UpdateValues()
 
 def UpdateValues():
-    global ValuesViewer
+    global InfosList
 
-    ValuesViewer.ChangeValue(gameMain.DefaultCnt.Get_RegKey("/strings/window/infos/txt_money_per_click"), utils.FormatNumber(save.Current_MoneyValuePerClick))
-    ValuesViewer.ChangeValue(gameMain.DefaultCnt.Get_RegKey("/strings/window/infos/txt_previuos_best"), utils.FormatNumber(save.Current_MoneyPerClickBest))
-    ValuesViewer.ChangeValue(gameMain.DefaultCnt.Get_RegKey("/strings/window/infos/txt_money_per_click"), utils.FormatNumber(save.Current_MoneyValuePerClick))
-    ValuesViewer.ChangeValue(gameMain.DefaultCnt.Get_RegKey("/strings/window/infos/txt_money_minimum"), utils.FormatNumber(save.Current_MoneyMinimun))
+    InfosList.ChangeValue("Inflation", utils.FormatNumber(planets.GetPlanetInflation_ByID(save.PlanetID)))
 
 
 def EventUpdate(event):

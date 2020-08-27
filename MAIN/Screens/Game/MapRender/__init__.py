@@ -18,6 +18,7 @@
 # -- Imports -- #
 from ENGINE import APPDATA as reg
 from ENGINE import UTILS as utils
+from ENGINE import shape
 import ENGINE as tge
 
 from Fogoso.MAIN import ClassesUtils as gameObjs
@@ -54,7 +55,7 @@ class Player:
         self.MoveDelayLimit = 1
 
     def Draw(self, DISPLAY):
-        CONTENT_MANAGER.Shape_Rectangle(DISPLAY, (255, 0, 0), pygame.Rect(MapCamX + self.Rectangle[0], MapCamY + self.Rectangle[1], self.Rectangle[2], self.Rectangle[3]))
+        shape.Shape_Rectangle(DISPLAY, (255, 0, 0), pygame.Rect(MapCamX + self.Rectangle[0], MapCamY + self.Rectangle[1], self.Rectangle[2], self.Rectangle[3]))
 
     def Update(self):
         PlayerMovA = False
@@ -209,7 +210,7 @@ def GameDraw(DISPLAY):
     global PlayerObj
     for x, row in enumerate(MapData):
         for y, data in enumerate(row):
-            CONTENT_MANAGER.ImageRender(DISPLAY, "/map/{0}/{1}.png".format(str(MapTileset), data), MapCamX + x * MapTileSize, MapCamY + y * MapTileSize, MapTileSize, MapTileSize)
+            gameMain.DefaultCnt.ImageRender(DISPLAY, "/map/{0}/{1}.png".format(str(MapTileset), data), MapCamX + x * MapTileSize, MapCamY + y * MapTileSize, MapTileSize, MapTileSize)
 
     PlayerObj.Draw(DISPLAY)
 
@@ -232,9 +233,6 @@ def Update():
 
     MapCamX = 1024 / 2 - PlayerObj.Rectangle[0]
     MapCamY = 480 / 2 - PlayerObj.Rectangle[1]
-
-    debug.Set_Parameter("MapCamX", MapCamX)
-    debug.Set_Parameter("MapCamY", MapCamY)
 
 def EventUpdate(event):
     global MapData

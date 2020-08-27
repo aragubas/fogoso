@@ -60,6 +60,9 @@ def Update():
         DeltaTime = 0
         UpdateValues()
 
+def Reset():
+    pass
+
 def UpdateValues():
     global ValuesViewer
 

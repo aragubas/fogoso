@@ -16,55 +16,175 @@
 #
 
 import pygame
-from Fogoso.MAIN import ClassesUtils as gameObjs
-from Fogoso import MAIN as gameMain
-from ENGINE import APPDATA as reg
-from Fogoso.MAIN import ScreenTransition as transition
 from ENGINE import MAIN as taiyouMain
+from ENGINE import APPDATA as reg
+from Fogoso.MAIN import ClassesUtils as gameObjs
+from Fogoso.MAIN import ScreenTransition as transition
+from Fogoso import MAIN as gameMain
 
-# -- Objects Definition -- #
-OptionsScreen_ChangeFps = gameObjs.UpDownButton
-OptionsScreen_FlashAnimationSpeed = gameObjs.UpDownButton
-OptionsScreen_FontAntiAlias = gameObjs.Button
-OptionsScreen_FlashAnimStyle = gameObjs.UpDownButton
-OptionsScreen_SpritesAntiAlias = gameObjs.Button
+class ChangeableValueBlock:
+    def __init__(self, Text, Value, ValueType, ID):
+        self.Text = str(Text)
+        self.Value = str(Value)
+        self.ValueType = ValueType
+        self.Ypos = 0
+        self.Index = 0
+        self.ChangeButton = gameObjs.Button((0, 0, 0, 0), "Toggle", 8)
+        self.Xoffset = 0
+        self.Yoffset = 0
+        self.Response = -1002
+        self.ID = ID
+
+        # -- Set the Button Type -- #
+        if ValueType == int or float:
+            self.ChangeButton = gameObjs.UpDownButton(5, 5, 8)
+
+            self.ChangeButton.UpButton.CustomColisionRectangle = True
+            self.ChangeButton.DownButton.CustomColisionRectangle = True
+
+        self.ChangeButton.CustomColisionRectangle = True
+
+    def Draw(self, DISPLAY):
+        # Render the Change Button
+        ButtonSize = 0
+        if self.ValueType == bool:
+            ButtonSize = self.ChangeButton.Rectangle[2]
+
+        elif self.ValueType == int or self.ValueType == float:
+            ButtonSize = self.ChangeButton.UpButton.Rectangle[2] * 2
+
+        TextXpos = ButtonSize + gameMain.DefaultCnt.GetFont_width("/PressStart2P.ttf", 10, self.Text)
+        #  Render Block Text
+        gameMain.DefaultCnt.FontRender(DISPLAY, "/PressStart2P.ttf", 10, self.Text, gameObjs.ValueView_TextColor, ButtonSize + 3, self.Ypos, gameMain.DefaultCnt.Get_RegKey("/OPTIONS/font_aa"))
+
+        # Render Block Value
+        gameMain.DefaultCnt.FontRender(DISPLAY, "/PressStart2P.ttf", 10, self.Value, gameObjs.ValueView_ValueColor, TextXpos + 15, self.Ypos, gameMain.DefaultCnt.Get_RegKey("/OPTIONS/font_aa"))
+
+        self.ChangeButton.Render(DISPLAY)
+
+    def Update(self, event):
+        self.ChangeButton.Update(event)
+        self.ChangeButton.Set_X(0)
+        self.ChangeButton.Set_Y(self.Ypos + 1)
+
+        if self.ValueType == int or self.ValueType == float:
+            self.ChangeButton.UpButton.Set_ColisionX(self.Xoffset)
+            self.ChangeButton.UpButton.Set_ColisionY(self.Yoffset)
+
+            self.ChangeButton.DownButton.Set_ColisionX(self.ChangeButton.UpButton.ColisionRectangle[0] + self.ChangeButton.DownButton.ColisionRectangle[2])
+            self.ChangeButton.DownButton.Set_ColisionY(self.ChangeButton.UpButton.ColisionRectangle[1])
+
+            if self.ChangeButton.ButtonState == 1:
+                self.Response == "ADD"
+            elif self.ChangeButton.ButtonState == 2:
+                self.Response == "DOWN"
+
+        elif self.ValueType == bool:
+
+            self.ChangeButton.Set_ColisionX(self.Xoffset)
+            self.ChangeButton.Set_ColisionY(self.Yoffset)
+
+
+
+    def ChangeValue(self, Text, Value):
+        self.Text = str(Text)
+        self.Value = str(Value)
+
+class ChangeableValuesView:
+    def __init__(self, Rectangle, Active):
+        self.Rectangle = Rectangle
+        self.Active = Active
+        self.ValueBlocksList = list()
+        self.ResponseID = 0
+        self.ResponseControl = 0
+
+    def ChangeValue(self, BlockText, NewValue, ValueType, ID):
+        Index = -1
+        for i, ValBlock in enumerate(self.ValueBlocksList):
+            if ValBlock.ID == int(ID):
+                Index = i
+                break
+
+        # -- If item was not found, add it -- #
+        if Index == -1:
+            self.AddValue(BlockText, NewValue, ValueType, int(ID))
+            return
+
+        self.ValueBlocksList[Index].Value = str(NewValue)
+
+    def EventUpdate(self, event):
+        for ValBlocks in self.ValueBlocksList:
+            ValBlocks.Update(event)
+
+    def AddValue(self, Text, Value, ValueType, ID):
+        self.ValueBlocksList.append(ChangeableValueBlock(Text, Value, ValueType, ID))
+
+    def Draw(self, DISPLAY):
+        ValsBlockSurface = pygame.Surface((self.Rectangle[2], self.Rectangle[3]), pygame.SRCALPHA)
+
+        for i, ValBlock in enumerate(self.ValueBlocksList):
+            ValBlock.Index = i
+            ValBlock.Ypos = gameMain.DefaultCnt.GetFont_height("/PressStart2P.ttf", 13, "H") * i + 5
+
+            ValBlock.Draw(ValsBlockSurface)
+            ValBlock.Xoffset = self.Rectangle[0]
+            ValBlock.Yoffset = self.Rectangle[1] + gameMain.DefaultCnt.GetFont_height("/PressStart2P.ttf", 13, "H") * i
+
+        DISPLAY.blit(ValsBlockSurface, (self.Rectangle[0], self.Rectangle[1]))
+
+        # -- CLear the Response -- #
+        if not self.ResponseID == "":
+            self.ResponseID = -1
+            self.ResponseControl = "NULL"
+
+    def Update(self):
+        for block in self.ValueBlocksList:
+            if not block.Response == -1002:
+                self.ResponseID = block.ID
+                self.ResponseControl = block.Response
+                block.Response = -1002
+                print("REPOSTA ACHADA")
+                break
+
 
 ElementsX = 0
 ElementsY = 0
+changeable_values_view = ChangeableValuesView
 
 def Initialize():
-    global OptionsScreen_ChangeFps
-    global OptionsScreen_FlashAnimationSpeed
-    global OptionsScreen_FontAntiAlias
-    global OptionsScreen_FlashAnimStyle
-    global OptionsScreen_SpritesAntiAlias
+    global changeable_values_view
 
-    OptionsScreen_ChangeFps = gameObjs.UpDownButton(20, 100, 14)
-    OptionsScreen_FlashAnimationSpeed = gameObjs.UpDownButton(20, 160, 14)
-    OptionsScreen_FontAntiAlias = gameObjs.Button(pygame.Rect(0, 0, 0, 0), gameMain.DefaultCnt.Get_RegKey("/strings/settings/toggle_button"), 14)
-    OptionsScreen_FlashAnimStyle = gameObjs.UpDownButton(0, 0, 14)
-    OptionsScreen_SpritesAntiAlias = gameObjs.UpDownButton(0, 0, 14)
+    changeable_values_view = ChangeableValuesView((120, 120, 500, 400), True)
 
 def EventUpdate(event):
-    global OptionsScreen_ChangeFps
-    global OptionsScreen_FlashAnimationSpeed
-    global OptionsScreen_FontAntiAlias
-    global OptionsScreen_FlashAnimStyle
-    global OptionsScreen_SpritesAntiAlias
+    global changeable_values_view
 
-    OptionsScreen_ChangeFps.Update(event)
-    OptionsScreen_FlashAnimationSpeed.Update(event)
-    OptionsScreen_FontAntiAlias.Update(event)
-    OptionsScreen_FlashAnimStyle.Update(event)
-    OptionsScreen_SpritesAntiAlias.Update(event)
+    changeable_values_view.EventUpdate(event)
 
 def Update():
-    global OptionsScreen_ChangeFps
-    global OptionsScreen_FlashAnimationSpeed
-    global OptionsScreen_FontAntiAlias
-    global OptionsScreen_FlashAnimStyle
-    global OptionsScreen_SpritesAntiAlias
+    global changeable_values_view
 
+    changeable_values_view.ChangeValue("MaxFPS", str(gameMain.Engine_MaxFPS), int, 0)
+    changeable_values_view.ChangeValue("FlashAnimationSpeed", str(gameMain.DefaultCnt.Get_RegKey("/OPTIONS/fade_flash_speed", int)), int, 1)
+    changeable_values_view.Rectangle = pygame.Rect(ElementsX + 15, ElementsY + 50, 558, 258)
+    changeable_values_view.Update()
+
+    print(changeable_values_view.ResponseID)
+    print(changeable_values_view.ResponseControl)
+
+    if changeable_values_view.ResponseID == 0:
+        if changeable_values_view.ResponseControl == "ADD":
+            print("MaxFPS is [" + str(gameMain.Engine_MaxFPS) + "]")
+            gameMain.Engine_MaxFPS += 5
+
+            if gameMain.Engine_MaxFPS >= 75:
+                gameMain.Engine_MaxFPS = 50
+
+            taiyouMain.ReceiveCommand(0, gameMain.Engine_MaxFPS)
+            gameMain.DefaultCnt.Write_RegKey("/OPTIONS/maxFPS", str(gameMain.Engine_MaxFPS))
+            print("MaxFPS is now set to[" + str(gameMain.Engine_MaxFPS) + "]")
+
+    """
     if OptionsScreen_ChangeFps.ButtonState == 2:
         print("MaxFPS is [" + str(gameMain.Engine_MaxFPS) + "]")
         gameMain.Engine_MaxFPS += 5
@@ -136,41 +256,9 @@ def Update():
             gameMain.DefaultCnt.Write_RegKey("/OPTIONS/sprite_aa", "False")
         else:
             gameMain.DefaultCnt.Write_RegKey("/OPTIONS/sprite_aa", "True")
-
-    # -- Set Positions -- #
-    OptionsScreen_ChangeFps.Set_X(ElementsX + 20)
-    OptionsScreen_ChangeFps.Set_Y(ElementsY + 50)
-
-    OptionsScreen_FlashAnimationSpeed.Set_X(ElementsX + 20)
-    OptionsScreen_FlashAnimationSpeed.Set_Y(ElementsY + 75)
-
-    OptionsScreen_FontAntiAlias.Set_X(ElementsX + 20)
-    OptionsScreen_FontAntiAlias.Set_Y(ElementsY + 100)
-
-    OptionsScreen_FlashAnimStyle.Set_X(ElementsX + 20)
-    OptionsScreen_FlashAnimStyle.Set_Y(ElementsY + 125)
-
-    OptionsScreen_SpritesAntiAlias.Set_X(ElementsX + 20)
-    OptionsScreen_SpritesAntiAlias.Set_Y(ElementsY + 150)
+    """
 
 def Render(DISPLAY):
-    # -- Render Max FPS Option -- #
-    OptionsScreen_ChangeFps.Render(DISPLAY)
-    gameMain.DefaultCnt.FontRender(DISPLAY, "/PressStart2P.ttf", 14, gameMain.DefaultCnt.Get_RegKey("/strings/settings/max_fps") + str(gameMain.Engine_MaxFPS), (255, 255, 255), ElementsX + 95, ElementsY + 52, gameMain.DefaultCnt.Get_RegKey("/OPTIONS/font_aa", bool))
+    global changeable_values_view
 
-    # -- Render Flash Animation Speed -- #
-    OptionsScreen_FlashAnimationSpeed.Render(DISPLAY)
-    gameMain.DefaultCnt.FontRender(DISPLAY, "/PressStart2P.ttf", 14, gameMain.DefaultCnt.Get_RegKey("/strings/settings/flash_anim_speed") + str(transition.FadeEffectSpeed), (255, 255, 255), ElementsX + 95, ElementsY + 77, gameMain.DefaultCnt.Get_RegKey("/OPTIONS/font_aa"))
-
-    # -- Render FontAntiAlias -- #
-    OptionsScreen_FontAntiAlias.Render(DISPLAY)
-
-    gameMain.DefaultCnt.FontRender(DISPLAY, "/PressStart2P.ttf", 14, gameMain.DefaultCnt.Get_RegKey("/strings/settings/font_aa") + str(gameMain.DefaultCnt.Get_RegKey("/OPTIONS/font_aa", bool)), (255, 255, 255), ElementsX + 120, ElementsY + 102, gameMain.DefaultCnt.Get_RegKey("/OPTIONS/font_aa", bool))
-
-    # -- Render FlashAnimStyle -- #
-    OptionsScreen_FlashAnimStyle.Render(DISPLAY)
-    gameMain.DefaultCnt.FontRender(DISPLAY, "/PressStart2P.ttf", 14, gameMain.DefaultCnt.Get_RegKey("/strings/settings/flash_anim_style") + gameMain.DefaultCnt.Get_RegKey("/OPTIONS/desc/fade_flash/" + gameMain.DefaultCnt.Get_RegKey("/OPTIONS/fade_flash_style")), (255, 255, 255), ElementsX + 95, ElementsY + 127, gameMain.DefaultCnt.Get_RegKey("/OPTIONS/font_aa", bool))
-
-    # -- Render Sprite Anti-Alias Option -- #
-    OptionsScreen_SpritesAntiAlias.Render(DISPLAY)
-    gameMain.DefaultCnt.FontRender(DISPLAY, "/PressStart2P.ttf", 14, gameMain.DefaultCnt.Get_RegKey("/strings/settings/sprite_aa") + str(gameMain.DefaultCnt.Get_RegKey("/OPTIONS/sprite_aa")), (255, 255, 255), ElementsX + 95, ElementsY + 157, gameMain.DefaultCnt.Get_RegKey("/OPTIONS/font_aa", bool))
+    changeable_values_view.Draw(DISPLAY)

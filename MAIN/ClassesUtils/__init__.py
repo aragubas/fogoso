@@ -331,7 +331,8 @@ class UpDownButton:
 
         if self.UpButton.ButtonState == 2:
             self.ButtonState = 2
-        if self.DownButton .ButtonState == 2:
+
+        if self.DownButton.ButtonState == 2:
             self.ButtonState = 1
 
     def Render(self, DISPLAY):
@@ -355,8 +356,7 @@ class UpDownButton:
 
     def Set_X(self, NewXValue):
         self.UpButton.Set_X(NewXValue)
-        self.DownButton.Set_X(
-            NewXValue + mainScript.DefaultCnt.GetFont_width("/PressStart2P.ttf", self.TextSize, "\/") + 5)
+        self.DownButton.Set_X(NewXValue + mainScript.DefaultCnt.GetFont_width("/PressStart2P.ttf", self.TextSize, "\/") + 5)
 
     def Set_Y(self, NewYValue):
         self.UpButton.Set_Y(NewYValue)

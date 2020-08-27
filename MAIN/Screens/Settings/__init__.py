@@ -37,7 +37,7 @@ OptionsScreen_CloseButton = gameObjs.Button
 OptionsScreen_UpDownCategory = gameObjs.UpDownButton
 
 # -- Category -- #
-Current_Category = 1
+Current_Category = 0
 CurrentCategoryUpdate = Category0
 
 # -- Elements -- #
@@ -129,6 +129,7 @@ def GameDraw(DISPLAY):
 def Initialize():
     global OptionsScreen_CloseButton
     global OptionsScreen_UpDownCategory
+    global Current_Category
 
     OptionsScreen_CloseButton = gameObjs.Button(pygame.rect.Rect(0, 5, 0, 0), gameMain.DefaultCnt.Get_RegKey("/strings/settings/back_button"), 14)
     OptionsScreen_UpDownCategory = gameObjs.UpDownButton(5, 5, 14)
@@ -138,6 +139,8 @@ def Initialize():
     Category0.Initialize()
     Category1.Initialize()
     Category2.Initialize()
+
+    Set_Category(Current_Category)
 
 def EventUpdate(event):
     global Current_Category
